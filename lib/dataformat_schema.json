@@ -1,0 +1,203 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "http://example.com/example.json",
+    "type": "object",
+    "title": "The root schema",
+    "description": "The root schema comprises the entire JSON document.",
+    "default": {},
+    "examples": [
+        {
+            "format": "s2-common-data-format",
+            "version": 1,
+            "type": "event",
+            "meta": {
+                "uuid": "25c9487c-1ae9-11ec-99a3-b3a261e8732d",
+                "relations": [
+                    {
+                        "type": "is_parent_of",
+                        "right_side": "38bd847a-1ae9-11ec-a308-ef1417ea8564"
+                    }
+                ]
+            },
+            "payload": {
+                "source.ip": "127.0.0.1",
+                "source.fqdn": "example.com"
+            }
+        }
+    ],
+    "required": [
+        "format",
+        "version",
+        "type",
+        "meta",
+        "payload"
+    ],
+    "properties": {
+        "format": {
+            "$id": "#/properties/format",
+            "type": "string",
+            "title": "The format schema",
+            "description": "A name for the format of this message.",
+            "default": "",
+            "examples": [
+                "s2-common-data-format"
+            ]
+        },
+        "version": {
+            "$id": "#/properties/version",
+            "type": "integer",
+            "title": "The version schema",
+            "description": "A (monotonously increasing) version number.",
+            "default": 0,
+            "examples": [
+                1
+            ]
+        },
+        "type": {
+            "$id": "#/properties/type",
+            "type": "string",
+            "title": "The type schema",
+            "description": "The type of payload.",
+            "default": "",
+            "examples": [
+                "event"
+            ]
+        },
+        "meta": {
+            "$id": "#/properties/meta",
+            "type": "object",
+            "title": "The meta schema",
+            "description": "Meta information on the payload like uuids etc.",
+            "default": {},
+            "examples": [
+                {
+                    "uuid": "25c9487c-1ae9-11ec-99a3-b3a261e8732d",
+                    "relations": [
+                        {
+                            "type": "is_parent_of",
+                            "right_side": "38bd847a-1ae9-11ec-a308-ef1417ea8564"
+                        }
+                    ]
+                }
+            ],
+            "required": [
+                "uuid"
+            ],
+            "properties": {
+                "uuid": {
+                    "$id": "#/properties/meta/properties/uuid",
+                    "type": "string",
+                    "title": "The uuid schema",
+                    "description": "A uuid for the payload",
+                    "default": "",
+                    "examples": [
+                        "25c9487c-1ae9-11ec-99a3-b3a261e8732d"
+                    ]
+                },
+                "relations": {
+                    "$id": "#/properties/meta/properties/relations",
+                    "type": "array",
+                    "title": "The relations schema",
+                    "description": "A list of possible relations between the events/payloads",
+                    "default": [],
+                    "examples": [
+                        [
+                            {
+                                "type": "is_parent_of",
+                                "right_side": "38bd847a-1ae9-11ec-a308-ef1417ea8564"
+                            }
+                        ]
+                    ],
+                    "additionalItems": true,
+                    "items": {
+                        "$id": "#/properties/meta/properties/relations/items",
+                        "anyOf": [
+                            {
+                                "$id": "#/properties/meta/properties/relations/items/anyOf/0",
+                                "type": "object",
+                                "title": "The first anyOf schema",
+                                "description": "The individual relation.",
+                                "default": {},
+                                "examples": [
+                                    {
+                                        "type": "is_parent_of",
+                                        "right_side": "38bd847a-1ae9-11ec-a308-ef1417ea8564"
+                                    }
+                                ],
+                                "required": [
+                                    "type",
+                                    "right_side"
+                                ],
+                                "properties": {
+                                    "type": {
+                                        "$id": "#/properties/meta/properties/relations/items/anyOf/0/properties/type",
+                                        "type": "string",
+                                        "title": "The type schema",
+                                        "description": "The relation type",
+                                        "default": "",
+                                        "examples": [
+                                            "is_parent_of"
+                                        ]
+                                    },
+                                    "right_side": {
+                                        "$id": "#/properties/meta/properties/relations/items/anyOf/0/properties/right_side",
+                                        "type": "string",
+                                        "title": "The right_side schema",
+                                        "description": "The target of the relation (source is implicilty the payload).",
+                                        "default": "",
+                                        "examples": [
+                                            "38bd847a-1ae9-11ec-a308-ef1417ea8564"
+                                        ]
+                                    }
+                                },
+                                "additionalProperties": true
+                            }
+                        ]
+                    }
+                }
+            },
+            "additionalProperties": true
+        },
+        "payload": {
+            "$id": "#/properties/payload",
+            "type": "object",
+            "title": "The payload schema",
+            "description": "The actual data. Usually an event (log line) or a full document (as in the case of AIL)",
+            "default": {},
+            "examples": [
+                {
+                    "source.ip": "127.0.0.1",
+                    "source.fqdn": "example.com"
+                }
+            ],
+            "required": [
+                "source.ip",
+                "source.fqdn"
+            ],
+            "properties": {
+                "source.ip": {
+                    "$id": "#/properties/payload/properties/source.ip",
+                    "type": "string",
+                    "title": "The source.ip schema",
+                    "description": "The source IP address of the event.",
+                    "default": "",
+                    "examples": [
+                        "127.0.0.1"
+                    ]
+                },
+                "source.fqdn": {
+                    "$id": "#/properties/payload/properties/source.fqdn",
+                    "type": "string",
+                    "title": "The source.fqdn schema",
+                    "description": "The fully qualified domain name (fqdn) of the source.",
+                    "default": "",
+                    "examples": [
+                        "example.com"
+                    ]
+                }
+            },
+            "additionalProperties": true
+        }
+    },
+    "additionalProperties": true
+}

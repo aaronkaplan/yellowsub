@@ -1,0 +1,18 @@
+{
+  "format": "s2-common-data-format",
+  "version": 1,
+  "type": "event",
+  "meta": {
+    "uuid": "25c9487c-1ae9-11ec-99a3-b3a261e8732d",
+    "relations": [
+      {
+        "type": "is_parent_of",
+        "right_side": "38bd847a-1ae9-11ec-a308-ef1417ea8564"
+      }
+    ]
+  },
+  "payload": {
+    "source.ip": "127.0.0.1",
+    "source.fqdn": "example.com"
+  }
+}
