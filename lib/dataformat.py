@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""DataFormat definitions and classes."""
 
 
 import json
@@ -11,7 +12,10 @@ from typing import Optional, Dict
 from cache import cache
 
 
-class DataFormat():
+class DataFormat:
+    """The main DataFormat utility class."""
+    schema = None
+
     def __init__(self):
         pass
 
@@ -27,17 +31,9 @@ class DataFormat():
     def validate(self, emessage: str) -> bool:
         """Validate a message (JSON) against the schema. Returns True/False if it validates"""
         try:
-            # v = jsonschema.Draft7Validator(self.schema)
-            # print("foodd")
             msg = json.loads(emessage)
-            # errors = sorted(v.iter_errors(msg), key = lambda e: e.path)
             jsonschema.validate(instance = msg, schema = self.schema)
-            # if errors:
-            #     for error in errors:
-            #         logging.warning(error.message)
-            #     return False
         except Exception as ex:
-            # except jsonschema.exceptions.ValidationError as ex:
             logging.warning('Could not validate message against schema. Reason: %s' % (str(ex)))
             return False
         return True
@@ -54,13 +50,16 @@ class DataFormat():
         return True
 
     def has_been_seen(self, imessage: dict) -> bool:
+        """Check if a message has been cached before."""
         if 'meta' in imessage and imessage['meta']['uuid'] in cache:
             return True
 
     def add_to_cache(self, imessage: dict):
+        """Add a message to the cache."""
         cache[imessage['meta']['uuid']] = 1
 
     def dedup(self, imessage: dict) -> Optional[Dict]:
+        """De-duplicate . Returns None if the message has already been seen."""
         if self.has_been_seen(imessage):
             return None
         else:
