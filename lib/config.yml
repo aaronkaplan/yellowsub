@@ -1,0 +1,16 @@
+general:
+        mq: rabbitmq
+
+rabbitmq:
+        rabbitmq_host: localhost
+        rabbitmq_port: 5672
+        rabbitmq_user: guest
+        rabbitmq_password: guest
+
+redis:
+        cache_ttl: 86400              # 1 day
+        host: localhost
+        port: 6379
+        db: 2
+
+# prime_numbers: [2, 3, 5, 7, 11, 13, 17, 19]
