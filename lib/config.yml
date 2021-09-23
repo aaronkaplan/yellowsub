@@ -2,10 +2,10 @@ general:
         mq: rabbitmq
 
 rabbitmq:
-        rabbitmq_host: localhost
-        rabbitmq_port: 5672
-        rabbitmq_user: guest
-        rabbitmq_password: guest
+        host: localhost
+        port: 5672
+        user: guest
+        password: guest
 
 redis:
         cache_ttl: 86400              # 1 day
