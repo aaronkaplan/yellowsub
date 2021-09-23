@@ -3,10 +3,11 @@
 """Small wrapper around a MQ system"""
 import logging
 import json
+import time
 
-import config
+import lib.config
 import pika
-from config import config
+from lib.config import config
 
 
 class MQ:
@@ -23,17 +24,34 @@ class MQ:
         """Connect to the MQ system."""
 
         try:
+            logging.info("connecting to RabbitMQ...")
             host = config['rabbitmq']['host']
-            port = config['rabbitmq']['port']
-            credentials = pika.PlainCredentials(config['rabbitmq']['user'], config['rabbitmq']['password'])
-            self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=host, port=port,
-                                                                                credentials = credentials))
-            self.channel = self.connection.channel()
-            self._create_exchange(exchange)
+            # port config
+            if config['rabbitmq'].get('port', None):
+                port = int(config['rabbitmq']['port'])
+            else:
+                port = 5672     # default port
 
+            # user and password config
+            if config['rabbitmq'].get('user', None) and config['rabbitmq'].get('password', None):
+                credentials = pika.PlainCredentials(config['rabbitmq']['user'], config['rabbitmq']['password'])
+                print("Attempting to connect with (%s:%d as %s/%s)" %(host, port, user, password))
+                self.connection = pika.BlockingConnection(pika.ConnectionParameters(host = host, port = port,
+                                                                                    credentials = credentials))
+            else:
+                # credentials = pika.PlainCredentials(None, None)
+                self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=host, port=port))
         except Exception as ex:
             logging.error("can't connect to the MQ system. Bailing out. Reason: %s" % (str(ex)))
             return False
+        logging.info("connected!")
+
+        # set up the channel
+        self.channel = self.connection.channel()
+        print("channel = %r" % self.channel)
+        self._create_exchange(exchange)
+        print("exchange = %r" % self.exchange)
+
         return True
 
     def _create_exchange(self, exchange: str = ""):
@@ -91,7 +109,17 @@ class Consumer(MQ):
         self.channel.basic_consume(queue = self.queue, on_message_callback = self.process, auto_ack = True)
         self.channel.start_consuming()
 
-
     def process(self, ch, method, properties, msg):
         """Handle the arriving message."""
         logging.info("received '%r'" % msg)
+        print("[*] received '%r'" % msg)
+
+
+if __name__ == "__main__":
+    p = Producer("hello-exchange")
+    c = Consumer("hello-exchange")
+    c.consume()
+    p.produce({"foo": "bar"})
+    for i in range(10):
+        p.produce({"msg":  i})
+        time.sleep(3)
