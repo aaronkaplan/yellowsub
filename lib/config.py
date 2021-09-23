@@ -14,13 +14,16 @@ import yaml
 
 __all__ = ["config", "Config"]
 
-class Config():
+
+class Config:
+	"""The Configuration file class."""
 	params = dict()
 
-	def __init__(self, file="config.yml"):
+	def __init__(self):
 		self.params = dict()
 
 	def load(self, file: str):
+		"""Load the config file."""
 		try:
 			with open(file, 'r') as _f:
 				self.params = yaml.safe_load(_f)
