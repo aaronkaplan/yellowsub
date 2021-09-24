@@ -1,0 +1,17 @@
+* UI is a MUST - think CTH portal
+* full CI/CD from the START
+* monitoring by SOE from the start. syslog.
+* have the possibility for error queues. Be able to re-feed
+* framework for development: venv, docker, ... python is OK.
+* stix2 as well as events should work
+* UI --> needs to talk with microservices.
+* graphDB output
+* VIZ of graphs
+* MISP integration
+* TheHive/Cortex analysers  -> put them into wrappers
+* 
+
+
+maybe:
+* collector as well as output for Jira -> pyJira
+* 
