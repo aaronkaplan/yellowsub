@@ -3,9 +3,10 @@
 """Small wrapper around a MQ system"""
 import logging
 import json
+import sys
 import time
+import argparse
 
-import lib.config
 import pika
 from lib.config import config
 
@@ -15,6 +16,7 @@ class MQ:
     connection = None
     channel = None
     queue = None
+    queue_name = ""
     exchange = None
 
     def __init__(self):
@@ -34,33 +36,44 @@ class MQ:
 
             # user and password config
             if config['rabbitmq'].get('user', None) and config['rabbitmq'].get('password', None):
-                credentials = pika.PlainCredentials(config['rabbitmq']['user'], config['rabbitmq']['password'])
+                user = config['rabbitmq']['user']
+                password = config['rabbitmq']['password']
+                credentials = pika.PlainCredentials(user, password)
                 print("Attempting to connect with (%s:%d as %s/%s)" %(host, port, user, password))
                 self.connection = pika.BlockingConnection(pika.ConnectionParameters(host = host, port = port,
                                                                                     credentials = credentials))
             else:
-                # credentials = pika.PlainCredentials(None, None)
                 self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=host, port=port))
         except Exception as ex:
             logging.error("can't connect to the MQ system. Bailing out. Reason: %s" % (str(ex)))
             return False
         logging.info("connected!")
 
-        # set up the channel
-        self.channel = self.connection.channel()
-        print("channel = %r" % self.channel)
-        self._create_exchange(exchange)
-        print("exchange = %r" % self.exchange)
+        try:
+            # set up the channel
+            logging.info("Setting up the exchange and channels...")
+            self.channel = self.connection.channel()
+            print("channel = %r" % self.channel)
+            self._create_exchange(exchange)
+            print("exchange = %r" % self.exchange)
+        except Exception as ex:
+            logging.error("can't set up channel and exchange. Reason: %s" % (str(ex)))
+            return False
+        logging.info("Done")
 
         return True
 
     def _create_exchange(self, exchange: str = ""):
-        try:
-            self.exchange = exchange
-            self.channel.exchange_declare(exchange = self.exchange, exchange_type = 'fanout')
-        except Exception as ex:
-            logging.error("can't Create exchange '%s'. Reason: %s" % (exchange, str(ex)))
-            raise ex
+        self.exchange = exchange
+        if exchange:
+            logging.info("Creating exchange %s" % exchange)
+            try:
+                self.channel.exchange_declare(exchange = self.exchange, exchange_type = 'fanout')
+            except Exception as ex:
+                logging.error("can't Create exchange '%s'. Reason: %s" % (exchange, str(ex)))
+                raise ex
+        else:
+            logging.info("not creating exchange, using the default '' exchange.")
 
     def _publish(self, message: dict, routing_key=""):
         data = bytes(json.dumps(message), 'utf-8')      # JSON is always utf-8
@@ -70,11 +83,18 @@ class MQ:
         self.channel.basic_consume(queue = queue, on_message_callback = callback, auto_ack = auto_ack)
 
     def _connect_queue(self, queue: str = ''):
-        self.queue = self.channel.queue_declare(queue = queue, durable = True, exclusive = True)
+        self.queue = self.channel.queue_declare(queue = queue, durable = True, exclusive = False)
         self.channel.basic_qos(prefetch_count = 1)
+        self.queue_name = self.queue.method.queue
 
-    def _bind_queue(self, exchange: str = ""):
-        self.channel.queue_bind(exchange = exchange, queue = self.queue.method.queue)
+    def _bind_queue(self):
+        self.channel.queue_bind(exchange = self.exchange, queue = self.queue.method.queue)
+
+    def close(self):
+        """Close the connection to rabbitmq."""
+        if self.connection:
+            self.connection.close()
+            logging.info("Closed connection")
 
 
 class Producer(MQ):
@@ -87,7 +107,7 @@ class Producer(MQ):
         """Connect to an exchange."""
         logging.info("Connecting to exchange %s" % (exchange,))
         super().connect(exchange)
-        # super()._connect_queue()
+        #super()._connect_queue()
 
     def produce(self, msg: dict, routing_key: str = ""):
         """Send a msg to the exchange with the given routing_key."""
@@ -101,12 +121,13 @@ class Consumer(MQ):
     def __init__(self, exchange: str):
         super().__init__()
         super().connect(exchange)
-        self.channel.queue_bind(exchange = self.exchange, queue = self.queue)
+        super()._connect_queue()
+        super()._bind_queue()
 
     def consume(self) -> None:
         """Register the callback function for consuming from the exchange / queue given the routing_key."""
         logging.info("[*] Waiting for logs.")
-        self.channel.basic_consume(queue = self.queue, on_message_callback = self.process, auto_ack = True)
+        self.channel.basic_consume(queue = self.queue_name, on_message_callback = self.process, auto_ack = True)
         self.channel.start_consuming()
 
     def process(self, ch, method, properties, msg):
@@ -116,10 +137,26 @@ class Consumer(MQ):
 
 
 if __name__ == "__main__":
-    p = Producer("hello-exchange")
-    c = Consumer("hello-exchange")
-    c.consume()
-    p.produce({"foo": "bar"})
-    for i in range(10):
-        p.produce({"msg":  i})
-        time.sleep(3)
+
+    logging.basicConfig()
+    logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger().setLevel(logging.INFO)
+
+    parser = argparse.ArgumentParser(description = 'testing the mq module')
+    parser.add_argument('-p', '--producer', action='store_true', help="run as a producer")
+    parser.add_argument('-c', '--consumer', action='store_true', help="run as a consumer")
+    parser.add_argument('-e', '--exchange', help="Exchange to connect to.")
+    args = parser.parse_args()
+
+    if args.producer:
+        p = Producer(args.exchange)
+        p.produce({"foo": "bar"})
+        for i in range(10):
+            p.produce({"msg": i})
+            time.sleep(3)
+    elif args.consumer:
+        c = Consumer(args.exchange)
+        c.consume()
+    else:
+        print("Need to specify one of -c or -p. See --help.", file=sys.stderr)
+        sys.exit(1)
