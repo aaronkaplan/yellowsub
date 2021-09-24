@@ -139,7 +139,6 @@ class Consumer(MQ):
 if __name__ == "__main__":
 
     logging.basicConfig()
-    logging.getLogger().setLevel(logging.DEBUG)
     logging.getLogger().setLevel(logging.INFO)
 
     parser = argparse.ArgumentParser(description = 'testing the mq module')
