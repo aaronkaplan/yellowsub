@@ -77,7 +77,9 @@ class MQ:
 
     def _publish(self, message: dict, routing_key=""):
         data = bytes(json.dumps(message), 'utf-8')      # JSON is always utf-8
-        self.channel.basic_publish(exchange=self.exchange, routing_key=routing_key, body=data)
+        self.channel.basic_publish(exchange=self.exchange, routing_key=routing_key, body=data,
+                                   properties = pika.BasicProperties(delivery_mode = 2),  # make the message persistent
+                                  )
 
     def _consume(self, queue: str, callback=None, auto_ack=False):
         self.channel.basic_consume(queue = queue, on_message_callback = callback, auto_ack = auto_ack)
