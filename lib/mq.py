@@ -22,10 +22,7 @@ class MQ:
     exchange = None
     id: str = ""
 
-    def __init__(self, id: str = ""):
-        if not id:
-            self.id = str(uuid.uuid4())
-        else:
+    def __init__(self, id: str = str(uuid.uuid4())):
             self.id = id
 
     def connect(self, exchange: str = ""):
@@ -34,12 +31,7 @@ class MQ:
         try:
             logging.info("connecting to RabbitMQ...")
             host = config['rabbitmq']['host']
-            # port config
-            if config['rabbitmq'].get('port', None):
-                port = int(config['rabbitmq']['port'])
-            else:
-                port = 5672  # default port
-
+            port = int(config['rabbitmq'].get('port', 5672)
             # user and password config
             if config['rabbitmq'].get('user', None) and config['rabbitmq'].get('password', None):
                 user = config['rabbitmq']['user']
