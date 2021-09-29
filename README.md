@@ -32,7 +32,7 @@ queue. Which means, they will get the data from this queue in a round-robin fash
 ## Overview
 
 
-### Some preliminary thoughts on simplicity
+### Zen and some preliminary thoughts on simplicity
 
 This code follows a couple of principles which **MUST** be followed, in order to remain simple:
 
@@ -48,17 +48,18 @@ This code follows a couple of principles which **MUST** be followed, in order to
       3. It MUST be explainable to a newcomer but average python coder in 15 mins. max.
       4. As a test, this newcomer python coder should be able to adapt something in the code in half a day.
 
-  * Remember: re-using existing systems and simply interfacing them wins.a
+  * Remember: re-using existing systems and simply interfacing them wins.
 
   Code tends to become too complex over time. Then it's time to re-factor and simplify. Don't shy away from
-  not implementing things which no-one needs anyway. Observe carefully which functions are actually used in a system.a
+  *not* implementing things which no-one needs anyway. Observe carefully which functions are actually used in a system.
 
-### The Message Queue
+
+### The Message Queue code
 
 The MQ is a [pubsub](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern) system. Our code (see [mq.py](lib/mq.py))
 uses [RabbitMQ](https://en.wikipedia.org/wiki/RabbitMQ) internally, but abstracts it away. We can easily replace it by ActiveMQ, Kafka, Redis, etc... basically any MQ.a
 
-How to use the MQ interface?
+How to use the MQ interface? It resides in [lib/mq.py](lib/mq.py).
 
 First instantiate the Producer class:
 ```python
