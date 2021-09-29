@@ -11,12 +11,7 @@ import uuid
 import pika
 
 from lib.config import config
-
-def sanitize_password_str(s: str) -> str:
-    if len(s) >= 2:
-        return s[0] + len(s[1:-1]) * "*" + s[-1]
-    else:
-        return s
+from lib.utils import sanitize_password_str
 
 
 class MQ:
@@ -48,6 +43,7 @@ class MQ:
                 self.connection = pika.BlockingConnection(pika.ConnectionParameters(host = host, port = port,
                                                                                     credentials = credentials))
             else:
+                logging.info("Attempting to connect to %s:%d" % (host, port))
                 self.connection = pika.BlockingConnection(pika.ConnectionParameters(host = host, port = port))
         except Exception as ex:
             logging.error("can't connect to the MQ system. Bailing out. Reason: %s" % (str(ex)))
