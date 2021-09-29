@@ -12,6 +12,12 @@ import pika
 
 from lib.config import config
 
+def sanitize_password_str(s: str) -> str:
+    if len(s) >= 2:
+        return s[0] + len(s[1:-1]) * "*" + s[-1]
+    else:
+        return s
+
 
 class MQ:
     """ The message queue class """
@@ -37,7 +43,8 @@ class MQ:
                 user = config['rabbitmq']['user']
                 password = config['rabbitmq']['password']
                 credentials = pika.PlainCredentials(user, password)
-                logging.info("Attempting to connect with (%s:%d as %s/%s)" % (host, port, user, password.replace()))
+                logging.info("Attempting to connect with (%s:%d as %s/%s)" % (host, port, user,
+                                                                              sanitize_password_str(password)))
                 self.connection = pika.BlockingConnection(pika.ConnectionParameters(host = host, port = port,
                                                                                     credentials = credentials))
             else:
