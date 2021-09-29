@@ -2,6 +2,33 @@
 
 Author: aaron kaplan <aaron@lo-res.org>, <Leon-Aaron.Kaplan@ext.ec.europa.eu>
 
+## Quick start
+
+Getting it installed:
+```bash
+git clone ...<this repo>
+apt install virtualenv
+virtualenv --python=python3.8 venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+Make sure your config.yml is correct, look at it and adapt the settings for redis and rabbitmq
+
+Start a producer:
+```bash
+python -m lib.mq --producer --exchange CTH --id producer1
+```
+
+In a different window (or multiple windows) start a (or multiple) consumers:
+```bash
+python -m lib.mq --consumer --exchange CTH --id queue1
+```
+
+**Note**: if you use multiple consumers and they all have the same ID, then they will all consume from the same message
+queue. Which means, they will get the data from this queue in a round-robin fashion.exchange
+
+
 ## Overview
 
 
@@ -28,21 +55,21 @@ This code follows a couple of principles which **MUST** be followed, in order to
 
 ### The Message Queue
 
-The MQ is a [pubsub](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern) system. Our code (see [mq.py])(lib/mq.py))
+The MQ is a [pubsub](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern) system. Our code (see [mq.py](lib/mq.py))
 uses [RabbitMQ](https://en.wikipedia.org/wiki/RabbitMQ) internally, but abstracts it away. We can easily replace it by ActiveMQ, Kafka, Redis, etc... basically any MQ.a
 
 How to use the MQ interface?
 
 First instantiate the Producer class:
 ```python
-p = Producer("the-name-of-my-exchange")
+p = Producer(id="myProducerID", exchange="the-name-of-my-exchange")
 p.produce({ "msg": "some values"})      # a python dict gets sent
 ```
 
 Then instantiate the consumer:
 
 ```python
-c = Consumer("the-name-of-my-exchange")
+c = Consumer(id="myConsumerID", exchange="the-name-of-my-exchange")
 c.consume()     # the callback function will get called. You can override this CB function by
         # inheriting Consumer and overriding the process() method. See the next example.
 ```
