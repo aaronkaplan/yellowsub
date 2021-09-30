@@ -68,8 +68,8 @@ class DataFormat:
 """ Data format example: """
 
 data_invalid = """{
-    "format": "s2-common-data-format", 
-    "version": 1, 
+    "format": "s2-common-data-format",
+    "version": 1,
     "type": "event",
     "metaXXXX": {
         "uuid": "25c9487c-1ae9-11ec-99a3-b3a261e8732d",
@@ -80,7 +80,7 @@ data_invalid = """{
             }
         ]
     }
-    "payload": { 
+    "payload": {
         "source.ip": "127.0.0.1",
         "source.fqdn": "example.com"
     }
