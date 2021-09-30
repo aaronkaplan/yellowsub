@@ -1,4 +1,5 @@
 [![unittests](https://github.com/aaronkaplan/yellowsub/actions/workflows/unittests.yml/badge.svg)](https://github.com/aaronkaplan/yellowsub/actions/workflows/unittests.yml)
+[![codecov](https://codecov.io/gh/aaronkaplan/yellowsub/branch/main/graph/badge.svg?token=FCBLQ8FNP0)](https://codecov.io/gh/aaronkaplan/yellowsub)
 
 # Proof of concept for a message queue based automation framework
 
