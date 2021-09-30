@@ -14,13 +14,11 @@ Also see the unit test in tests/test_cache.py please.
 
 """
 
-import redis
 import time
-
+import redis
 from config import config
 
-TTL = config['redis'].get('cache_ttl', 24*3600)         # 1 day default
-
+TTL = config['redis'].get('cache_ttl', 24 * 3600)  # 1 day default
 
 
 class Cache:
@@ -29,11 +27,12 @@ class Cache:
     def __init__(self):
         """Construct it."""
 
-        self.host=config['redis'].get('host', "localhost")
-        self.port=int(config['redis'].get('port', 6379))
-        self.password=config['redis'].get('password', None)
-        self.db=int(config['redis'].get('db', 2))
-        self.r = redis.StrictRedis(host=self.host, port=self.port, db=self.db, password=self.password, decode_responses=True)
+        self.host = config['redis'].get('host', "localhost")
+        self.port = int(config['redis'].get('port', 6379))
+        self.password = config['redis'].get('password', None)
+        self.db = int(config['redis'].get('db', 2))
+        self.r = redis.StrictRedis(host = self.host, port = self.port, db = self.db, password = self.password,
+                                   decode_responses = True)
         if not self.r.exists("cache_metadata"):
             self.r.hset(b"cache_metadata", b"created_at", time.time())
 
@@ -59,10 +58,10 @@ class Cache:
         """Return how many keys are stored in redis."""
 
         info = self.r.info("keyspace")
-        print("type(info) = %s. info=%s" %(type(info), info))
+        print("type(info) = %s. info=%s" % (type(info), info))
         db = "db%d" % self.db
         if db in info:
-            numkeys  = info[db]["keys"]
+            numkeys = info[db]["keys"]
         return numkeys
 
 

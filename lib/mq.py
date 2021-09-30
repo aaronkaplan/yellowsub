@@ -24,7 +24,7 @@ class MQ:
     id: str = ""
 
     def __init__(self, id: str = str(uuid.uuid4())):
-            self.id = id
+        self.id = id
 
     def connect(self, exchange: str = ""):
         """Connect to the MQ system."""
@@ -146,7 +146,8 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--producer', action = 'store_true', help = "run as a producer")
     parser.add_argument('-c', '--consumer', action = 'store_true', help = "run as a consumer")
     parser.add_argument('-e', '--exchange', help = "Exchange to connect to.", required = True)
-    parser.add_argument('-i', '--id', help = "Unique ID of the producer or consumer (used to set the queue name!)", required = True)
+    parser.add_argument('-i', '--id', help = "Unique ID of the producer or consumer (used to set the queue name!)",
+                        required = True)
     args = parser.parse_args()
 
     if args.producer:
