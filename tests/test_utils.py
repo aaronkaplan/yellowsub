@@ -1,4 +1,6 @@
+"""Unit test for lib.utils."""
 from lib.utils import sanitize_password_str
+
 
 def test_sanitize_password_str():
     assert sanitize_password_str("1234") == "1**4"
