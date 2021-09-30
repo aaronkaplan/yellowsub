@@ -2,6 +2,7 @@ import json
 from unittest import TestCase
 from lib.cache import Cache
 
+
 class TestCache(TestCase):
     c = Cache()
 
