@@ -1,3 +1,4 @@
+import json
 from unittest import TestCase
 from lib.cache import Cache
 
