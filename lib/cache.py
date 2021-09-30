@@ -10,12 +10,12 @@ USAGE example:
     print(c['foo'])
     > "bar"
 
+Also see the unit test in tests/test_cache.py please.
+
 """
 
-import json
 import redis
 import time
-import logging
 
 from config import config
 
@@ -64,20 +64,6 @@ class Cache:
         if db in info:
             numkeys  = info[db]["keys"]
         return numkeys
-
-
-if __name__ == "__main__":
-    c = Cache()
-    c["foo"] = "bar"
-    assert "bar" == c["foo"]
-    assert "foo" in c
-    c['foo44'] = "xyz"
-    c['complex_dict'] = json.dumps({'bobo': 'baba', 'barbarella': 68})
-    print("complex dict = %r" % json.loads(c['complex_dict']))
-    assert "foo44" in c
-    assert c['foo44'] == "xyz"
-    print("number of entries in the cache dict: %d" % len(c))
-    assert len(c) == 4
 
 
 cache = Cache()
