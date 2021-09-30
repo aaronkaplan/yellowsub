@@ -79,10 +79,11 @@ class StdinProcessor(AbstractProcessor):
             logging.debug("StdinProcessor (ID: %s). Got line %s" % (self.id, line))
             self.process(line)
 
+
 class StdoutProcessor(AbstractProcessor):
     """This processor will consume from its input queue, process the message and then send it to stdout, line by line"""
 
-    def __init__(self, id: str, n: int = 1 ):
+    def __init__(self, id: str, n: int = 1):
         super().__init__()
         # register process function for consumer
 
