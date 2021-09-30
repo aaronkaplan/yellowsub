@@ -30,8 +30,6 @@ jobs:
         uses: codecov/codecov-action@v2.1.0
         with:
           # Repository upload token - get it from codecov.io. Required only for private repositories
-          token: 93abcce8-80b5-4261-a181-c6e1aee00a03
-          dry_run:  True # optional
-          env_vars: PYTHON_PATH=lib
-          fail_ci_if_error: True # optional
-          verbose: True # optional
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: True
