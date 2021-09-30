@@ -1,3 +1,5 @@
+[![unittests](https://github.com/aaronkaplan/yellowsub/actions/workflows/unittests.yml/badge.svg)](https://github.com/aaronkaplan/yellowsub/actions/workflows/unittests.yml)
+
 # Proof of concept for a message queue based automation framework
 
 Author: aaron kaplan <aaron@lo-res.org>, <Leon-Aaron.Kaplan@ext.ec.europa.eu>
