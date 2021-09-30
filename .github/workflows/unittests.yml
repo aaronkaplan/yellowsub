@@ -23,7 +23,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest nose
+        pip install flake8 pytest nose pytest-cov
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         sudo apt install redis
     - name: Lint with flake8
@@ -34,4 +34,4 @@ jobs:
         flake8 . --ignore=E251 --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        export PYTHONPATH=lib ; pytest tests
+        export PYTHONPATH=lib ; pytest --cov=./ tests
