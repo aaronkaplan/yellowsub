@@ -16,7 +16,7 @@ Also see the unit test in tests/test_cache.py please.
 
 import time
 import redis
-from config import config
+from lib.config import config
 
 TTL = config['redis'].get('cache_ttl', 24 * 3600)  # 1 day default
 
