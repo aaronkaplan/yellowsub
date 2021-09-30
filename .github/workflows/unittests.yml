@@ -34,4 +34,4 @@ jobs:
         flake8 . --ignore=E251 --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest tests
+        export PYTHONPATH=lib ; pytest tests
