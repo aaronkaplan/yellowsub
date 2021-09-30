@@ -20,4 +20,4 @@ class TestCache(TestCase):
 
     def test__len__(self):
         print("number of entries in the cache dict: %d" % len(self.c))
-        assert len(self.c) == 4
+        assert len(self.c) == 3
