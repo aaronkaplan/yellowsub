@@ -16,10 +16,12 @@ class AbstractProcessor():
     routed (via routing_keys) and/or fan-outed to multiple consumers further down the line.
                                                                                                                     /--> c1
     Picture:                                                                                            / -> queue 1  -> c2
+    ```
     \                                                                                                  /--> queue 2  -> c3
       \  --> queue |  --> consumer c0 reads -----> process()  ---> producer sends to output exchange. -->   queue 3
      /                                                                                                \ --> queue 4  -> c4
     /                                                                                                      etc.     \ -> c5
+    ```
 
     Here, consumer c0 reads from its (input) queue. It calls the process() function for each message.
     It does its thing with the message (f.e.x enrichment) and passes it on to its producer. The producer sends it
@@ -56,18 +58,19 @@ class AbstractProcessor():
                 msg['url_enriched'] = enriched_data
             producer.produce(msg)      # pass it on to the next queue/exchange
 
-        :param msg: the message
-        :type msg: dict
+        :param ch: channel
+        :param method:  the method
+        :param properties: the properties attached to the message
+        :param msg: the message (dict)
         """
         logging.info("received '%r from channel %s, method: %s, properties: %r'" % (msg, ch, method, properties))
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
 
-
 class StdinProcessor(AbstractProcessor):
     """This processor can read line by line from stdin and calls the process() method for it."""
 
-    def __init__(self, id: str, n: int = 1 ):
+    def __init__(self, id: str, n: int = 1):
         """Here we go into an endless loop and pull from stdin and call the process() function on each line."""
 
         super().__init__()
