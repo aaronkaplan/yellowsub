@@ -34,17 +34,13 @@ class MQ:
             host = config['rabbitmq']['host']
             port = int(config['rabbitmq'].get('port', 5672))
             # user and password config
-            if config['rabbitmq'].get('user', None) and config['rabbitmq'].get('password', None):
-                user = config['rabbitmq']['user']
-                password = config['rabbitmq']['password']
-                credentials = pika.PlainCredentials(user, password)
-                logging.info("Attempting to connect with (%s:%d as %s/%s)" % (host, port, user,
-                                                                              sanitize_password_str(password)))
-                self.connection = pika.BlockingConnection(pika.ConnectionParameters(host = host, port = port,
-                                                                                    credentials = credentials))
-            else:
-                logging.info("Attempting to connect to %s:%d" % (host, port))
-                self.connection = pika.BlockingConnection(pika.ConnectionParameters(host = host, port = port))
+            user = config['rabbitmq'].get('user', "guest")
+            password = config['rabbitmq'].get('password', "guest")
+            credentials = pika.PlainCredentials(user, password)
+            logging.info("Attempting to connect with (%s:%d as %s/%s)" % (host, port, user,
+                                                                          sanitize_password_str(password)))
+            self.connection = pika.BlockingConnection(pika.ConnectionParameters(host = host, port = port,
+                                                                                credentials = credentials))
         except Exception as ex:
             logging.error("can't connect to the MQ system. Bailing out. Reason: %s" % (str(ex)))
             return False
@@ -54,14 +50,13 @@ class MQ:
             # set up the channel
             logging.info("Setting up the exchange and channels...")
             self.channel = self.connection.channel()
-            print("channel = %r" % self.channel)
+            logging.info("channel = %r" % self.channel)
             self._create_exchange(exchange)
-            print("exchange = %r" % self.exchange)
+            logging.info("exchange = %r" % self.exchange)
         except Exception as ex:
             logging.error("can't set up channel and exchange. Reason: %s" % (str(ex)))
             return False
         logging.info("Done")
-
         return True
 
     def _create_exchange(self, exchange: str = ""):

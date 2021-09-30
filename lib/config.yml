@@ -4,8 +4,8 @@ general:
 rabbitmq:
         host: localhost
         port: 5672
-        user: guest
-        password: guest
+          #user: guest
+          #password: guest
 
 redis:
         cache_ttl: 86400              # 1 day
