@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 """DataFormat definitions and classes."""
 
-
 import json
-import jsonschema
-from pathlib import Path
 import logging
+from pathlib import Path
+from typing import Dict, Optional
 
-from typing import Optional, Dict
+import jsonschema
 
 from cache import cache
 
@@ -87,26 +86,25 @@ data_invalid = """{
     }
 }"""
 
-
 if __name__ == "__main__":
     d = DataFormat()
-    print(80*"=")
+    print(80 * "=")
     print("Testing loading the schema")
-    print(80*"=")
+    print(80 * "=")
     d.load_schema(Path("dataformat_schema.json"))
     print("OK")
     print()
 
-    print(80*"=")
+    print(80 * "=")
     print("Testing if VALID JSON validation:")
     with open("data_sample.json") as testdata:
         data = testdata.read()
         print("Valid: %s" % d.validate(data))
-    print(80*"=")
+    print(80 * "=")
     print()
 
-    print(80*"=")
+    print(80 * "=")
     print("Testing if INvalid JSON will be noticed:")
-    print(80*"=")
+    print(80 * "=")
     print("Invalid test successful: %s" % (not d.validate(data_invalid)))
     print()
