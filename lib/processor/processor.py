@@ -89,3 +89,7 @@ class StdoutProcessor(AbstractProcessor):
 
     def send(self, msg: dict):
         sys.stdout.write(json.dumps(msg))
+
+
+if __name__ == "__main__":
+    p = StdinProcessor("myStdinProcessor", n=1)
