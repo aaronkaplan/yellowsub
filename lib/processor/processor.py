@@ -67,7 +67,7 @@ class AbstractProcessor():
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
 
-class StdinProcessor(AbstractProcessor):
+class AbstractStdinProcessor(AbstractProcessor):
     """This processor can read line by line from stdin and calls the process() method for it."""
 
     def __init__(self, id: str, n: int = 1):
@@ -80,7 +80,7 @@ class StdinProcessor(AbstractProcessor):
             self.process(line)
 
 
-class StdoutProcessor(AbstractProcessor):
+class AbstractStdoutProcessor(AbstractProcessor):
     """This processor will consume from its input queue, process the message and then send it to stdout, line by line"""
 
     def __init__(self, id: str, n: int = 1):
@@ -89,6 +89,12 @@ class StdoutProcessor(AbstractProcessor):
 
     def send(self, msg: dict):
         sys.stdout.write(json.dumps(msg))
+
+
+class StdinProcessor(AbstractStdinProcessor):
+    def process(self, ch = None, method = None, properties = None, msg: dict = {}):
+        # by default send to stdout
+        print(json.dumps(msg))
 
 
 if __name__ == "__main__":
