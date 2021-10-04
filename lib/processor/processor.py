@@ -97,17 +97,21 @@ class MyProcessor(AbstractProcessor):
         super().__init__(id, n)
         self.consumer = Consumer(id = id, exchange = "MyEx", callback = self.process)
         self.producer = Producer(id = id, exchange = "MyEx")
-        
+         
     def process(self, ch = None, method = None, properties = None, msg: dict = {}):
         
         logging.info("MyProcessor (ID: %s). Got msg %r" % (self.id, msg))
         self.msg = msg
+        # do something with the msg in the process() function, the msg is in self.msg
+        # ...
+        # then send it onwards to the outgoing exchange
+        self.producer.produce(msg=self.msg, routing_key="")
         
     def run(self):
-        while True:
-            self.consumer.consume()
-            # do something with the msg in the process() function, the msg is in self.msg
-            self.producer.produce(msg=self.msg)
+        self.consumer.consume()
+        # while True:
+        #     # do something with the msg in the process() function, the msg is in self.msg
+        #     self.producer.produce(msg=self.msg)
             
             
 if __name__ == "__main__":
