@@ -101,7 +101,7 @@ class MyProcessor(AbstractProcessor):
     def process(self, ch = None, method = None, properties = None, msg: dict = {}):
         
         logging.info("MyProcessor (ID: %s). Got msg %r" % (self.id, msg))
-        self.msg = msg
+        self.msg = json.dumps(msg)
         # do something with the msg in the process() function, the msg is in self.msg
         # ...
         # then send it onwards to the outgoing exchange
