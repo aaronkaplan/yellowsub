@@ -8,7 +8,7 @@ import json
 from lib.mq import Consumer, Producer
 
 
-class AbstractProcessor():
+class AbstractProcessor:
     """The Abstract Processor class. Here the model is that there is _ONE_ incoming consumer source
     _instance_ number of instances of the processor, each taking a message in a round robin fashion from the input queue
     (consumer). For each such message, the process() method is called and it does it's stuff. It then sends out to the
