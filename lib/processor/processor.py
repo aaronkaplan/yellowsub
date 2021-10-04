@@ -115,5 +115,8 @@ class MyProcessor(AbstractProcessor):
             
             
 if __name__ == "__main__":
+    logging.basicConfig()
+    logging.getLogger().setLevel(logging.INFO)
+
     p = MyProcessor(id = "myProc", n = 1)
     p.run()
