@@ -96,7 +96,7 @@ class MyProcessor(AbstractProcessor):
     def __init__(self, id: str, n: int = 1):
         super().__init__(id, n)
         self.consumer = Consumer(id = id, exchange = "MyEx", callback = self.process)
-        self.producer = Producer(id = id, exchange = "MyEx")
+        self.producer = Producer(id = id, exchange = "MyEx2")
          
     def process(self, ch = None, method = None, properties = None, msg: dict = {}):
 
