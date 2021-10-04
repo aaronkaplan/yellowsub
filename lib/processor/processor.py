@@ -100,7 +100,7 @@ class MyProcessor(AbstractProcessor):
         
     def process(self, ch = None, method = None, properties = None, msg: dict = {}):
         
-        logging.debug("MyProcessor (ID: %s). Got msg %r" % (self.id, msg))
+        logging.info("MyProcessor (ID: %s). Got msg %r" % (self.id, msg))
         self.msg = msg
         
     def run(self):
