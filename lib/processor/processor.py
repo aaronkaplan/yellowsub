@@ -51,7 +51,6 @@ class AbstractProcessor:
 
         Usually code like:
 
-        msg = consumer.consume()
         if validate_msg(msg):           # check if correct
             enriched_data = enrich(msg['url'])
             if enriched_data:
@@ -95,28 +94,27 @@ class MyProcessor(AbstractProcessor):
     """Sample of a processor."""
     def __init__(self, id: str, n: int = 1):
         super().__init__(id, n)
+        # here we should read the config on where to connect to...
         self.consumer = Consumer(id = id, exchange = "MyEx", callback = self.process)
         self.producer = Producer(id = id, exchange = "MyEx2")
          
     def process(self, ch = None, method = None, properties = None, msg: dict = {}):
 
         self.msg = json.loads(msg)
+        # validate the message here
         logging.info("MyProcessor (ID: %s). Got msg %r" % (self.id, self.msg))
         # do something with the msg in the process() function, the msg is in self.msg
         # ...
         # then send it onwards to the outgoing exchange
         self.producer.produce(msg=self.msg, routing_key="")
         
-    def run(self):
+    def start(self):
         self.consumer.consume()
-        # while True:
-        #     # do something with the msg in the process() function, the msg is in self.msg
-        #     self.producer.produce(msg=self.msg)
-            
+
             
 if __name__ == "__main__":
     logging.basicConfig()
     logging.getLogger().setLevel(logging.INFO)
 
     p = MyProcessor(id = "myProc", n = 1)
-    p.run()
+    p.start()
