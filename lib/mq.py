@@ -126,7 +126,7 @@ class Consumer(MQ):
         queue_name = "q.%s.%s" % (self.exchange, self.id)
         if callback:
             self.cb_function = callback
-        else
+        else:
             self.cb_function = self.process
             
         super()._connect_queue(queue_name)
