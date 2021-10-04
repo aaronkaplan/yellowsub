@@ -30,8 +30,8 @@ class AbstractProcessor():
     Queue 3 has no consumers, Queue 4 has two consumers c4 and c5 again.
     """
     id: str = None
-    consumer = None
-    producer = None
+    consumer : Consumer = None
+    producer : Producer = None
     instances: int = 1
 
     def __init__(self, id: str = uuid.uuid4(), n: int = 1):
@@ -73,7 +73,7 @@ class StdinProcessor(AbstractProcessor):
     def __init__(self, id: str, n: int = 1):
         """Here we go into an endless loop and pull from stdin and call the process() function on each line."""
 
-        super().__init__()
+        super().__init__(id, n)
         for line in sys.stdin.readlines():
             line = line.rstrip()
             logging.debug("StdinProcessor (ID: %s). Got line %s" % (self.id, line))
@@ -84,8 +84,32 @@ class StdoutProcessor(AbstractProcessor):
     """This processor will consume from its input queue, process the message and then send it to stdout, line by line"""
 
     def __init__(self, id: str, n: int = 1):
-        super().__init__()
+        super().__init__(id, n)
         # register process function for consumer
 
     def send(self, msg: dict):
         sys.stdout.write(json.dumps(msg))
+
+
+class MyProcessor(AbstractProcessor):
+    """Sample of a processor."""
+    def __init__(self, id: str, n: int = 1):
+        super().__init__(id, n)
+        self.consumer = Consumer(id = id, exchange = "MyEx", callback = self.process)
+        self.producer = Producer(id = id, exchange = "MyEx")
+        
+    def process(self, ch = None, method = None, properties = None, msg: dict = {}):
+        
+        logging.debug("MyProcessor (ID: %s). Got line %s" % (self.id, line))
+        self.msg = msg
+        
+    def run(self):
+        while True:
+            self.consumer.consume()
+            # do something with the msg in the process() function, the msg is in self.msg
+            self.producer.produce(msg=self.msg)
+            
+            
+if __name__ == "__main__":
+    p = MyProcessor(id = "myProc", n = 1)
+    p.run()

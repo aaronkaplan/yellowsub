@@ -118,17 +118,24 @@ class Producer(MQ):
 class Consumer(MQ):
     """A consumer, based on the base functionality of MQ."""
 
-    def __init__(self, id: str, exchange: str):
+    cb_function = None
+    
+    def __init__(self, id: str, exchange: str, callback=None):
         super().__init__(id)
         super().connect(exchange)
         queue_name = "q.%s.%s" % (self.exchange, self.id)
+        if callback:
+            self.cb_function = callback
+        else
+            self.cb_function = self.process
+            
         super()._connect_queue(queue_name)
         super()._bind_queue()
 
     def consume(self) -> None:
         """Register the callback function for consuming from the exchange / queue given the routing_key."""
         logging.info("[*] Waiting for logs.")
-        self.channel.basic_consume(queue = self.queue_name, on_message_callback = self.process, auto_ack = True)
+        self.channel.basic_consume(queue = self.queue_name, on_message_callback = self.cb_function, auto_ack = True)
         self.channel.start_consuming()
 
     def process(self, ch, method, properties, msg):
