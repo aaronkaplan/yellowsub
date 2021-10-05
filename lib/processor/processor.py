@@ -100,6 +100,7 @@ class MyProcessor(AbstractProcessor):
          
     def process(self, ch = None, method = None, properties = None, msg: dict = {}):
 
+        logging.info("got msg '%r', type(msg) = '%s'" %(msg, type(msg)))
         self.msg = json.loads(msg)
         # validate the message here
         logging.info("MyProcessor (ID: %s). Got msg %r" % (self.id, self.msg))
