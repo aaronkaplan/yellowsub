@@ -61,7 +61,7 @@ class AbstractProcessor:
         :param properties: the properties attached to the message
         :param msg: the message (byte representation of a dict)
         """
-        logging.info("received '%r from channel %s, method: %s, properties: %r'" % (msg, ch, method, properties))
+        logging.info("received '%r from channel %s, method: %s, properties: %r'" % (msg, channel, method, properties))
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
 
