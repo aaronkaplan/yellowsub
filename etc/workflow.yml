@@ -1,0 +1,16 @@
+Nodes:
+  - collectors:
+    - stdin_collector:
+        id: "url_collector"
+        # config: "etc/url_collector.yml"
+  - enrichers:
+    - enricher_is_on_safebrowsing:
+        id: "is_url_on_safebrowsing"
+        # config: "etc/safebrowsing.yml"
+  - output:
+    - stdout_output:
+        id: "url_writer"
+        config: "etc/url_writer.yml"
+Edges:
+  - { src: "url_collector", dst: "is_url_on_safebrowsing" }
+  - { src: "is_url_on_safebrowsing", dst: "url_writer" }
