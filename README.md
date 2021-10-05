@@ -34,50 +34,65 @@ queue. Which means, they will get the data from this queue in a round-robin fash
 
 ## Overview
 
+Please also see the [code philosophy](docs/ZEN.md) page to understand some design principles behind this system.
 
-### Zen and some preliminary thoughts on simplicity
+### A hello world example
 
-This code follows a couple of principles which **MUST** be followed, in order to remain simple:
+[processor.py](lib/processor/processor.py) contains the code for instantiating processors. Processors are small units of
+code, which do *one thing* (and focus on doing it will). Example: enrich a SHA256 hash with the results of Virustotal.
 
-  * we *strictly* follow the **KISS** principle: keep it simple and stupid.
-    * we **RE-USE** existing systems (RabbitMQ, SQS, etc.). NO NOT INVENT YOUR OWN.
-    * the only reason for code is to interface-bridge these existing systems.
-    * re-using existing systems should go via configuration settings.
-    * if that's not possible, make **very simple** interface / glue code.
-    * highly readable code is a MUST.
-    * this means: less code is a MUST. Here are some rules of thumbs to check for simplicity:
-      1. This interface code should not use more than 150 lines of code.
-      2. It MUST have python docstyle explanations.
-      3. It MUST be explainable to a newcomer but average python coder in 15 mins. max.
-      4. As a test, this newcomer python coder should be able to adapt something in the code in half a day.
+Each processor gets data in the [common data format]() on its input queue. It gets called (callback function!) via its
+process() function which will receive amongst other things the message. It then does something with the message (for example add
+VT infos to it in our example) and passes it on to the next message queue on the output side.
 
-  * Remember: re-using existing systems and simply interfacing them wins.
-
-  Code tends to become too complex over time. Then it's time to re-factor and simplify. Don't shy away from
-  *not* implementing things which no-one needs anyway. Observe carefully which functions are actually used in a system.
-
-
-### The Message Queue code
-
-The MQ is a [pubsub](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern) system. Our code (see [mq.py](lib/mq.py))
-uses [RabbitMQ](https://en.wikipedia.org/wiki/RabbitMQ) internally, but abstracts it away. We can easily replace it by ActiveMQ, Kafka, Redis, etc... basically any MQ.a
-
-How to use the MQ interface? It resides in [lib/mq.py](lib/mq.py).
-
-First instantiate the Producer class:
-```python
-p = Producer(id="myProducerID", exchange="the-name-of-my-exchange")
-p.produce({ "msg": "some values"})      # a python dict gets sent
-```
-
-Then instantiate the consumer:
+Example:
 
 ```python
-c = Consumer(id="myConsumerID", exchange="the-name-of-my-exchange")
-c.consume()     # the callback function will get called. You can override this CB function by
-        # inheriting Consumer and overriding the process() method. See the next example.
+class MyProcessor(Processor):
+
+    def process(self, channel = None, method = None, properties = None, msg: dict = {}):
+
+        self.msg = json.loads(msg)  # convert the binary representation to a python dict
+        # validate the message here if needed
+
+        logging.info("MyProcessor (ID: %s). Got msg %r" % (self.id, self.msg))
+        # do something with the msg in the process() function, the msg is in self.msg
+        # ...
+        # then send it onwards to the outgoing exchange
+        self.producer.produce(msg=self.msg, routing_key="")
 ```
 
+All you will need to do, is to
+
+1. ``import lib.processor.processor``
+2. inherit from the Processor class:
+``class MyProcessor(Processor):``
+3. Implement a ``process()`` callback function as shown above.
+
+That's it!
+
+### Connecting everything
+
+RabbitMQ builds upon the concepts of exchanges and queues. Both have names (unique strings).
+A producer will always send to an exchange (by specifying the exchange's name). The exchange then usually fans-out the
+messages (i.e. duplicate them) to all connected queues.
+
+![RabbitMQ example with exchanges](https://www.rabbitmq.com/img/tutorials/python-three-overall.png)
+
+In this picture (taken from the [RabbitMQ tutorial](https://www.rabbitmq.com/tutorials/tutorial-three-python.html)),
+producer "P" sends to exchange "X" which duplicates (fans-out) the messages to the queues "amq.gen-*". Consumers "C1"
+as well as "C2" get the messages in parallel.
+
+So how do we create these exchanges and queues and tell the producers and consumers where to connect to?
+
+Simple! We tell the processor class via its __init__() function:
+
+```python
+
+```
+
+
+Next step:
 
 
 

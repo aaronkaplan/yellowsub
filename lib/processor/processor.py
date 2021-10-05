@@ -1,10 +1,9 @@
 """The Abstract Processor class"""
 
+import json
 import logging
 import sys
 import uuid
-import json
-
 from lib.mq import Consumer, Producer
 
 
@@ -30,8 +29,8 @@ class AbstractProcessor:
     Queue 3 has no consumers, Queue 4 has two consumers c4 and c5 again.
     """
     id: str = None
-    consumer : Consumer = None
-    producer : Producer = None
+    consumer: Consumer = None
+    producer: Producer = None
     instances: int = 1
 
     def __init__(self, id: str = uuid.uuid4(), n: int = 1):
@@ -45,7 +44,7 @@ class AbstractProcessor:
         # create self.consumer and self.producer
         # create n instances of yourself as parallel processes
 
-    def process(self, ch = None, method = None, properties = None, msg: dict = {}):
+    def process(self, channel=None, method=None, properties=None, msg: dict = {}):
         """The process function. Gets called for every arriving message from the consumers.
         This function MUST be overwritten by the sub-class.
 
@@ -57,10 +56,10 @@ class AbstractProcessor:
                 msg['url_enriched'] = enriched_data
             producer.produce(msg)      # pass it on to the next queue/exchange
 
-        :param ch: channel
+        :param channel: The channel the message came in from
         :param method:  the method
         :param properties: the properties attached to the message
-        :param msg: the message (dict)
+        :param msg: the message (byte representation of a dict)
         """
         logging.info("received '%r from channel %s, method: %s, properties: %r'" % (msg, ch, method, properties))
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
@@ -92,27 +91,35 @@ class StdoutProcessor(AbstractProcessor):
 
 class MyProcessor(AbstractProcessor):
     """Sample of a processor."""
-    def __init__(self, id: str, n: int = 1):
+
+    def __init__(self, id: str, n: int = 1, incoming_queue="", outgoing_exchanges=[]):
         super().__init__(id, n)
         # here we should read the config on where to connect to...
+        
         self.consumer = Consumer(id = id, exchange = "MyEx", callback = self.process)
         self.producer = Producer(id = id, exchange = "MyEx2")
-         
-    def process(self, ch = None, method = None, properties = None, msg: dict = {}):
 
-        logging.info("got msg '%r', type(msg) = '%s'" %(msg, type(msg)))
+    def process(self, channel=None, method=None, properties=None, msg: dict = {}):
+        """
+        The main process() callback function. It gets called from rabbitMQ on every message that comes in.
+
+        :param channel: The channel the message came in from
+        :param method:  the method
+        :param properties: the properties attached to the message
+        :param msg: the message (byte representation of a dict). Example:  msg = b'{"msg": 0}', type(msg) = '<class 'bytes'>
+        """
         self.msg = json.loads(msg)
         # validate the message here
         logging.info("MyProcessor (ID: %s). Got msg %r" % (self.id, self.msg))
         # do something with the msg in the process() function, the msg is in self.msg
         # ...
         # then send it onwards to the outgoing exchange
-        self.producer.produce(msg=self.msg, routing_key="")
-        
+        self.producer.produce(msg = self.msg, routing_key = "")
+
     def start(self):
         self.consumer.consume()
 
-            
+
 if __name__ == "__main__":
     logging.basicConfig()
     logging.getLogger().setLevel(logging.INFO)
