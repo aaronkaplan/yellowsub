@@ -54,7 +54,7 @@ class AbstractProcessor:
         """
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
-    def process(self, channel=None, method=None, properties=None, msg: bytes):
+    def process(self, channel=None, method=None, properties=None, msg: bytes = None):
         """The process function. Gets called for every arriving message from the consumers.
         This function MUST be overwritten by the sub-class.
 
@@ -123,7 +123,7 @@ class MyProcessor(AbstractProcessor):
         self.consumer = Consumer(id = id, exchange = "MyEx", callback = self.process)
         self.producer = Producer(id = id, exchange = "MyEx2")
 
-    def process(self, channel=None, method=None, properties=None, msg: bytes):
+    def process(self, channel=None, method=None, properties=None, msg: bytes = None):
         """
         The main process() callback function. It gets called from rabbitMQ on every message that comes in.
 
