@@ -82,7 +82,7 @@ class AbstractProcessor:
         if enriched_data:
             msg['url_enriched'] = enriched_data
 
-        :param msg: python dictionnary holding the valuable data to process
+        :param msg: python dictionary holding the valuable data to process
         """
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
