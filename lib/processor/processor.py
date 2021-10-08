@@ -44,7 +44,7 @@ class AbstractProcessor:
         # create self.consumer and self.producer
         # create n instances of yourself as parallel processes
     
-    def validate(self, msg: dict) -> bool:
+    def validate(self, msg: bytes) -> bool:
         """
         Method responsible of validating a message. Validation should do any kind
         of input checking so that on_message can process the message flawlessly
@@ -54,7 +54,7 @@ class AbstractProcessor:
         """
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
-    def process(self, channel=None, method=None, properties=None, msg: dict = {}):
+    def process(self, channel=None, method=None, properties=None, msg: bytes):
         """The process function. Gets called for every arriving message from the consumers.
         This function MUST be overwritten by the sub-class.
 
@@ -72,7 +72,7 @@ class AbstractProcessor:
         logging.info("received '%r from channel %s, method: %s, properties: %r'" % (msg, channel, method, properties))
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
     
-    def on_message(self, msg: dict):
+    def on_message(self, msg: bytes):
         """
         This method must be implemented to handle one single message entity
 
@@ -122,7 +122,7 @@ class MyProcessor(AbstractProcessor):
         self.consumer = Consumer(id = id, exchange = "MyEx", callback = self.process)
         self.producer = Producer(id = id, exchange = "MyEx2")
 
-    def process(self, channel=None, method=None, properties=None, msg: dict = {}):
+    def process(self, channel=None, method=None, properties=None, msg: bytes):
         """
         The main process() callback function. It gets called from rabbitMQ on every message that comes in.
 
