@@ -118,7 +118,8 @@ class MyProcessor(AbstractProcessor):
     def __init__(self, id: str, n: int = 1, incoming_queue="", outgoing_exchanges=[]):
         super().__init__(id, n)
         # here we should read the config on where to connect to...
-        
+
+        # this is an example only and the connection to the exchanges and incoming queues will be done by the orchestrator.
         self.consumer = Consumer(id = id, exchange = "MyEx", callback = self.process)
         self.producer = Producer(id = id, exchange = "MyEx2")
 
