@@ -43,6 +43,16 @@ class AbstractProcessor:
         self.instances = n
         # create self.consumer and self.producer
         # create n instances of yourself as parallel processes
+    
+    def validate(self, msg: dict) -> bool:
+        """
+        Method responsible of validating a message. Validation should do any kind
+        of input checking so that on_message can process the message flawlessly
+
+        :param msg: message to be validated
+        :return: True if the message is valid, False otherwise
+        """
+        raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
     def process(self, channel=None, method=None, properties=None, msg: dict = {}):
         """The process function. Gets called for every arriving message from the consumers.
@@ -50,10 +60,8 @@ class AbstractProcessor:
 
         Usually code like:
 
-        if validate_msg(msg):           # check if correct
-            enriched_data = enrich(msg['url'])
-            if enriched_data:
-                msg['url_enriched'] = enriched_data
+        if self.validate(msg):           # check if correct
+            self.on_message(msg)
             producer.produce(msg)      # pass it on to the next queue/exchange
 
         :param channel: The channel the message came in from
@@ -63,6 +71,21 @@ class AbstractProcessor:
         """
         logging.info("received '%r from channel %s, method: %s, properties: %r'" % (msg, ch, method, properties))
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
+    
+    def on_message(self, msg: dict):
+        """
+        This method must be implemented to handle one single message entity
+
+        Usually code like:
+
+        enriched_data = enrich(msg['url'])
+        if enriched_data:
+            msg['url_enriched'] = enriched_data
+
+        :param msg: python dictionnary holding the valuable data to process
+        """
+        raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
+
 
 
 class StdinProcessor(AbstractProcessor):
