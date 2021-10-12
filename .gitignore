@@ -108,6 +108,14 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+lib/python3.8/
+bin/
+pyvenv.cfg
+lib64
+
+#pycharm extras
+.idea/
+
 
 # Spyder project settings
 .spyderproject
