@@ -1,7 +1,7 @@
-![oo-arch.png](oo-arch.png)
+![oo-arch.png](OO-Architecture.png)
 
-Processor inherts from AbstractProcessor
+Processor inherits from AbstractProcessor
 
-All others (Enricher, Filter, Collector, OutputProcessor) inhert from Processor.
+All others (Collector, Parser, Enricher, Filter, OutputProcessor) inherit from Processor.
 
 
