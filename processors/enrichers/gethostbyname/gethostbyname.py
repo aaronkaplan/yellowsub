@@ -1,5 +1,5 @@
 from lib.processor.enricher import Enricher
-
+from lib.config import config
 import socket
 
 
