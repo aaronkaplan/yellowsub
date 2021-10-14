@@ -6,7 +6,6 @@ from lib.utils.cache import Cache
 class TestCache(TestCase):
     c = Cache()
 
-    @profile
     def test__setitem__getitem__(self):
         self.c["foo"] = "bar"
         assert "bar" == self.c["foo"]
