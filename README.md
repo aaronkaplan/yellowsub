@@ -7,9 +7,9 @@ Author: aaron kaplan <aaron@lo-res.org>, <Leon-Aaron.Kaplan@ext.ec.europa.eu>
 
 ## What?
 
-![yellowsub icon](docs/Submarine-icon.png)
+![yellowsub icon](docs/Submarine-icon.png | width=200)
 
-Yellowsub is a proof of concept messague queue based automation framework.
+Yellowsub is a proof of concept message queue based automation framework.
 It was developed to automate the tasks of our Cyber Threat Hunting team.
 
 It strictly follows the **KISS principle** (Keep it Simple and Stupid). It's an intentionally
