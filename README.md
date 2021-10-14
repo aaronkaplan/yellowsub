@@ -14,6 +14,11 @@ apt install virtualenv
 virtualenv --python=python3.8 venv
 source venv/bin/activate
 pip install -r requirements.txt
+
+# get rabbitMQ and redis installed via docker and listening on localhost. See docs/Getting-Started.md
+...
+# start an example workflow
+# python bin/orchestrate.py -c etc/example-workflow.yml
 ```
 
 Make sure your config.yml is correct, look at it and adapt the settings for redis and rabbitmq
@@ -34,66 +39,32 @@ queue. Which means, they will get the data from this queue in a round-robin fash
 
 ## Overview
 
+### Basic ideas
 Please also see the [code philosophy](docs/ZEN.md) page to understand some design principles behind this system.
 
-### A hello world example
+The [Nomenclature](docs/Nomenclature.md) page contains the used terminology.
 
-[processor.py](lib/processor/processor.py) contains the code for instantiating processors. Processors are small units of
-code, which do *one thing* (and focus on doing it will). Example: enrich a SHA256 hash with the results of Virustotal.
+For an overview of the object-oriented class hierarchy, please see the [OO-Architecture](docs/OO-Architecture) page.python
 
-Each processor gets data in the [common data format]() on its input queue. It gets called (callback function!) via its
-process() function which will receive amongst other things the message. It then does something with the message (for example add
-VT infos to it in our example) and passes it on to the next message queue on the output side.
+The [Developer Guide](docs/Developer-Guide.md) will walk you through writing your first Processor/Enricher.
 
-Example:
-
-```python
-class MyProcessor(Processor):
-
-    def process(self, channel = None, method = None, properties = None, msg: dict = {}):
-
-        self.msg = json.loads(msg)  # convert the binary representation to a python dict
-        # validate the message here if needed
-
-        logging.info("MyProcessor (ID: %s). Got msg %r" % (self.id, self.msg))
-        # do something with the msg in the process() function, the msg is in self.msg
-        # ...
-        # then send it onwards to the outgoing exchange
-        self.producer.produce(msg=self.msg, routing_key="")
-```
-
-All you will need to do, is to
-
-1. ``import lib.processor.processor``
-2. inherit from the Processor class:
-``class MyProcessor(Processor):``
-3. Implement a ``process()`` callback function as shown above.
-
-That's it!
-
-### Connecting everything
-
-RabbitMQ builds upon the concepts of exchanges and queues. Both have names (unique strings).
-A producer will always send to an exchange (by specifying the exchange's name). The exchange then usually fans-out the
-messages (i.e. duplicate them) to all connected queues.
-
-![RabbitMQ example with exchanges](https://www.rabbitmq.com/img/tutorials/python-three-overall.png)
-
-In this picture (taken from the [RabbitMQ tutorial](https://www.rabbitmq.com/tutorials/tutorial-three-python.html)),
-producer "P" sends to exchange "X" which duplicates (fans-out) the messages to the queues "amq.gen-*". Consumers "C1"
-as well as "C2" get the messages in parallel.
-
-So how do we create these exchanges and queues and tell the producers and consumers where to connect to?
-
-Simple! We tell the processor class via its __init__() function:
-
-```python
-
-```
+Next, it makes sense, to dive into the individual directories to understand, where you will find what in the code.Developer
 
 
-Next step:
+### Where is what?
 
+## Where is what?  Code repository overview
 
+``lib/`` contains the core components of the framework:
+  * ``lib/mq/*`` the minimalistic message queue (mq) abstraction layer. Used by the Processor classes.
+  * ``lib/processor/*`` the definition of processors, enrichers, filters, parser, etc.. classes. All of these classes
+  here are abstract classes and will be instantiated by the actual processors. See ``processors/*`` for the concrete
+  implementations.
+  * ``lib/utils/*`` all utilities libraries such as redis cache, password sanitization for printing passwords/API keys in logs etc.
+  * ``processors/*`` concrete implementations of collectors, parsers, enrichers, filters, outputProcessors. See the
+  corresponding subdirs.
+  * ``docs/`` documentation
+  * ``tests/`` unit tests
+  * ``etc/*`` the config sample directory
 
 
