@@ -12,15 +12,18 @@ Author: aaron kaplan <aaron@lo-res.org>, <Leon-Aaron.Kaplan@ext.ec.europa.eu>
 Yellowsub is a proof of concept message queue based automation framework.
 It was developed to automate the tasks of our Cyber Threat Hunting team.
 
-It strictly follows the **KISS principle** (Keep it Simple and Stupid). It's an intentionally
+It strictly follows the **KISS principle** (_Keep it Simple and Stupid_). It's an intentionally
 minimalistic system which emphasizes *re-use* of best-of-breed concepts and software frameworks such as
-TheHive, Cortex, RESTful APIs, SOAR integrations, etc.
+TheHive, Cortex, RESTful APIs, SOAR integrations, etc. It tries to *invent as little as possible*, while still being
+able to automate all the needs of Cyber Threat Hunting.
+
 You can imagine it as a meta-[SOAR](https://en.wikipedia.org/wiki/Computer_security_incident_management#Initial_incident_management_process)
 
 It follows the "Harmonized Automation Architecture" document.
 
+As an underlying principle it uses the internal [common data format](docs/Dataformat.md) (which is extensible).
 
-It uses:
+It consists of / uses:
 
 - RabbitMQ (but the MQ system is replaceable, if needed)
 - A very simple code base and object oriented [class hierarchy](docs/OO-Architecture.md) which helps you add integrations
@@ -29,7 +32,7 @@ It uses:
 - Integrations with [TheHive's Cortex's Analyzers](https://github.com/TheHive-Project/Cortex-Analyzers) to achieve many more
 integrations.
 
-
+It supports massive parallelism.
 
 ## Quick start
 
@@ -40,7 +43,7 @@ apt install virtualenv
 virtualenv --python=python3.8 venv
 source venv/bin/activate
 pip install -r requirements.txt
-
+export ROOTDIR=`pwd`            # set ROOTDIR to the place where everything is installed
 # get rabbitMQ and redis installed via docker and listening on localhost. See docs/Getting-Started.md
 ...
 # start an example workflow
