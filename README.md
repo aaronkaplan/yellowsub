@@ -5,6 +5,32 @@
 
 Author: aaron kaplan <aaron@lo-res.org>, <Leon-Aaron.Kaplan@ext.ec.europa.eu>
 
+## What?
+
+![yellowsub icon](docs/Submarine-icon.png)
+
+Yellowsub is a proof of concept messague queue based automation framework.
+It was developed to automate the tasks of our Cyber Threat Hunting team.
+
+It strictly follows the **KISS principle** (Keep it Simple and Stupid). It's an intentionally
+minimalistic system which emphasizes *re-use* of best-of-breed concepts and software frameworks such as
+TheHive, Cortex, RESTful APIs, SOAR integrations, etc.
+You can imagine it as a meta-[SOAR](https://en.wikipedia.org/wiki/Computer_security_incident_management#Initial_incident_management_process)
+
+It follows the "Harmonized Automation Architecture" document.
+
+
+It uses:
+
+- RabbitMQ (but the MQ system is replaceable, if needed)
+- A very simple code base and object oriented [class hierarchy](docs/OO-Architecture.md) which helps you add integrations
+- A simple "orchestrator" script to create the rabbitMQ message queues
+- YAML config files
+- Integrations with [TheHive's Cortex's Analyzers](https://github.com/TheHive-Project/Cortex-Analyzers) to achieve many more
+integrations.
+
+
+
 ## Quick start
 
 Getting it installed:
