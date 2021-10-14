@@ -3,7 +3,7 @@ import json
 import logging
 from lib.dataformat import DataFormat
 from lib.processor.abstractProcessor import AbstractProcessor
-
+from lib.config import config
 
 class Processor(AbstractProcessor):
     """The main Processor class, all others derive from it."""
