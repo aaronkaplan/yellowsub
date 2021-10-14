@@ -1,11 +1,12 @@
 import json
 from unittest import TestCase
-from lib.cache import Cache
+from lib.utils.cache import Cache
 
 
 class TestCache(TestCase):
     c = Cache()
 
+    @profile
     def test__setitem__getitem__(self):
         self.c["foo"] = "bar"
         assert "bar" == self.c["foo"]
@@ -21,3 +22,8 @@ class TestCache(TestCase):
     def test__len__(self):
         print("number of entries in the cache dict: %d" % len(self.c))
         assert len(self.c) == 3
+
+if __name__ == "__main__":
+    t = TestCache()
+    t.test__setitem__getitem__()
+

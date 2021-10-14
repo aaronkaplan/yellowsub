@@ -14,3 +14,11 @@ Nodes:
 Edges:
   - { src: "url_collector", dst: "is_url_on_safebrowsing" }
   - { src: "is_url_on_safebrowsing", dst: "url_writer" }
+
+Workflow:
+  # simple linear example
+  - { processor_id: "url_collector", type: "stdin_collector", dst_exchg: ["ex1", "ex2"] }
+  # here in this example, we parallelize:
+  - { processor_id: "is_url_on_safebrowsing", type: "enricher_is_on_safebrowsing" , src_queue: "ex1.q1.sb", dst_exchg: ["ex15"]}
+  - { processor_id: "is_url_on_safebrowsing2", type: "enricher_is_on_safebrowsing" , src_queue: "ex1.q1.sb", dst_exchg: ["ex15"]}
+  -

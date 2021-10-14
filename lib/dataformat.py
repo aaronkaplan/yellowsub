@@ -8,7 +8,7 @@ from typing import Dict, Optional
 
 import jsonschema
 
-from cache import cache
+from lib.utils.cache import cache
 
 
 class DataFormat:

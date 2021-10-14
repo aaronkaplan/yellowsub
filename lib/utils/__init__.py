@@ -1,4 +1,4 @@
-"""Utils module"""
+"""Utils module. A collection of small and useful functions, classes, etc. """
 
 
 def sanitize_password_str(s: str) -> str:
