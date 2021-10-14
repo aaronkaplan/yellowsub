@@ -6,7 +6,7 @@ import socket
 # see https://stackoverflow.com/questions/2805231/how-can-i-do-dns-lookups-in-python-including-referring-to-etc-hosts
 # thanks stackoverflow
 
-def get_ips_by_dns_lookup(target, port=None):
+def get_ips_by_dns_lookup(target, port=443):
     '''
         this function takes the passed target and optional port and does a dns
         lookup. it returns the ips that it finds to the caller.
@@ -19,11 +19,6 @@ def get_ips_by_dns_lookup(target, port=None):
         :rtype ips:     list of strings
 
     '''
-    import socket
-
-    if not port:
-        port = 443
-
     return list(map(lambda x: x[4][0], socket.getaddrinfo('{}.'.format(target),port,type=socket.SOCK_STREAM)))
 
 
