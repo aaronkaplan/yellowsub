@@ -29,8 +29,7 @@ class Processor(AbstractProcessor):
 
         if not msg: return
         msg = self._convert_to_internal_df(msg)
-        if self.id in config['processors'] and 'validate_msg' in config['processors'][self.id] and \
-                config['processors'][self.id]['validate_msg']:
+        if self.id in config['processors'] and 'validate_msg' in config['processors'][self.id] and config['processors'][self.id]['validate_msg']:
             self.validate(msg)
         self.process(channel, method, properties, msg)
 

@@ -44,7 +44,7 @@ if __name__ == "__main__":
     print(ips)
     assert '93.184.216.34' in ips
 
-    e = GetHostByName(id="sometestgethostbyname-id")
+    e = GetHostByName(id="sample-gethostbyname")
     newmsg = e.process("ch1", msg = { "fqdn": "example.com" } )
     print(newmsg)
     assert 'ips' in newmsg.keys() and '93.184.216.34' in newmsg['ips']
