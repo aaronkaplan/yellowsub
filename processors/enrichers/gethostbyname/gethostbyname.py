@@ -6,8 +6,9 @@ import logging
 # see https://stackoverflow.com/questions/2805231/how-can-i-do-dns-lookups-in-python-including-referring-to-etc-hosts
 # thanks stackoverflow
 
-def get_ips_by_dns_lookup(fqdn, port=443):
-    '''
+
+def get_ips_by_dns_lookup(fqdn, port=None):
+    """
         this function takes the passed fqdn and optional port and does a dns
         lookup. it returns the ips that it finds to the caller.
 
@@ -17,15 +18,14 @@ def get_ips_by_dns_lookup(fqdn, port=443):
         :type port:     integer
         :returns ips:   all of the discovered ips for the fqdn
         :rtype ips:     list of strings
+    """
 
-    '''
     try:
-        l =  list(map(lambda x: x[4][0], socket.getaddrinfo('{}.'.format(fqdn), port, type=socket.SOCK_STREAM)))
+        l = list(map(lambda x: x[4][0], socket.getaddrinfo(fqdn, port, proto=socket.IPPROTO_TCP)))
     except Exception as ex:
-        logging.info("Could not resolve domain %s. Reason: %s" %(fqdn, str(ex)))
+        logging.info("Could not resolve domain %s. Reason: %s" % (fqdn, str(ex)))
         return []
     return l
-
 
 
 class GetHostByName(Enricher):
@@ -36,7 +36,7 @@ class GetHostByName(Enricher):
         fqdn = msg.get('fqdn', None)
         if fqdn:
             ips = get_ips_by_dns_lookup(fqdn)
-        msg['ips'] = ips
+            msg['ips'] = ips
         return msg
 
 
@@ -46,9 +46,15 @@ if __name__ == "__main__":
     assert '93.184.216.34' in ips
 
     e = GetHostByName(id="sample-gethostbyname")
-    newmsg = e.process("ch1", msg = { "fqdn": "example.com" } )
+    newmsg = e.process("ch1", msg = {"fqdn": "example.com"})
     print(newmsg)
     assert 'ips' in newmsg.keys() and '93.184.216.34' in newmsg['ips']
+
     # negative test case: there is no ip for this domain
-    newmsg = e.process("ch1", msg = { "fqdn": "{}.com".format(uuid.uuid4())})
+    newmsg = e.process("ch1", msg = {"fqdn": "{}.com".format(uuid.uuid4())})
     assert 'ips' in newmsg.keys() and len(newmsg['ips']) == 0
+
+    # IPv6 test case
+    newmsg = e.process("ch1", msg = {"fqdn": "ipv6.google.com"})
+    print(newmsg)
+    assert 'ips' in newmsg.keys() and '2a00:1450:4016:80a::200e' in newmsg['ips']
