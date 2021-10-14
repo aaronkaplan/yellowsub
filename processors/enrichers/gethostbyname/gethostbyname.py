@@ -57,4 +57,4 @@ if __name__ == "__main__":
     # IPv6 test case
     newmsg = e.process("ch1", msg = {"fqdn": "ipv6.google.com"})
     print(newmsg)
-    assert 'ips' in newmsg.keys() and '2a00:1450:4016:80a::200e' in newmsg['ips']
+    assert 'ips' in newmsg.keys() and '2a00:1450:4016:' in newmsg['ips'][0]
