@@ -39,4 +39,5 @@ ROOTDIR = os.getenv('ROOTDIR', '/')
 
 _c = Config()
 config = _c.load(Path(ROOTDIR) / 'etc' / "config.yml")
+config['general']['ROOTDIR'] = ROOTDIR
 logging.info(config)

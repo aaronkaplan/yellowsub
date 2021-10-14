@@ -13,3 +13,9 @@ redis:
         port: 6379
         db: 2
 
+
+processors:
+        # list of settings for each individual processor instance
+        - sample-gethostbyname:
+                  dns_recursor: "8.8.8.8"
+                  validate_msg: True
