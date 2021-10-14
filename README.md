@@ -40,20 +40,15 @@ queue. Which means, they will get the data from this queue in a round-robin fash
 ## Overview
 
 ### Basic ideas
-Please also see the [code philosophy](docs/ZEN.md) page to understand some design principles behind this system.
 
-The [Nomenclature](docs/Nomenclature.md) page contains the used terminology.
-
-For an overview of the object-oriented class hierarchy, please see the [OO-Architecture](docs/OO-Architecture) page.python
-
-The [Developer Guide](docs/Developer-Guide.md) will walk you through writing your first Processor/Enricher.
+* Please also see the [code philosophy](docs/ZEN.md) page to understand some design principles behind this system.
+* The [Nomenclature](docs/Nomenclature.md) page contains the used terminology.
+* For an overview of the object-oriented class hierarchy, please see the [OO-Architecture](docs/OO-Architecture) page.
+* The [Developer Guide](docs/Developer-Guide.md) will walk you through writing your first Processor/Enricher.
 
 Next, it makes sense, to dive into the individual directories to understand, where you will find what in the code.Developer
 
-
-### Where is what?
-
-## Where is what?  Code repository overview
+### Where is what?  Code repository overview
 
 ``lib/`` contains the core components of the framework:
   * ``lib/mq/*`` the minimalistic message queue (mq) abstraction layer. Used by the Processor classes.
@@ -68,3 +63,6 @@ Next, it makes sense, to dive into the individual directories to understand, whe
   * ``etc/*`` the config sample directory
 
 
+## More info
+
+Please have a look at the [docs](docs/) folder.
