@@ -3,7 +3,10 @@ import os
 class ProjectUtils():
     """Class that offers utility functions around project organisation"""
     def __init__(self):
-        return None
+        if os.getenv("YELLOWSUB_TEST") == "1" or str.lower(os.getenv("YELLOWSUB_TEST")) == "true":
+            self.config_path_rel_proj_root = "/etc/config_test.yml"
+        else:
+            self.config_path_rel_proj_root = "/etc/config.yml"
 
     def get_project_path_as_str(self):
         """
@@ -28,5 +31,5 @@ class ProjectUtils():
             str: The path of the main configuration file as string.
         """
         p = os.path.dirname(os.path.realpath(__file__))
-        project_p = p[:p.find("yellowsub") + len("yellowsub")] + "/etc/config.yml"
-        return project_p
+        config_p = p[:p.find("yellowsub") + len("yellowsub")] + self.config_path_rel_proj_root
+        return config_p
