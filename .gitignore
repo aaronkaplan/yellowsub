@@ -135,3 +135,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Testing configuration files (might include keys)
+/etc/config_test.yml
