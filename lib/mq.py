@@ -43,7 +43,7 @@ class MQ:
                                                                                 credentials = credentials))
         except Exception as ex:
             logging.error("can't connect to the MQ system. Bailing out. Reason: %s" % (str(ex)))
-            return False
+            sys.exit(-1)
         logging.info("connected!")
 
         try:
@@ -54,7 +54,8 @@ class MQ:
             self._create_exchange(exchange)
             logging.info("exchange = %r" % self.exchange)
         except Exception as ex:
-            logging.error("can't set up channel and exchange. Reason: %s" % (str(ex)))
+            logging.error("can't set up channel and exchange. Reason: %s. Bailing out." % (str(ex)))
+            sys.exit(-2)
             return False
         logging.info("Done")
         return True
