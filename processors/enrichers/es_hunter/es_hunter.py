@@ -14,7 +14,7 @@ def elastic_hunter_lookup_hash(hash: str) -> bool:
     """
 
     try:
-        data = es_conn.lookup(hash)
+        data = "Foobar"     # es_conn.lookup(hash)
     except Exception as ex:
         logging.info("Could not look up data in ES Hunter (key: %s). Reason: %s" % (hash, str(ex)))
         return False
