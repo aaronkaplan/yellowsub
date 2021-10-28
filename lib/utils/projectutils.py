@@ -3,10 +3,13 @@ import os
 class ProjectUtils():
     """Class that offers utility functions around project organisation"""
     def __init__(self):
-        if os.getenv("YELLOWSUB_TEST") == "1" or str.lower(os.getenv("YELLOWSUB_TEST")) == "true":
-            self.config_path_rel_proj_root = "/etc/config_test.yml"
-        else:
+        if os.getenv("YELLOWSUB_TEST") == None:
             self.config_path_rel_proj_root = "/etc/config.yml"
+        else:
+            if os.getenv("YELLOWSUB_TEST") == "1" or str.lower(os.getenv("YELLOWSUB_TEST")) == "true":
+                self.config_path_rel_proj_root = "/etc/config_test.yml"
+            else:
+                self.config_path_rel_proj_root = "/etc/config.yml"
 
     def get_project_path_as_str(self):
         """
