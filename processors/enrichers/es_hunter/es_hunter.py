@@ -14,7 +14,7 @@ def elastic_hunter_lookup_hash(hash: str) -> bool:
     """
 
     try:
-        data = self.es_conn.lookup(hash)
+        data = "Foobar"     # es_conn.lookup(hash)
     except Exception as ex:
         logging.info("Could not look up data in ES Hunter (key: %s). Reason: %s" % (hash, str(ex)))
         return False
@@ -30,6 +30,7 @@ class ElasticHunter_Hash_Lookup(Enricher):
     def __init__(self):
         # Conenct to ES
         # es_conn =
+        pass
 
     def process(self, channel=None, method=None, properties=None, msg: dict = {}):
         hash = msg.get('hash', None)
@@ -41,3 +42,4 @@ class ElasticHunter_Hash_Lookup(Enricher):
 
 if __name__ == "__main__":
     # make a unit test...
+    pass
