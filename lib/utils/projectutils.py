@@ -36,3 +36,14 @@ class ProjectUtils():
         p = os.path.dirname(os.path.realpath(__file__))
         config_p = p[:p.find("yellowsub") + len("yellowsub")] + self.config_path_rel_proj_root
         return config_p
+
+    def get_logger(self):
+        # ...
+        """
+        @return: logger instance
+
+        parse the config
+        if there is a specific logger, make a logger and return it
+        if there is non, return the global logger
+
+        """
