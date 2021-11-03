@@ -26,7 +26,7 @@ processors:
     validate_msg: True
     logging:              # override any of the settings of the global logger here if needed
       output: '/var/log/here-is-my-other-logfile.log'
-      loglevel: DEBUG
+      loglevel: INFO
   mispattributesearcher:
     misp_uri: "https://192.168.5.108/"
     misp_api_key: ""
