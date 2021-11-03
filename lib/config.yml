@@ -14,11 +14,24 @@ redis:
   db: 2
 
 
+logger:
+  output: '/var/log/filename'    # or file name + path, MANDATORY, default: file
+  loglevel: INFO                 # the default log levels of syslog go here, MANDATORY. Default: INFO
+  facility: yellowsub            # optional
+
 processors:
   # list of settings for each individual processor instance
   sample-gethostbyname:
     dns_recursor: "8.8.8.8"
     validate_msg: True
+    logging:              # override any of the settings of the global logger here if needed
+      output: '/var/log/here-is-my-other-logfile.log'
+      loglevel: DEBUG
   mispattributesearcher:
     misp_uri: "https://192.168.5.108/"
     misp_api_key: ""
+
+
+workflows:
+  - { input_queue: <name of queue> , processor: <id of processor> , output_exchange: <id of output exchange> }
+  -
