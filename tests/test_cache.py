@@ -22,7 +22,7 @@ class TestCache(TestCase):
         print("number of entries in the cache dict: %d" % len(self.c))
         assert len(self.c) == 3
 
+
 if __name__ == "__main__":
     t = TestCache()
     t.test__setitem__getitem__()
-

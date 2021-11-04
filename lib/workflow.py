@@ -3,7 +3,7 @@ processors and connect them to the right queues and exchanges."""
 
 import yaml
 
-from config import config
+# from config import config
 
 
 DEFAULT_WORKFLOW_FILE="etc/workflow.yml"
@@ -14,7 +14,7 @@ class Workflow():
 
     def __init__(self, workflow_config: str = DEFAULT_WORKFLOW_FILE):
         with open(workflow_config, 'r') as f:
-            wf = yaml.safe_load(f)            
+            wf = yaml.safe_load(f)
             print(wf)
 
 

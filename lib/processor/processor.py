@@ -1,9 +1,10 @@
 """Processor - a subclass of Abstract Processor."""
 import json
 import logging
-from lib.dataformat import DataFormat
+# from lib.dataformat import DataFormat
 from lib.processor.abstractProcessor import AbstractProcessor
 from lib.config import config
+
 
 class Processor(AbstractProcessor):
     """The main Processor class, all others derive from it."""
@@ -31,7 +32,8 @@ class Processor(AbstractProcessor):
         Initially converts the (bytes) msg to an internal data format.
         Then calls the self.process() function."""
 
-        if not msg: return
+        if not msg:
+            return
         msg = self._convert_to_internal_df(msg)
         if self.id in config['processors'] and 'validate_msg' in config['processors'][self.id] and config['processors'][self.id]['validate_msg']:
             self.validate(msg)
