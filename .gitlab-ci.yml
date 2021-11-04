@@ -25,12 +25,12 @@ cache:
 
 before_script:
   - apt update; apt -y upgrade
-  - DEBIAN_FRONTEND=noninteractive apt -y install python3.9 python3-pip
-  - python3.9 -V  # Print out python version for debugging
+  - DEBIAN_FRONTEND=noninteractive apt -y install python3.8 python3-pip
+  - python3.8 -V  # Print out python version for debugging
   - pip3 install virtualenv
   - virtualenv venv
   - source venv/bin/activate
-  - if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+  - if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
   - apt -y install redis
 
 syntax-checks:
@@ -47,6 +47,7 @@ unit-tests:
   tags: [Dev]
   script:
     - pip3 install  nose pytest-cov 
+    - service redis start
     - export PYTHONPATH=lib ; export ROOTDIR=$(pwd); pytest --cov=./ tests
 
 # run:
