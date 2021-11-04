@@ -2,7 +2,6 @@
 
 import json
 import logging
-import sys
 from lib.mq import Consumer, Producer
 
 
@@ -39,13 +38,13 @@ class AbstractProcessor:
         """
         assert isinstance(id, str), "ID needs to be a string."
         assert id, "ID needs a value when instantiating a processor."
-        
+
         # set up the Consumer and Producers
         self.id = id
         self.instances = n
         # create self.consumer and self.producer
         # create n instances of yourself as parallel processes
-    
+
     def validate(self, msg: bytes) -> bool:
         """
         Method responsible of validating a message. Validation should do any kind
@@ -73,7 +72,7 @@ class AbstractProcessor:
         """
         logging.info("received '%r from channel %s, method: %s, properties: %r'" % (msg, channel, method, properties))
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
-    
+
     def on_message(self, msg: bytes):
         """
         This method must be implemented to handle one single message entity
@@ -87,7 +86,6 @@ class AbstractProcessor:
         :param msg: python dictionnary holding the valuable data to process
         """
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
-
 
 
 class MyProcessor(AbstractProcessor):

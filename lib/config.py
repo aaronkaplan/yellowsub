@@ -9,7 +9,6 @@ TTL = config['redis'].get('cache_ttl', 24*3600)         # 1 day default
 
 """
 
-import os
 import logging
 import yaml
 from pathlib import Path
@@ -29,13 +28,13 @@ class Config:
     def load(self, file: Path):
         """Load the config file."""
         # if no path is supplied get the config from the default location inside the project folder
-        if file == None:
+        if file is None:
             p = ProjectUtils()
             file = Path(p.get_config_path_as_str())
         try:
             with open(file, 'r') as _f:
                 self.params = yaml.safe_load(_f)
-        except (OSError,FileNotFoundError) as ex:
+        except (OSError, FileNotFoundError) as ex:
             print("could not load config file %s. Reason: %s" % (file, str(ex)))
         return self.params
 
@@ -49,7 +48,7 @@ class Config:
 # TODO:     Implement as standalone class and instantiate wherever necessary, idealy through projectutils and
 #           env varibales rather than instantiating globally. Will probably need to implement all the interfaces
 #           that dict implements at that point to support dict like interaction.
-#if __name__ == "__main__":
+# if __name__ == "__main__":
 
 p = ProjectUtils()
 ROOTDIR = p.get_project_path_as_str()
@@ -57,5 +56,5 @@ config_file_path_str = p.get_config_path_as_str()
 _c = Config()
 config = _c.load(Path(config_file_path_str))
 
-#config['general']['ROOTDIR'] = ROOTDIR
+# config['general']['ROOTDIR'] = ROOTDIR
 logging.info(config)

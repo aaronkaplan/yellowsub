@@ -120,7 +120,7 @@ class Consumer(MQ):
     """A consumer, based on the base functionality of MQ."""
 
     cb_function = None
-    
+
     def __init__(self, id: str, exchange: str, callback=None):
         super().__init__(id)
         super().connect(exchange)
@@ -129,7 +129,7 @@ class Consumer(MQ):
             self.cb_function = callback
         else:
             self.cb_function = self.process
-            
+
         super()._connect_queue(queue_name)
         super()._bind_queue()
 
