@@ -24,7 +24,8 @@ cache:
     - venv/
 
 before_script:
-  - apt install python3
+  - apt update; apt upgrade
+  - apt install python
   - python -V  # Print out python version for debugging
   - python -m pip install --upgrade pip
   - pip install virtualenv
