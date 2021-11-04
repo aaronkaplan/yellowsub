@@ -51,7 +51,7 @@ class Config:
 #           that dict implements at that point to support dict like interaction.
 #if __name__ == "__main__":
 p = ProjectUtils()
-ROOTDIR_str = p.get_project_path_as_str()
+ROOTDIR = p.get_project_path_as_str()
 config_file_path_str = p.get_config_path_as_str()
 _c = Config()
 config = _c.load(Path(config_file_path_str))
