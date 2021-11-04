@@ -6,7 +6,7 @@
 
 # Official language image. Look for the different tagged releases at:
 # https://hub.docker.com/r/library/python/tags/
-image: ubuntu:latest
+image: debian:latest
 
 # Change pip's cache directory to be inside the project directory since we can
 # only cache local items.
@@ -25,8 +25,8 @@ cache:
 
 before_script:
   - apt update; apt -y upgrade
-  - DEBIAN_FRONTEND=noninteractive apt -y install python3.8 python3-pip
-  - python3.8 -V  # Print out python version for debugging
+  - DEBIAN_FRONTEND=noninteractive apt -y install python3.9 python3-pip
+  - python3.9 -V  # Print out python version for debugging
   - pip3 install virtualenv
   - virtualenv venv
   - source venv/bin/activate
