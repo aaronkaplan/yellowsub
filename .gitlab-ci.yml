@@ -24,6 +24,7 @@ cache:
     - venv/
 
 before_script:
+  - sudo apt install python3
   - python -V  # Print out python version for debugging
   - python -m pip install --upgrade pip
   - pip install virtualenv
@@ -33,6 +34,7 @@ before_script:
   - sudo apt install redis
 
 syntax-checks:
+  tags: [Dev]
   script:
     - pip install  flake8 
     - flake8 . --ignore=E251 --count --select=E9,F63,F7,F82 --show-source --statistics
