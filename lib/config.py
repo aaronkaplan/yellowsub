@@ -50,6 +50,7 @@ class Config:
 #           env varibales rather than instantiating globally. Will probably need to implement all the interfaces
 #           that dict implements at that point to support dict like interaction.
 #if __name__ == "__main__":
+
 p = ProjectUtils()
 ROOTDIR = p.get_project_path_as_str()
 config_file_path_str = p.get_config_path_as_str()
