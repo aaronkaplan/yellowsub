@@ -20,7 +20,7 @@ That's their problem not yours. Your problem is to check if (mocked) answers to 
 
 Every commit to the main branch triggers the exeution of the tests.
 
-You can change the behaviour of the gitlab runner via the [.gitlab-ci.yml](.gitlab-ci.yml)
+You can change the behaviour of the gitlab runner via the [.gitlab-ci.yml](/.gitlab-ci.yml)
 file. Please be sure to read the [gitlab-ci.yml documentation](https://docs.gitlab.com/ee/ci/yaml/) before you change anything!
 
 The following tests will be run in sequence:
