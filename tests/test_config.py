@@ -10,3 +10,4 @@ class TestConfig(TestCase):
         config = _c.load(Path(ROOTDIR) / 'etc' / "config.yml")
         assert 'general' in config
         assert 'mq' in config['general']
+
