@@ -25,7 +25,7 @@ cache:
 
 before_script:
   - apt update; apt -y upgrade
-  - apt -y install python3.9 python3-pip
+  - DEBIAN_FRONTEND=noninteractive apt -y install python3.9 python3-pip
   - python3.9 -V  # Print out python version for debugging
   - pip3 install virtualenv
   - virtualenv venv
