@@ -25,19 +25,19 @@ cache:
 
 before_script:
   - apt update; apt -y upgrade
-  - apt -y install python
+  - apt -y install python3.9
   - python -V  # Print out python version for debugging
-  - python -m pip install --upgrade pip
-  - pip install virtualenv
+  - python3 -m pip install --upgrade pip3
+  - pip3 install virtualenv
   - virtualenv venv
   - source venv/bin/activate
-  - if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+  - if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
   - sudo apt install redis
 
 syntax-checks:
   tags: [Dev]
   script:
-    - pip install  flake8 
+    - pip3 install  flake8 
     - flake8 . --ignore=E251 --count --select=E9,F63,F7,F82 --show-source --statistics
     # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
     - flake8 . --ignore=E251 --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
@@ -45,8 +45,9 @@ syntax-checks:
 
 
 unit-tests:
+  tags: [Dev]
   script:
-    - pip install  nose pytest-cov 
+    - pip3 install  nose pytest-cov 
     - export PYTHONPATH=lib ; export ROOTDIR=$(pwd); pytest --cov=./ tests
 
 # run:
