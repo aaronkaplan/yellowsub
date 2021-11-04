@@ -25,10 +25,9 @@ cache:
 
 before_script:
   - apt update; apt -y upgrade
-  - apt -y install python3.9
+  - apt -y install python3.9 python3-pip
   - python3.9 -V  # Print out python version for debugging
-  - python3.9 -m pip install --upgrade pip3.9
-  - pip3.9 install virtualenv
+  - pip3 install virtualenv
   - virtualenv venv
   - source venv/bin/activate
   - if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
@@ -37,7 +36,7 @@ before_script:
 syntax-checks:
   tags: [Dev]
   script:
-    - pip3.9 install  flake8 
+    - pip3 install  flake8 
     - flake8 . --ignore=E251 --count --select=E9,F63,F7,F82 --show-source --statistics
     # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
     - flake8 . --ignore=E251 --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
@@ -47,7 +46,7 @@ syntax-checks:
 unit-tests:
   tags: [Dev]
   script:
-    - pip3.9 install  nose pytest-cov 
+    - pip3 install  nose pytest-cov 
     - export PYTHONPATH=lib ; export ROOTDIR=$(pwd); pytest --cov=./ tests
 
 # run:
