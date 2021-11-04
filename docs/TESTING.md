@@ -34,7 +34,7 @@ Basically, you want to test every function and every method of your classes.
 
 #### Testing a class
 
-Create a testclass. An example can be found in [tests/test_cache.py](tests/test_cache.py). 
+Create a testclass. An example can be found in [tests/test_cache.py](/tests/test_cache.py). 
 A testclass must start with the name prefix ``Test`` (example: ``TestCache``). 
 All method names prefixed with ``test_`` will be called in turn by pytest.
 
