@@ -17,7 +17,7 @@ class TestConfig(TestCase):
 
     def test_store(self):
         config = Config()
-        with self.assertRaises(RuntimeError) as _context:
+        with self.assertRaises(RuntimeError):
             config.store('/tmp/foo.yml')
 
     def test___setitem__getitem__(self):
