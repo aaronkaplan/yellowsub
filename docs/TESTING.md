@@ -49,10 +49,10 @@ function which should be called by pytest.
 You can check the success of the unit in two ways:
 
 1. execute them locally first. See the ``.gitlab-ci.yml`` file and search for the ``pytest`` line. Execute that line and observe if there are any errors.
-2. Commit code to the gitlab server and have the runner run the unit tests for you. You will get an email if things break. Also, please observe the [README.md](README.md) file. It has banners which indicate if the unit tests were successful.
+2. Commit code to the gitlab server and have the runner run the unit tests for you. You will get an email if things break. Also, please observe the [README.md](/README.md) file. It has banners which indicate if the unit tests were successful.
 
 It pays off (i.e. it is much faster) to iterate over your unit tests locally before git committing them.
-Why? Because the runner starts a docker image for every commit, configures it (apt install...), installes all
+Why? Because the runner starts a docker image for every commit, configures it (apt install...), installs all
 python dependencies (``pip install -r requirements.txt``), etc. That's slow.
 Run it locally first. 
 Ensure that they work and that they cover as much as possible before committing the unit tests.
