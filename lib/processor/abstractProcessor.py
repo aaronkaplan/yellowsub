@@ -4,6 +4,7 @@ import json
 import logging
 from lib.mq import Consumer, Producer
 from lib.config import Config, ROOTDIR
+from pathlib import Path
 
 
 class AbstractProcessor:
