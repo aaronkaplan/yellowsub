@@ -1,6 +1,6 @@
-from unittest import TestCase
-from pathlib import Path
 from lib.config import Config, ROOTDIR
+from pathlib import Path
+from unittest import TestCase
 
 
 class TestConfig(TestCase):
@@ -17,8 +17,7 @@ class TestConfig(TestCase):
 
     def test_store(self):
         config = self.load_testcases_config()
-        with pytest.raises(RuntimeError):
-            config.store('/tmp/foo')
+        self.assertRaises(RuntimeError, config.store('/tmp/foo'))
 
     def test___setitem__getitem__(self):
         config = self.load_testcases_config()
@@ -29,5 +28,3 @@ class TestConfig(TestCase):
     def test___len__(self):
         config = self.load_testcases_config()
         assert len(config) == 4
-
-
