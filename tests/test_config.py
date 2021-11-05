@@ -17,7 +17,7 @@ class TestConfig(TestCase):
 
     def test_store(self):
         config = self.load_testcases_config()
-        self.assertRaises(RuntimeError, config.store('/tmp/foo'))
+        self.assertRaises(RuntimeError, config.store, '/tmp/foo')
 
     def test___setitem__getitem__(self):
         config = self.load_testcases_config()
