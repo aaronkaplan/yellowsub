@@ -11,9 +11,8 @@ TTL = config['redis'].get('cache_ttl', 24*3600)         # 1 day default
 
 import logging
 import yaml
-from pathlib import Path
 from lib.utils.projectutils import ProjectUtils
-
+from pathlib import Path
 
 __all__ = ["config", "Config"]
 
@@ -54,7 +53,7 @@ class Config:
 
     def __setitem__(self, key: str, obj: dict) -> int:
         """Store the key and the dict as part of the config."""
-       self.params[key] = obj
+        self.params[key] = obj
 
     def __contains__(self, item) -> bool:
         """Check for existence of the key in the config. Note that this will only check the highest level.
