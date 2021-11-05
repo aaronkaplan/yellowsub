@@ -3,6 +3,7 @@
 import json
 import logging
 from lib.mq import Consumer, Producer
+from lib.config import Config, ROOTDIR
 
 
 class AbstractProcessor:
@@ -22,7 +23,7 @@ class AbstractProcessor:
 
     Here, consumer c0 reads from its (input) queue. It calls the process() function for each message.
     It does its thing with the message (f.e.x enrichment) and passes it on to its producer. The producer sends it
-    to the output exchange. The exchange is configured to fan-out to mulitple queues (queue 1 til queue 4).
+    to the output exchange. The exchange is configured to fan-out to multiple queues (queue 1 til queue 4).
     Queue 1 has two consumers c1 and c2. They will get the messages round robin again . Queue 2 has one consumer c3.
     Queue 3 has no consumers, Queue 4 has two consumers c4 and c5 again.
     """
@@ -44,6 +45,10 @@ class AbstractProcessor:
         self.instances = n
         # create self.consumer and self.producer
         # create n instances of yourself as parallel processes
+        # load the global config
+        _c = Config()
+        self.config = _c.load(Path(ROOTDIR) / 'etc/config.yml')
+        # override with specific config
 
     def validate(self, msg: bytes) -> bool:
         """
@@ -83,13 +88,15 @@ class AbstractProcessor:
         if enriched_data:
             msg['url_enriched'] = enriched_data
 
-        :param msg: python dictionnary holding the valuable data to process
+        :param msg: python dictionary holding the valuable data to process
         """
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
 
 class MyProcessor(AbstractProcessor):
     """Sample of a processor."""
+
+    msg = None
 
     def __init__(self, id: str, n: int = 1, incoming_queue="", outgoing_exchanges=[]):
         super().__init__(id, n)
@@ -117,6 +124,7 @@ class MyProcessor(AbstractProcessor):
         self.producer.produce(msg = self.msg, routing_key = "")
 
     def start(self):
+        """Start the processor."""
         self.consumer.consume()
 
 
