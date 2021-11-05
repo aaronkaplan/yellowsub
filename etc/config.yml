@@ -14,22 +14,38 @@ redis:
   db: 2
 
 
-logger:
-  output: '/var/log/my-log-file.log'    # MANDATORY, default: file. Possible other options: 'syslog', 'stderr'
-  loglevel: INFO                 # the default log levels of syslog go here, MANDATORY. Default: INFO
-  facility: yellowsub            # optional
+logging:
+  loglevel: 'DEBUG'             # optional, the actual loglevel will be set on the individual handlers, default=DEBUG
+  facility: 'yellowsub'         # optional
+  handlers:
+    - handler:
+        type: 'TimedRotatingFileHandler'
+        output: '/var/log/yellowsub.INFO.log'
+        loglevel: 'INFO'
+    - handler:
+        type: 'TimedRotatingFileHandler'
+        output: '/var/log/yellowsub.WARN.log'
+        loglevel: 'WARN'           # optional
 
 processors:
   # list of settings for each individual processor instance
   sample-gethostbyname:
     dns_recursor: "8.8.8.8"
     validate_msg: True
-    logging:              # override any of the settings of the global logger here if needed
-      output: '/var/log/here-is-my-other-logfile.log'
-      loglevel: INFO
   mispattributesearcher:
     misp_uri: "https://192.168.5.108/"
     misp_api_key: ""
+    logging: # override any of the settings of the global logger here if needed
+      loglevel: 'DEBUG'
+      handlers:
+        - handler:
+            type: 'TimedRotatingFileHandler'
+            output: '/var/log/yellowsub.mispattributesearcher.INFO.log'
+            loglevel: 'INFO'
+        - handler:
+            type: 'TimedRotatingFileHandler'
+            output: '/var/log/yellowsub.mispattributesearcher.WARN.log'
+            loglevel: 'WARN'
 
 
 workflows:
