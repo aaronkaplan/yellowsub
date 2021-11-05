@@ -16,8 +16,9 @@ class TestConfig(TestCase):
         assert 'mq' in config['general']
 
     def test_store(self):
-        config = self.load_testcases_config()
-        self.assertRaises(RuntimeError, config.store, '/tmp/foo')
+        config = Config()
+        with self.assertRaises(RuntimeError) as _context:
+            config.store('/tmp/foo.yml')
 
     def test___setitem__getitem__(self):
         config = self.load_testcases_config()
