@@ -29,8 +29,7 @@ class Config:
 
         # if no path is supplied get the config from the default location inside the project folder
         if file is None:
-            p = ProjectUtils()
-            file = Path(p.get_config_path_as_str())
+            file = Path(ProjectUtils.get_config_path_as_str())
         try:
             with open(file, 'r') as _f:
                 self.params = yaml.safe_load(_f)
@@ -74,11 +73,10 @@ class Config:
 # if __name__ == "__main__":
 
 # FIXME: this still creates the global config dict. This is going away.
-p = ProjectUtils()
-ROOTDIR = p.get_project_path_as_str()
-config_file_path_str = p.get_config_path_as_str()
+ROOTDIR = ProjectUtils.get_project_path_as_str()
+CONFIG_FILE_PATH_STR = ProjectUtils.get_config_path_as_str()
 _c = Config()
-config = _c.load(Path(config_file_path_str))
+config = _c.load(Path(CONFIG_FILE_PATH_STR))
 
 # config['general']['ROOTDIR'] = ROOTDIR
 logging.info(config)
