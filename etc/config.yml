@@ -32,7 +32,7 @@ processors:
   sample-gethostbyname:
     dns_recursor: "8.8.8.8"
     validate_msg: True
-  mispattributesearcher:
+  MispAttributeSearcher:
     misp_uri: "https://192.168.5.108/"
     misp_api_key: ""
     logging: # override any of the settings of the global logger here if needed
