@@ -3,7 +3,7 @@
 import json
 import logging
 from lib.mq import Consumer, Producer
-from lib.config import Config, ROOTDIR
+from lib.config import Config, CONFIG_FILE_PATH_STR
 from pathlib import Path
 from lib.utils.projectutils import ProjectUtils
 
@@ -49,12 +49,7 @@ class AbstractProcessor:
         # create n instances of yourself as parallel processes
         # load the global config
         _c = Config()
-
-        #BUG:
-        #TODO:  DG_Comment: this implementation does not support local testin configuration files as the path to the
-        #       config file is hardcoded use of Projectuils.get_config_path_as_str would be more appropriate
-        self.config = _c.load(Path(ROOTDIR) / 'etc/config.yml')
-        # override with specific config
+        self.config = _c.load(Path(CONFIG_FILE_PATH_STR))
 
         # setup logger using the global config the processor class name and the id of the processor
         # TODO: DG_Comment :this can and should be moved to a higher level (orchestrator) as it does not pertain
