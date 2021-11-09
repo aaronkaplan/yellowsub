@@ -50,7 +50,7 @@ class Config:
         else:
             return None
 
-    def __setitem__(self, key: str, obj: dict) -> int:
+    def __setitem__(self, key: str, obj: dict) -> None:
         """Store the key and the dict as part of the config."""
         self.params[key] = obj
 
@@ -67,14 +67,15 @@ class Config:
         return len(self.params)
 
 
-# TODO:     Implement as standalone class and instantiate wherever necessary, idealy through projectutils and
-#           env varibales rather than instantiating globally. Will probably need to implement all the interfaces
+# TODO:     Implement as standalone class and instantiate wherever necessary, ideally through projectutils and
+#           env variables rather than instantiating globally. Will probably need to implement all the interfaces
 #           that dict implements at that point to support dict like interaction.
 # if __name__ == "__main__":
 
-# FIXME: this still creates the global config dict. This is going away.
-ROOTDIR = ProjectUtils.get_project_path_as_str()
-CONFIG_FILE_PATH_STR = ProjectUtils.get_config_path_as_str()
+# FIXME:    this still creates the global config dict. This is going away.
+#           DG_Comment: I believe these globals should be part of the Config class
+ROOTDIR: str = ProjectUtils.get_project_path_as_str()
+CONFIG_FILE_PATH_STR: str = ProjectUtils.get_config_path_as_str()
 _c = Config()
 config = _c.load(Path(CONFIG_FILE_PATH_STR))
 
