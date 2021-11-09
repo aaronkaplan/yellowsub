@@ -54,7 +54,7 @@ class Config:
         """Store the key and the dict as part of the config."""
         self.params[key] = obj
 
-    def __contains__(self, item) -> bool:
+    def __contains__(self, item: object) -> bool:
         """Check for existence of the key in the config. Note that this will only check the highest level.
         It will not iterate through the whole tree.
         """
