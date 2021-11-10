@@ -90,6 +90,24 @@ Simple! We tell the processor class via its __init__() function:
 Next step:
 
 
+# Style
+
+We will adhere to PEP8.
+
+## String formatting
+
+Please use the f-string syntax: print(f"foo {}".format("xyz"))
+
+## Docstrings
+
+We use Epytext docstring formats. Please make sure that 
+
+* every class has a docstring 
+* every method
+* every function has docstring
+* every module MUST have a docstring
+
+
 
 
 
