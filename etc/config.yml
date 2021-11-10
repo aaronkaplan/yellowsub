@@ -29,9 +29,21 @@ logging:
 
 processors:
   # list of settings for each individual processor instance
-  sample-gethostbyname:
+  gethostbyname:
+    dry_run: True
     dns_recursor: "8.8.8.8"
     validate_msg: True
+    logging:
+      loglevel: 'DEBUG'
+        handlers:
+          - handler:
+              type: 'TimedRotatingFileHandler'
+              output: '/var/log/yellowsub.gethostbyname.INFO.log'
+              loglevel: 'INFO'
+          - handler:
+              type: 'TimedRotatingFileHandler'
+              output: '/var/log/yellowsub.gethostbyname.WARN.log'
+              loglevel: 'WARN'
   mispattributesearcher:
     misp_uri: "https://192.168.5.108/"
     misp_api_key: ""

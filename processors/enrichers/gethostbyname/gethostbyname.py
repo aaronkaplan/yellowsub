@@ -35,6 +35,8 @@ class GetHostByName(Enricher):
 
     def process(self, channel=None, method=None, properties=None, msg: dict = {}):
         fqdn = msg.get('fqdn', None)
+        self.logger.warn("(warning) about to log %s" %fqdn)
+        self.logger.info("here is some info for %s" %fqdn)
         if fqdn:
             ips = get_ips_by_dns_lookup(fqdn)
             msg['ips'] = ips
