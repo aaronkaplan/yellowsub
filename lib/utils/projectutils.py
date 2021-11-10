@@ -116,18 +116,18 @@ class ProjectUtils:
         if processor_class is None:
             ProjectUtils.__setup_root_logger(config)
         # DG_Comment: Check if the config contains configuration for the processor(safety check)
-        elif processor_class.lower() not in config["processors"]:
+        elif processor_class not in config["processors"]:
             raise RuntimeError("The processor class is not defined in the config")
         # DG_Comment: set individual loggers per processor
         else:
             ProjectUtils.__setup_root_logger(config)
-            processor_config = config["processors"][processor_class.lower()]
+            processor_config = config["processors"][processor_class]
             # If there is not a specific processor level logger setup the root logger
             if "logging" not in processor_config.keys():
                 ProjectUtils.__setup_root_logger(config)
             # DG_Comment: If there is a specific processor level logger set it up
             else:
-                processor_logger = logging.getLogger("yellowsub." + processor_class.lower() + "." + processor_id)
+                processor_logger = logging.getLogger("yellowsub." + processor_class + "." + processor_id)
                 if len(processor_logger.handlers) == 0:
                     formatter = logging.Formatter('%(asctime)s|%(created)s|%(name)s|%(levelname)s: %(message)s')
                     logger_config = processor_config["logging"]
@@ -163,8 +163,7 @@ class ProjectUtils:
         @return: An instance of the logger that was requested
         @rtype: logging.Logger
         """
-        normalized_logger_name = logger_name.lower()
-        process_logger = logging.getLogger("yellowsub." + normalized_logger_name)
+        process_logger = logging.getLogger("yellowsub." + logger_name)
         root_logger = logging.getLogger("yellowsub")
 
         # DG_Comment: if no class name is provided return the root logger
