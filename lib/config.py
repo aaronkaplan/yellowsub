@@ -14,7 +14,7 @@ import yaml
 from lib.utils.projectutils import ProjectUtils
 from pathlib import Path
 
-__all__ = ["config", "Config"]
+__all__ = ["ROOTDIR","CONFIG_FILE_PATH_STR","config", "Config"]
 
 
 class Config:
@@ -73,11 +73,12 @@ class Config:
 # if __name__ == "__main__":
 
 # FIXME:    this still creates the global config dict. This is going away.
-#           DG_Comment: I believe these globals should be part of the Config class
+#           DG_Comment: I believe these globals should be part of the Config class or rather be called from PorjectUtils
+#                       as static methods wherever they are needed
 ROOTDIR: str = ProjectUtils.get_project_path_as_str()
 CONFIG_FILE_PATH_STR: str = ProjectUtils.get_config_path_as_str()
-_c = Config()
-config = _c.load(Path(CONFIG_FILE_PATH_STR))
+#_c = Config()
+#config = _c.load(Path(CONFIG_FILE_PATH_STR))
 
 # config['general']['ROOTDIR'] = ROOTDIR
-logging.info(config)
+#logging.info(config)

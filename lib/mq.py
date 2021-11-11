@@ -10,7 +10,9 @@ import uuid
 
 import pika
 
-from lib.config import config
+from pathlib import Path
+
+from lib.config import Config, CONFIG_FILE_PATH_STR
 from lib.utils import sanitize_password_str
 
 
@@ -24,6 +26,8 @@ class MQ:
     id: str = ""
 
     def __init__(self, id: str = str(uuid.uuid4())):
+        _c = Config()
+        self.config = _c.load(Path(CONFIG_FILE_PATH_STR))
         self.id = id
 
     def connect(self, exchange: str = ""):
@@ -31,11 +35,11 @@ class MQ:
 
         try:
             logging.info("connecting to RabbitMQ...")
-            host = config['rabbitmq']['host']
-            port = int(config['rabbitmq'].get('port', 5672))
+            host = self.config['rabbitmq']['host']
+            port = int(self.config['rabbitmq'].get('port', 5672))
             # user and password config
-            user = config['rabbitmq'].get('user', "guest")
-            password = config['rabbitmq'].get('password', "guest")
+            user = self.config['rabbitmq'].get('user', "guest")
+            password = self.config['rabbitmq'].get('password', "guest")
             credentials = pika.PlainCredentials(user, password)
             logging.info("Attempting to connect with (%s:%d as %s/%s)" % (host, port, user,
                                                                           sanitize_password_str(password)))
@@ -56,7 +60,6 @@ class MQ:
         except Exception as ex:
             logging.error("can't set up channel and exchange. Reason: %s. Bailing out." % (str(ex)))
             sys.exit(-2)
-            return False
         logging.info("Done")
         return True
 

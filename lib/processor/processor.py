@@ -3,7 +3,6 @@ import json
 import logging
 # from lib.dataformat import DataFormat
 from lib.processor.abstractProcessor import AbstractProcessor
-from lib.config import config
 
 
 class Processor(AbstractProcessor):
@@ -35,7 +34,7 @@ class Processor(AbstractProcessor):
         if not msg:
             return
         msg = self._convert_to_internal_df(msg)
-        if self.id in config['processors'] and 'validate_msg' in config['processors'][self.id] and config['processors'][self.id]['validate_msg']:
+        if self.id in self.config['processors'] and 'validate_msg' in self.config['processors'][self.id] and self.config['processors'][self.id]['validate_msg']:
             self.validate(msg)
         self.process(channel, method, properties, msg)
         # here we submit to the other exchanges
