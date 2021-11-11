@@ -1,4 +1,3 @@
-from lib.config import config
 from lib.processor.enricher import Enricher
 from pymisp import PyMISP
 
@@ -11,18 +10,16 @@ class MispAttributeSearcher(Enricher):
     # TODO:  implement logging globally
     def __init__(self, id: str, n: int = 1):
         super().__init__(id, n)
-        c=config
+        c=self.config
         try:
-            self.misp_url = c["processors"]["mispattributesearcher"]["misp_uri"]
-            self.misp_api_key = c["processors"]["mispattributesearcher"]["misp_api_key"]
+            self.misp_url = c["processors"][self.__class__.__name__]["misp_uri"]
+            self.misp_api_key = c["processors"][self.__class__.__name__]["misp_api_key"]
         except KeyError as e:
-            print("could not load config for MispAttributeSearcher Reason: {}".format(str(e)))
-            raise e
+            raise RuntimeError("could not load config for MispAttributeSearcher Reason: {}".format(str(e)))
         try:
             self.misp_connection = PyMISP(self.misp_url, self.misp_api_key, False, 'json')
         except Exception as e:
-            print("could not open MISP connection in MispAttributeSearcher Reason: {}".format(str(e)))
-            raise e
+            raise RuntimeError("could not open MISP connection in MispAttributeSearcher Reason: {}".format(str(e)))
 
     def process(self, channel=None, method=None, properties=None, msg: dict = {}):
         # TODO:  This has to contain the value we are searching for in attributes
@@ -50,11 +47,11 @@ class MispAttributeSearcher(Enricher):
 
 if __name__ == "__main__":
     '''debugging'''
-    c=config
-    print(c)
     msg={}
     msg["search_value"] = "88.132.150.82"
     ms = MispAttributeSearcher("313")
+    c = ms.config
+    print(c)
     found, message = ms.process(channel=None, method=None, properties=None, msg=msg)
     print("MAMA")
 
