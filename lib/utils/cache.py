@@ -20,7 +20,7 @@ from pathlib import Path
 from lib.config import Config, CONFIG_FILE_PATH_STR
 
 c = Config()
-config = c.load('etc/config.yml')
+config = c.load(Path(CONFIG_FILE_PATH_STR))
 TTL = config['redis'].get('cache_ttl', 24 * 3600)  # 1 day default
 
 
