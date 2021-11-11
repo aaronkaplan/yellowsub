@@ -19,9 +19,20 @@
 ## Setting up your developing environment
 
 ### git pre-commit hook
-XXX Dan add instructions how to run the pre-commit hooks.
-Take the example code from contrib/pre-commit... 
-And do ...
+The git client hooks are stored inside /yellowsub/contrib/hooks.
+
+You need to make sure these are executable in your local repo.
+
+Example:
+```chmod +x contrib/hooks/pre-commit```
+
+In addition you need to create symlinks for them inside your local yellowsub/.git/hooks/ folder. By convention the files
+under yellowsub/.git/hooks have to have no extension and be executable in order to be run. **Make sure your 
+symlink is properly set up**
+
+Example:
+```ln -s ./contrib/hooks/pre-commit ./.git/hooks/pre-commit```
+
 
 
 ## How do I write my own processor?

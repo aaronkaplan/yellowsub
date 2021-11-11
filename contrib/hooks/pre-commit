@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# stop the build if there are Python syntax errors or undefined names
+flake8 . --ignore=E251,E225,E741,E501,W605,W391 --exclude=.git,venv,contrib,lib/python3.8 --count --show-source --statistics
+if [ "$?" -ne 0 ]
+then
+  exit 1
+fi
+
+# exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+flake8 . --ignore=E251,E225,E741,E501,W605,W391 --exclude=.git,venv,contrib,lib/python3.8 --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+if [ "$?" -ne 0 ]
+then
+  exit 1
+fi
+
+pytest --cov=./ tests
+if [ "$?" -ne 0 ]
+then
+  exit 1
+fi
+
+echo "Precommit Script Finished with no Errors"
+exit 0
