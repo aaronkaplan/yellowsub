@@ -6,6 +6,9 @@ from lib.utils.cache import Cache
 class TestCache(TestCase):
     c = Cache()
 
+    def test_flush(self):
+        self.c.flushdb()
+
     def test__setitem__getitem__(self):
         self.c["foo"] = "bar"
         assert "bar" == self.c["foo"]
@@ -19,8 +22,13 @@ class TestCache(TestCase):
         assert "foo44" in self.c
 
     def test__len__(self):
-        print("number of entries in the cache dict: %d" % len(self.c))
+        print("number of entries in the cache dict: %d BEFORE flushing" % len(self.c))
+        self.c.flushdb()
+        self.c["foo"] = "bar"
+        self.c['foo44'] = "xyz"
+        self.c["xyz"] = 123
         assert len(self.c) == 3
+        self.c.flushdb()
 
 
 if __name__ == "__main__":
