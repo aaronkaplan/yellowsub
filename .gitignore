@@ -138,3 +138,6 @@ dmypy.json
 
 # Testing configuration files (might include keys)
 /etc/config_test.yml
+
+#Unit Testing
+/man
