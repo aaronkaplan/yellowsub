@@ -60,7 +60,7 @@ class Cache:
             self.r.expire(key, ttl)
         return rv
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Return how many keys are stored in redis."""
 
         info = self.r.info("keyspace")
@@ -70,5 +70,8 @@ class Cache:
             numkeys = info[db]["keys"]
         return numkeys
 
+    def flushdb(self):
+        """Flush the current redis DB. WARNING: this flushes it! No confirmation asked."""
+        return self.r.flushdb()
 
 cache = Cache()
