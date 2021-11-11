@@ -74,4 +74,5 @@ class Cache:
         """Flush the current redis DB. WARNING: this flushes it! No confirmation asked."""
         return self.r.flushdb()
 
+# XXX FIXME: this global cache var needs to die XXX
 cache = Cache()
