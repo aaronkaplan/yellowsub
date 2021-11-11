@@ -28,4 +28,4 @@ class TestConfig(TestCase):
 
     def test___len__(self):
         config = self.load_testcases_config()
-        assert len(config) == 4
+        assert len(config) == 5
