@@ -1,5 +1,6 @@
 # Developer Guide
 
+
 ## Where is what?  Code repository overview
 
 ``lib/`` contains the core components of the framework:
@@ -13,6 +14,14 @@
   * ``docs/`` documentation
   * ``tests/`` unit tests
   * ``etc/*`` the config sample directory
+
+
+## Setting up your developing environment
+
+### git pre-commit hook
+XXX Dan add instructions how to run the pre-commit hooks.
+Take the example code from contrib/pre-commit... 
+And do ...
 
 
 ## How do I write my own processor?
