@@ -19,8 +19,3 @@ logger:
   output: '/var/log/my-log-file.log'    # MANDATORY, default: file. Possible other options: 'syslog', 'stderr'
   loglevel: INFO                 # the default log levels of syslog go here, MANDATORY. Default: INFO
   facility: yellowsub            # optional
-
-
-processors:
-  myloggingtestclass:
-     ....
