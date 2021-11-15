@@ -76,8 +76,4 @@ class Config:
 #                       as static methods wherever they are needed
 ROOTDIR: str = ProjectUtils.get_project_path_as_str()
 CONFIG_FILE_PATH_STR: str = ProjectUtils.get_config_path_as_str()
-# _c = Config()
-# config = _c.load(Path(CONFIG_FILE_PATH_STR))
 
-# config['general']['ROOTDIR'] = ROOTDIR
-# logging.info(config)

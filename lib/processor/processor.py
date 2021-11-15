@@ -1,6 +1,5 @@
 """Processor - a subclass of Abstract Processor."""
 import json
-import logging
 # from lib.dataformat import DataFormat
 from lib.processor.abstractProcessor import AbstractProcessor
 
@@ -18,7 +17,7 @@ class Processor(AbstractProcessor):
         try:
             data = json.loads(msg)
         except Exception as ex:
-            logging.error("Could not convert msg (bytes) to msg (JSON) internal format. Reason: %s" % str(ex))
+            self.logger.error("Could not convert msg (bytes) to msg (JSON) internal format. Reason: %s" % str(ex))
             return None
         return data
 

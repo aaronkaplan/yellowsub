@@ -1,7 +1,6 @@
 """The Abstract Processor class"""
 
 import json
-import logging
 from lib.mq import Consumer, Producer
 from lib.config import Config, CONFIG_FILE_PATH_STR
 from pathlib import Path
@@ -86,7 +85,7 @@ class AbstractProcessor:
         :param properties: the properties attached to the message
         :param msg: the message (byte representation of a dict)
         """
-        logging.info("received '%r from channel %s, method: %s, properties: %r'" % (msg, channel, method, properties))
+        self.logger.info("received '%r from channel %s, method: %s, properties: %r'" % (msg, channel, method, properties))
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
     def on_message(self, msg: bytes):
@@ -128,7 +127,7 @@ class MyProcessor(AbstractProcessor):
         """
         self.msg = json.loads(msg)
         # validate the message here
-        logging.info("MyProcessor (ID: %s). Got msg %r" % (self.id, self.msg))
+        self.logger.info("MyProcessor (ID: %s). Got msg %r" % (self.id, self.msg))
         # do something with the msg in the process() function, the msg is in self.msg
         # ...
         # then send it onwards to the outgoing exchange
@@ -137,11 +136,3 @@ class MyProcessor(AbstractProcessor):
     def start(self):
         """Start the processor."""
         self.consumer.consume()
-
-
-if __name__ == "__main__":
-    logging.basicConfig()
-    logging.getLogger().setLevel(logging.INFO)
-
-    p = MyProcessor(id = "myProc", n = 1)
-    p.start()
