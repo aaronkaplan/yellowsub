@@ -41,7 +41,34 @@ class TestProjectUtils(TestCase):
         self.assertEqual(ProjectUtils.get_project_path_as_str(), project_p)
 
     def test_get_config_path_as_str(self):
-        pass
+        initial_env_yellowsub_test = os.getenv("YELLOWSUB_TEST")
+
+        p = os.path.dirname(os.path.realpath(__file__))
+        project_p = p[:p.find("yellowsub") + len("yellowsub")] + "/"
+
+        os.environ["YELLOWSUB_TEST"] = "1"
+        self.assertEqual(ProjectUtils.get_config_path_as_str(), project_p + "etc/config_test.yml")
+
+        os.environ["YELLOWSUB_TEST"] = "true"
+        self.assertEqual(ProjectUtils.get_config_path_as_str(), project_p + "etc/config_test.yml")
+
+        os.environ["YELLOWSUB_TEST"] = "TRUE"
+        self.assertEqual(ProjectUtils.get_config_path_as_str(), project_p + "etc/config_test.yml")
+
+        os.environ["YELLOWSUB_TEST"] = "0"
+        self.assertEqual(ProjectUtils.get_config_path_as_str(), project_p + "etc/config.yml")
+
+        os.environ["YELLOWSUB_TEST"] = "false"
+        self.assertEqual(ProjectUtils.get_config_path_as_str(), project_p + "etc/config.yml")
+
+        os.environ["YELLOWSUB_TEST"] = "FALSE"
+        self.assertEqual(ProjectUtils.get_config_path_as_str(), project_p + "etc/config.yml")
+
+        os.unsetenv("YELLOWSUB_TEST")
+        self.assertEqual(ProjectUtils.get_config_path_as_str(), project_p + "etc/config.yml")
+
+        if initial_env_yellowsub_test is not None:
+            os.environ["YELLOWSUB_TEST"] = initial_env_yellowsub_test
 
     def test____setup_root_logger(self):
         pass
