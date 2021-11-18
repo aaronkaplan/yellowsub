@@ -1,0 +1,10 @@
+datamodels:
+    - model:
+        name: "stix-2.1"
+        filename: "lib/datamodels/stix-2.1.json"
+    - model:
+        name: "csirc-jira-flat-events"
+        filename: "lib/datamodels/csirc.json"
+    - model:
+        name: "soc-cim"
+        filename: "lib/datamodels/cim.json"
