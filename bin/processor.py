@@ -1,7 +1,7 @@
 """Workflows orchestrator"""
 
 import click
-import lib.config
+# import lib.config
 
 
 @click.group()
@@ -30,7 +30,7 @@ def cli(ctx, config, rootdir, verbose):
 @click.pass_context
 def start(ctx, id):
     """
-    Start all (default) or a specific processor by ID. 
+    Start all (default) or a specific processor by ID.
     """
 
     if id != '*':
@@ -44,7 +44,7 @@ def start(ctx, id):
 @click.pass_context
 def stop(ctx, id):
     """
-    Stop a specific processor given by ID. 
+    Stop a specific processor given by ID.
     """
 
     click.echo("Stoping processor ID {}".format(id))

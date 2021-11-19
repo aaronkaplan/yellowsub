@@ -65,10 +65,8 @@ class Config:
         """
         return len(self.params)
 
-
     def get_processors(self) -> list:
         return self.params['processors']
-
 
 
 # TODO:     Implement as standalone class and instantiate wherever necessary, ideally through projectutils and
