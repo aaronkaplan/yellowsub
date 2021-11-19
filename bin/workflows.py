@@ -3,9 +3,6 @@
 import click
 
 
-
-
-
 @click.group()
 @click.option('--config', default='etc/config.yml', type=click.Path(exists=True), help='The main config file.')
 @click.option('--rootdir', default='.', type=click.Path(exists=True), help='The root directory')
@@ -32,14 +29,13 @@ def cli(ctx, config, rootdir, verbose):
 @click.pass_context
 def start(ctx, id):
     """
-    Start all (default) or a specific workflow by ID. 
+    Start all (default) or a specific workflow by ID.
     """
 
-    if id != '*': 
+    if id != '*':
         click.echo("Starting workflows ID {} using {}".format(id, ctx.obj['config']))
     else:
         click.echo("Starting all workflows in {}".format(ctx.obj['config']))
-
 
 
 @cli.command(short_help='Stop workflows')
@@ -47,10 +43,10 @@ def start(ctx, id):
 @click.pass_context
 def stop(ctx, id):
     """
-    Stop all (default) or a specific workflow by ID. 
+    Stop all (default) or a specific workflow by ID.
     """
 
-    if id != '*': 
+    if id != '*':
         click.echo("Stoping workflows ID {} using {}".format(id, ctx.obj['config']))
     else:
         click.echo("Stoping all workflows in {}".format(ctx.obj['config']))
