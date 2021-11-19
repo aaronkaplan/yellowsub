@@ -3,9 +3,6 @@
 import click
 
 
-
-
-
 @click.group()
 @click.option('--config', default='etc/config.yml', type=click.Path(exists=True), help='The main config file.')
 @click.option('--rootdir', default='.', type=click.Path(exists=True), help='The root directory')
@@ -23,34 +20,32 @@ def cli(ctx, config, rootdir, verbose):
     if rootdir:
         click.echo('using rootdir {}'.format(rootdir))
         ctx.obj['rootdir'] = rootdir
-
     pass
 
 
 @cli.command(short_help='Start workflows')
 @click.option('--id', type=str, help='Start a specific workflow ID. Default: *', default='*', required=False)
 @click.pass_context
-def start(ctx, id):
+def start(ctx, _id):
     """
     Start all (default) or a specific workflow by ID. 
     """
 
-    if id != '*': 
+    if _id != '*':
         click.echo("Starting workflows ID {} using {}".format(id, ctx.obj['config']))
     else:
         click.echo("Starting all workflows in {}".format(ctx.obj['config']))
 
 
-
 @cli.command(short_help='Stop workflows')
 @click.option('--id', type=str, help='Stop a specific workflow ID. Default: *', default='*', required=False)
 @click.pass_context
-def stop(ctx, id):
+def stop(ctx, _id):
     """
     Stop all (default) or a specific workflow by ID. 
     """
 
-    if id != '*': 
+    if _id != '*':
         click.echo("Stoping workflows ID {} using {}".format(id, ctx.obj['config']))
     else:
         click.echo("Stoping all workflows in {}".format(ctx.obj['config']))
