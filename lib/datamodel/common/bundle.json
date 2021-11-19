@@ -31,49 +31,49 @@
           {
             "oneOf": [
               {
-                "$ref": "../sdos/attack-pattern.json"
+                "$ref": "../stix-sdos/attack-pattern.json"
               },
               {
-                "$ref": "../sdos/campaign.json"
+                "$ref": "../stix-sdos/campaign.json"
               },
               {
-                "$ref": "../sdos/course-of-action.json"
+                "$ref": "../stix-sdos/course-of-action.json"
               },
               {
-                "$ref": "../sdos/identity.json"
+                "$ref": "../stix-sdos/identity.json"
               },
               {
-                "$ref": "../sdos/indicator.json"
+                "$ref": "../stix-sdos/indicator.json"
               },
               {
-                "$ref": "../sdos/infrastructure.json"
+                "$ref": "../stix-sdos/infrastructure.json"
               },
               {
-                "$ref": "../sdos/intrusion-set.json"
+                "$ref": "../stix-sdos/intrusion-set.json"
               },
               {
-                "$ref": "../sdos/malware.json"
+                "$ref": "../stix-sdos/malware.json"
               },
               {
-                "$ref": "../sdos/observed-data.json"
+                "$ref": "../stix-sdos/observed-data.json"
               },
               {
-                "$ref": "../sros/relationship.json"
+                "$ref": "../stix-sros/relationship.json"
               },
               {
-                "$ref": "../sdos/report.json"
+                "$ref": "../stix-sdos/report.json"
               },
               {
-                "$ref": "../sros/sighting.json"
+                "$ref": "../stix-sros/sighting.json"
               },
               {
-                "$ref": "../sdos/threat-actor.json"
+                "$ref": "../stix-sdos/threat-actor.json"
               },
               {
-                "$ref": "../sdos/tool.json"
+                "$ref": "../stix-sdos/tool.json"
               },
               {
-                "$ref": "../sdos/vulnerability.json"
+                "$ref": "../stix-sdos/vulnerability.json"
               },
               {
                 "$ref": "../observables/artifact.json"
