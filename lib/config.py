@@ -66,6 +66,11 @@ class Config:
         return len(self.params)
 
 
+    def get_processors(self) -> list:
+        return self.params['processors']
+
+
+
 # TODO:     Implement as standalone class and instantiate wherever necessary, ideally through projectutils and
 #           env variables rather than instantiating globally. Will probably need to implement all the interfaces
 #           that dict implements at that point to support dict like interaction.
@@ -76,4 +81,6 @@ class Config:
 #                       as static methods wherever they are needed
 ROOTDIR: str = ProjectUtils.get_project_path_as_str()
 CONFIG_FILE_PATH_STR: str = ProjectUtils.get_config_path_as_str()
+
+
 
