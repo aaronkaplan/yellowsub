@@ -4,9 +4,6 @@ import click
 import lib.config
 
 
-
-
-
 @click.group()
 @click.option('--config', default='etc/config.yml', type=click.Path(exists=True), help='The main config file.')
 @click.option('--rootdir', default='.', type=click.Path(exists=True), help='The root directory')
@@ -36,11 +33,10 @@ def start(ctx, id):
     Start all (default) or a specific processor by ID. 
     """
 
-    if id != '*': 
+    if id != '*':
         click.echo("Starting processor ID {} using {}".format(id, ctx.obj['config']))
     else:
         click.echo("Starting all processor in {}".format(ctx.obj['config']))
-
 
 
 @cli.command(short_help='Stop processor')
