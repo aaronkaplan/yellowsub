@@ -29,8 +29,3 @@ class TestCache(TestCase):
         self.c["xyz"] = 123
         assert len(self.c) == 3
         self.c.flushdb()
-
-
-if __name__ == "__main__":
-    t = TestCache()
-    t.test__setitem__getitem__()
