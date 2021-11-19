@@ -35,4 +35,4 @@ class TestConfig(TestCase):
         _c = Config()
         _c.load(Path(ROOTDIR) / 'tests/data/etc' / "config.yml")
         print(_c.get_processors())
-        assert 'gethostbynameXX' in  _c.get_processors()
+        assert 'gethostbyname' in  _c.get_processors()
