@@ -140,3 +140,6 @@ dmypy.json
 
 #Unit Testing
 /man
+
+# temp stuff
+tmp/
