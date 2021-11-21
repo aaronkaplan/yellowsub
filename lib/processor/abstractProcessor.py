@@ -136,3 +136,4 @@ class MyProcessor(AbstractProcessor):
     def start(self):
         """Start the processor."""
         self.consumer.consume()
+

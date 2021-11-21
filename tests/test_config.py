@@ -28,4 +28,11 @@ class TestConfig(TestCase):
 
     def test___len__(self):
         config = self.load_testcases_config()
-        assert len(config) == 4
+        assert len(config) == 6
+
+    def test_get_processors(self):
+        # config = self.load_testcases_config()
+        _c = Config()
+        _c.load(Path(ROOTDIR) / 'tests/data/etc' / "config.yml")
+        print(_c.get_processors())
+        assert 'gethostbyname' in _c.get_processors()
