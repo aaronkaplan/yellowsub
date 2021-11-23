@@ -2,7 +2,7 @@
 
 ## Unit tests
 
-Every commit shall have an automatic unit test run.
+Every commit must have an automatic unit test run.
 The unit tests will run via gitlab's runners and/or github's actions.
 
 ### What is a unit test?
