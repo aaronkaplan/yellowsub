@@ -1,6 +1,7 @@
 """The Abstract Processor class"""
 
 import json
+import sys
 from lib.config import CONFIG_FILE_PATH_STR, Config
 from lib.mq import Consumer, Producer
 from lib.utils.projectutils import ProjectUtils
@@ -104,8 +105,7 @@ class AbstractProcessor:
         :param properties: the properties attached to the message
         :param msg: the message (byte representation of a dict)
         """
-        self.logger.info(
-                "received '%r from channel %s, method: %s, properties: %r'" % (msg, channel, method, properties))
+        self.logger.info("received '%r from channel %s, method: %s, properties: %r'" % (msg, channel, method, properties))
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
     def on_message(self, msg: bytes):
