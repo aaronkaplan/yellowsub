@@ -1,10 +1,11 @@
 """The Abstract Processor class"""
 
 import json
+from lib.config import CONFIG_FILE_PATH_STR, Config
 from lib.mq import Consumer, Producer
-from lib.config import Config, CONFIG_FILE_PATH_STR
-from pathlib import Path
 from lib.utils.projectutils import ProjectUtils
+from pathlib import Path
+from typing import List
 
 
 class AbstractProcessor:
@@ -30,8 +31,11 @@ class AbstractProcessor:
     """
     id: str = None
     consumer: Consumer = None
+    in_queue: str = None
     producer: Producer = None
+    out_exchanges: List[str] = []
     instances: int = 1
+    config = dict()
 
     def __init__(self, id: str, n: int = 1):
         """
@@ -41,24 +45,39 @@ class AbstractProcessor:
         assert isinstance(id, str), "ID needs to be a string."
         assert id, "ID needs a value when instantiating a processor."
 
-        # set up the Consumer and Producers
         self.id = id
         self.instances = n
-        # create self.consumer and self.producer
-        # create n instances of yourself as parallel processes
-        # load the global config
-        _c = Config()
-        self.config = _c.load(Path(CONFIG_FILE_PATH_STR))
+
+        # make sure the config is loaded
+        self.load_config(id)
 
         # setup logger using the global config the processor class name and the id of the processor
         # TODO: DG_Comment :this can and should be moved to a higher level (orchestrator) as it does not pertain
         #       to the processor itself in addition setting up the logger should probably be made at the same
         #       level and not using ProjectUtils
-
         ProjectUtils.configure_logger(self.config, self.__class__.__name__, self.id)
 
         # using getLogger from ProjectUtils to get the logger
         self.logger = ProjectUtils.get_logger(self.__class__.__name__ + "." + str(self.id))
+
+        # Do other startup stuff like connecting to an enrichment DB such as maxmind or so.
+        # Load the input queue and output exchanges, this processor will have to connect to
+
+    def load_config(self, id: str):
+        """
+        Load the global config file (usually etc/config.yml) and also check if a specific config file
+        for this processor exists in etc.d/<id>.yml. If such a specific config file exist, merge it into the
+        self.config dict
+
+        :param id: The processor's ID string
+        """
+        # load the global config
+        _c = Config()
+        try:
+            self.config = _c.load(Path(CONFIG_FILE_PATH_STR))
+        except Exception as ex:
+            print("Error while loading processor {}'s global config. Reason: {}".format(self.id, str(ex)))
+            sys.exit(255)
 
     def validate(self, msg: bytes) -> bool:
         """
@@ -85,7 +104,8 @@ class AbstractProcessor:
         :param properties: the properties attached to the message
         :param msg: the message (byte representation of a dict)
         """
-        self.logger.info("received '%r from channel %s, method: %s, properties: %r'" % (msg, channel, method, properties))
+        self.logger.info(
+                "received '%r from channel %s, method: %s, properties: %r'" % (msg, channel, method, properties))
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
     def on_message(self, msg: bytes):
@@ -98,9 +118,43 @@ class AbstractProcessor:
         if enriched_data:
             msg['url_enriched'] = enriched_data
 
+
         :param msg: python dictionary holding the valuable data to process
         """
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
+
+    def start(self):
+        """
+        Start processing incoming messages. Calling start() makes the processor ready to accept incoming message,
+        process them and send them top the output exchanges.
+        This means, start() will connect the processor to its output exchanges and its input queue.
+
+        The start function will then signal the orchestrator, that this processor is running.
+
+        The difference to the __init__() function is that, __init__() shall deal with loading of the config,
+        connecting to DBs, reading in supporting data sets, etc.
+        Therefore, the assumption here is that the config for this processor is already loaded at this stage.
+
+        """
+        pass
+
+    def reload(self):
+        """
+        Reload the config. Possibly also reconnect to different input queues and/or output exchanges.
+        """
+        pass
+
+    def pause(self):
+        """
+        Pause processing of infos. Connections to incoming MQs and outgoing exchanges will remain open.
+        """
+        pass
+
+    def stop(self):
+        """
+        Stop processing, disconnect from incoming MQs, outgoing exchanges. Tear down DB connections etc.
+        """
+        pass
 
 
 class MyProcessor(AbstractProcessor):
@@ -136,4 +190,3 @@ class MyProcessor(AbstractProcessor):
     def start(self):
         """Start the processor."""
         self.consumer.consume()
-

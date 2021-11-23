@@ -27,8 +27,12 @@ class MQ:
 
     def __init__(self, id: str = str(uuid.uuid4())):
         _c = Config()
-        self.config = _c.load(Path(CONFIG_FILE_PATH_STR))
+        self.config = _c.load(Path(CONFIG_FILE_PATH_STR))       # FIXME: refactor this, make it into one line
         self.id = id
+
+    def __del__(self):
+        self._queue_unbind()
+        self.channel.close()
 
     def connect(self, exchange: str = ""):
         """Connect to the MQ system."""
@@ -68,7 +72,7 @@ class MQ:
         if exchange:
             logging.info("Creating exchange %s" % exchange)
             try:
-                self.channel.exchange_declare(exchange = self.exchange, exchange_type = 'fanout')
+                self.channel.exchange_declare(exchange = self.exchange, exchange_type = 'fanout', durable=True)
             except Exception as ex:
                 logging.error("can't Create exchange '%s'. Reason: %s" % (exchange, str(ex)))
                 raise ex
@@ -89,8 +93,11 @@ class MQ:
         self.channel.basic_qos(prefetch_count = 1)
         self.queue_name = self.queue.method.queue
 
-    def _bind_queue(self):
+    def _queue_bind(self):
         self.channel.queue_bind(exchange = self.exchange, queue = self.queue_name)
+
+    def _queue_unbind(self):
+        self.channel.queue_unbind(queue = self.queue_name, exchange = self.exchange)
 
     def close(self):
         """Close the connection to rabbitmq."""
@@ -134,7 +141,11 @@ class Consumer(MQ):
             self.cb_function = self.process
 
         super()._connect_queue(queue_name)
-        super()._bind_queue()
+        super()._queue_bind()
+
+    def __del__(self):
+        super()._queue_unbind()
+        self.channel.close()
 
     def consume(self) -> None:
         """Register the callback function for consuming from the exchange / queue given the routing_key."""
@@ -146,6 +157,7 @@ class Consumer(MQ):
         """Handle the arriving message."""
         logging.info("received '%r'" % msg)
         print("[*] received '%r'" % msg)
+        self.channel.basic_ack()
 
 
 if __name__ == "__main__":
