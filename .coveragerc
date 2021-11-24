@@ -1,2 +1,2 @@
 [run]
-omit = venv/*,tmp/*,docs/*
+omit = venv/*,tmp/*,docs/*,etc/*,contrib/*,cache/*
