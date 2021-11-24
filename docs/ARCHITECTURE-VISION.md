@@ -38,7 +38,7 @@ class MyProcessor(Enricher):
         ...
         pass
 
-myproc = MyProcessor(id="the-quick-brown-fox")
+myproc = MyProcessor(id="the-quick-brown-fox")         # <-- Note the id= parameter here!
 myproc.start()
 ```
 ### 
