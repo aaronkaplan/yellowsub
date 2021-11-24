@@ -1,0 +1,22 @@
+name: mispattributesearcher   # the ID
+description: "The MISPattributesearcher enricher will search for events in MISP for a given IoC (IP address, etc..)"
+enabled: true         # enable it or not
+group: enricher       # ignored for now
+groupname: enricher   # this field is ignored for now
+module: "processors.enrichers.mispattributesearcher"    # where the python module resides
+run_mode: continuous   # ignored for now. "continuous is the default"
+parameters:
+  misp_uri: "https://192.168.5.108/"
+  misp_api_key: ""
+  # override global params for this particular processor ID:
+  logging: # override any of the settings of the global logger here if needed 
+    loglevel: 'DEBUG'                                                         
+    handlers:
+      - handler:
+          type: 'TimedRotatingFileHandler'
+          output: 'var/log/yellowsub.mispattributesearcher.INFO.log'
+          loglevel: 'INFO'
+      - handler:
+          type: 'TimedRotatingFileHandler'
+          output: 'var/log/yellowsub.mispattributesearcher.WARN.log'
+          loglevel: 'WARN'
