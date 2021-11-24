@@ -132,15 +132,31 @@ Special cases:
 Syntax:
 
 ```yaml
-Workflow:
-  id: "my workflow"
+workflow1:
+  description: "my workflow 1"
   author: "kaplale"
   flow:
   # simple linear example: get urls from somewhere (configured in the url_collector.yml) and do parallel lookups in safebrowsing, finally write the enriched results to a file.
   - { proc_id: "url_collector", to: ["ex1", "ex2"] }
   - { proc_id: "is_url_on_safebrowsing", from: "ex1.q1.sb", to: ["ex15"], paralellism: 3 }
   - { proc_id: "output_file_writer", from: "ex15.q"}
+```
 
+Multiple workflows may be defined in this way:
+
+```yaml
+
+workflow1:
+  description: "my workflow 1"
+  author: "kaplale"
+  flow:
+    ...
+  
+workflow2:
+  description: "my workflow 2"
+  author: "kaplale"
+  flow:
+    ... 
 ```
 
 # Dataformat config file
@@ -150,5 +166,5 @@ XXX coming ... FIXME
 # Conditions which must be met
 
 1. a processor ID appearing in workflows.yml MUST appear and have a config file in `$YELLOWSUB_CONF_DIR/processors/_id_.yml`.
-2. ...
+2. data models must be compatbile / mappable in a flow.
 
