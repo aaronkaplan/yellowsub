@@ -143,3 +143,6 @@ dmypy.json
 
 # temp stuff
 tmp/
+
+# VIM swap files
+*.swp
