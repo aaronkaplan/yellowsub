@@ -27,7 +27,7 @@ The AbstractProcessor class defines the following interface:
   particularly configured processor.
 * The ID also serves as the key for finding a _specific_ configuration for the processor in 
   ``etc/processors/<module>-<id>.yml``.
-* Therefore, one ID == one particularly configured processor. 
+* Therefore, one ID = one particularly configured processor. 
 * NOTE well: multiple unix processes may have the same processor ID (and hence the same config), but they will 
   have different PIDs. To repeat: **one ID == one configuration** for a processor.
 * the ID MUST be given to the constructor:
@@ -41,7 +41,7 @@ class MyProcessor(Enricher):
         ...
         pass
 
-myproc = MyProcessor(id="the-quick-brown-fox")         # <-- Note the id= parameter here!
+myproc = MyProcessor(id="the-quick-brown-fox")         # <-- **Note the id= parameter here!**
 myproc.start()
 ```
 
@@ -58,7 +58,7 @@ class MyProcessor(AbstractProcessor):
         # now initialize any local stuff such as connections to MISP, databases, etc.
         ...
         
-        def start(self):
+    def start(self):
         """
         Start processing incoming messages. Calling start() makes the processor ready to accept incoming message,
         process them and send them top the output exchanges.
@@ -97,24 +97,26 @@ class MyProcessor(AbstractProcessor):
 There are two types of configurations: global and per processor specific config.
 The global config file resides in ``etc/config.yml`` and is in [YAML format](https://en.wikipedia.org/wiki/YAML).
 
-The per processor specific config files reside in ``etc/processors/<module>-<id>.yml``, where _module_ is the python 
-module path of the processor (see ``processors/`` directory) _id_ is the processor ID.
+The per processor specific config files reside in ``etc/processors/<id>.yml``, where  
+_id_ is the processor ID (i.e. the unique identifier for a set of configs for a processor).
 The specific per processor config MAY override the global config.
 
-Example:
+For details of the allowed contents of the config files, see [Config.md](Config.md)
+
 
 
 ### Configuration environment variables
 
-The ENV variable YELLOWSUB_CONFIG_DIR = `/etc/yellowsub/` by default. **Note* the config path MUST be absolute.
+The ENV variable `YELLOWSUB_CONFIG_DIR` = `/etc/yellowsub/` by default. **Note* the config path MUST be absolute.
 You can override it in case you need to specify a test config.
 
-The config directory structure is as follows (assuming `/etc/yellowsub`):
+The config directory structure is as follows (assuming  `YELLOWSUB_CONFIG_DIR` = `/etc/yellowsub`):
 
 ```
 /etc/yellowsub
-  config.yml              # the global config file
-  workflow.yml 
+  config.yml               # the global config file: global settings
+  workflow.yml             # definitons of the workflows
+  datamodels.yml          # definition of the internal data format
   processors/             # the directory for the processor specific configs
     <module>-<id>.yml     # individual config files
 ```
@@ -122,13 +124,16 @@ The config directory structure is as follows (assuming `/etc/yellowsub`):
 If there is a specific config for a processor, then it should only be in the specific config subdirectory.
 
 For the workflows, we have the `workflow.yml` config.
+Datamodels (i.e. the internal data format) are defined in `datamodels.yml`
 Every workflow file contains workflow definitions, which in turn need to reference the processor IDs.
-The workflow.yml file resides in `$YELLOWSUB_CONFIG_DIR`
+
 
 ## Logger
 
 The logger is responsible for logging each processor potentially to a separate log handler and/or log destination.
 
+Each processor may override the default logger config (given in `config.yml`) in its own specific config.
+This way, developers and users can send the output of processors to a separate log file.
 
 ## Orchestrator
 
