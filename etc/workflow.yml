@@ -21,4 +21,5 @@ Workflow:
   # here in this example, we parallelize:
   - { processor_id: "is_url_on_safebrowsing", type: "enricher_is_on_safebrowsing" , src_queue: "ex1.q1.sb", dst_exchg: ["ex15"]}
   - { processor_id: "is_url_on_safebrowsing2", type: "enricher_is_on_safebrowsing" , src_queue: "ex1.q1.sb", dst_exchg: ["ex15"]}
-  -
+
+# Mental note: don't forget the timeout for the queue ACK.

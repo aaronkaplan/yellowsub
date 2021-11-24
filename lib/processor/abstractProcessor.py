@@ -80,6 +80,8 @@ class AbstractProcessor:
             print("Error while loading processor {}'s global config. Reason: {}".format(self.id, str(ex)))
             sys.exit(255)
 
+        # merge in the specific config
+
     def validate(self, msg: bytes) -> bool:
         """
         Method responsible of validating a message. Validation should do any kind

@@ -6,7 +6,7 @@ import json
 import logging
 import sys
 import time
-import uuid
+
 
 import pika
 
@@ -25,7 +25,7 @@ class MQ:
     exchange = None
     id: str = ""
 
-    def __init__(self, id: str = str(uuid.uuid4())):
+    def __init__(self, id: str):
         _c = Config()
         self.config = _c.load(Path(CONFIG_FILE_PATH_STR))       # FIXME: refactor this, make it into one line
         self.id = id
@@ -150,7 +150,7 @@ class Consumer(MQ):
     def consume(self) -> None:
         """Register the callback function for consuming from the exchange / queue given the routing_key."""
         logging.info("[*] Waiting for logs.")
-        self.channel.basic_consume(queue = self.queue_name, on_message_callback = self.cb_function, auto_ack = True)
+        self.channel.basic_consume(queue = self.queue_name, on_message_callback = self.cb_function, auto_ack = False)
         self.channel.start_consuming()
 
     def process(self, ch, method, properties, msg):
