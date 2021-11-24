@@ -166,5 +166,5 @@ XXX coming ... FIXME
 # Conditions which must be met
 
 1. a processor ID appearing in workflows.yml MUST appear and have a config file in `$YELLOWSUB_CONF_DIR/processors/_id_.yml`.
-2. data models must be compatbile / mappable in a flow.
+2. data models must be compatible / mappable in a flow.
 
