@@ -15,6 +15,9 @@ All others (``Collector``, ``Parser``, ``Enricher``, ``Filter``, ``OutputProcess
 * Filters: these take an incoming message, look at some data there and based on some (usually configurable) filter conditions. If an incoming message matches the filter expression, this message will *NOT* be forwarded (but logged that it was filtered out). A filter MAY use some external data set (such as "has this already been seen?") to do its job.
 * OutputProcessor: this type of processor shall send a message to some output. Typical outputs could be: a database, Splunk, Elastic Search, MISP, etc. Note well that triggering an action (such as adding an IP address to a blocklist) is also part of an OutputProcessors' job. It is just another type of output sort of.
 
+# What interfaces must a processor support?
+
+
 # How are the processors connected to each other? How do I create a workflow?
 
 Please see the [Workflow](Workflow.md) chapter.

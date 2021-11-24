@@ -9,8 +9,11 @@
   here are abstract classes and will be instantiated by the actual processors. See ``processors/*`` for the concrete
   implementations.
   * ``lib/utils/*`` all utilities libraries such as redis cache, password sanitization for printing passwords/API keys in logs etc.
-  * ``processors/*`` concrete implementations of collectors, parsers, enrichers, filters, outputProcessors. See the
+
+Processors:
+  * ``processors/*`` _concrete_ implementations of collectors, parsers, enrichers, filters, outputProcessors. See the
   corresponding subdirs.
+  * ``bin/``  orchestrator: starting and stopping processors and workflows
   * ``docs/`` documentation
   * ``tests/`` unit tests
   * ``etc/*`` the config sample directory
