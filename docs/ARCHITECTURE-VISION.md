@@ -44,7 +44,53 @@ class MyProcessor(Enricher):
 myproc = MyProcessor(id="the-quick-brown-fox")         # <-- Note the id= parameter here!
 myproc.start()
 ```
-### 
+
+### Abstract Interface
+
+Every processor MUST support the following interface, as defined in the AbstractProcessor class:
+
+```python
+class MyProcessor(AbstractProcessor):
+
+    def __init__(self):
+        # make sure we call the __init__ of the superclass:
+        super().__init__()          # this will load the configuration (see below)
+        # now initialize any local stuff such as connections to MISP, databases, etc.
+        ...
+        
+        def start(self):
+        """
+        Start processing incoming messages. Calling start() makes the processor ready to accept incoming message,
+        process them and send them top the output exchanges.
+        This means, start() will connect the processor to its output exchanges and its input queue.
+
+        The start function will then signal the orchestrator, that this processor is running.
+
+        The difference to the __init__() function is that, __init__() shall deal with loading of the config,
+        connecting to DBs, reading in supporting data sets, etc.
+        Therefore, the assumption here is that the config for this processor is already loaded at this stage.
+
+        """
+        pass
+
+    def reload(self):
+        """
+        Reload the config. Possibly also reconnect to different input queues and/or output exchanges.
+        """
+        pass
+
+    def pause(self):
+        """
+        Pause processing of infos. Connections to incoming MQs and outgoing exchanges will remain open.
+        """
+        pass
+
+    def stop(self):
+        """
+        Stop processing, disconnect from incoming MQs, outgoing exchanges. Tear down DB connections etc.
+        """
+        pass
+```
 
 ## Configuration
 
