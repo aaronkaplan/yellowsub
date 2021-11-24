@@ -94,6 +94,8 @@ group: enricher       # ignored for now
 groupname: enricher   # this field is ignored for now
 module: processors.enrichers.mispattributesearcher    # where the python module resides
 run_mode: continuous   # ignored for now. "continuous is the default"
+input_datamodel: "..."
+output_datamodel: "..."
 parameters: 
   misp_uri: "https://192.168.5.108/"                                            
   misp_api_key: "123456789"     
@@ -141,8 +143,12 @@ Workflow:
 
 ```
 
+# Dataformat config file
+
+XXX coming ... FIXME
 
 # Conditions which must be met
 
 1. a processor ID appearing in workflows.yml MUST appear and have a config file in `$YELLOWSUB_CONF_DIR/processors/_id_.yml`.
 2. ...
+
