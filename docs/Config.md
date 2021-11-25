@@ -53,7 +53,7 @@ This is an example specific config file for ID = "mispattributesearcher".
 It is called `etc/processors/mispattributesearcher.yml`
 
 ```yaml
-name: mispattributesearcher # the ID
+name: myMispattributesearcher1 # the ID
 description: The MISPattributesearcher enricher will search for events in MISP for a given IoC (IP address, etc..)
 enabled: true         # enable it or not
 group: enricher       # ignored for now
@@ -137,9 +137,10 @@ workflow1:
   author: "kaplale"
   flow:
   # simple linear example: get urls from somewhere (configured in the url_collector.yml) and do parallel lookups in safebrowsing, finally write the enriched results to a file.
-  - { proc_id: "url_collector", to: ["ex1", "ex2"] }
-  - { proc_id: "is_url_on_safebrowsing", from: "ex1.q", to: ["ex15"], paralellism: 3 }
-  - { proc_id: "output_file_writer", from: "ex15.q"}
+  - { proc_id: "url_collector", to: ["ex1", "ex2"] }    # ex2 does nothing with it
+  - { proc_id: "urllist_parser", from: "ex1", to: ["ex3"]}
+  - { proc_id: "is_url_on_safebrowsing", from: "ex3", to: ["ex4"], paralellism: 3 }
+  - { proc_id: "output_file_writer", from: "ex4"}
 ```
 
 Multiple workflows may be defined in this way:
