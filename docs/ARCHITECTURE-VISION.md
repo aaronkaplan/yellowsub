@@ -12,7 +12,7 @@ yellowsub is a *meta-SOAR* framework:
 * it was originally developed for threat hunting automation needs and has a strong focus on CTI
 
 **To emphasize: yellowsub is all about RE-USING existing standards, solutions, open source existing tools which are 
-already used in the organization**.
+already used in the organization. Yellowsub bridges the gap with the fewest number of lines of code as possible.**.
 
 
 # OO-Architecture
