@@ -90,6 +90,13 @@ class MyProcessor(AbstractProcessor):
         Stop processing, disconnect from incoming MQs, outgoing exchanges. Tear down DB connections etc.
         """
         pass
+
+    def process(self, ... , msg: dict):
+        """
+        Process a msg. msg is a python dict representing the message. See dataformat.md
+        
+        YOU NEED TO OVERRIDE THIS. This is the main function that you need to implement in your subclass of processor.
+        """
 ```
 
 ## Configuration
@@ -118,7 +125,7 @@ The config directory structure is as follows (assuming  `YELLOWSUB_CONFIG_DIR` =
   workflow.yml             # definitons of the workflows
   datamodels.yml          # definition of the internal data format
   processors/             # the directory for the processor specific configs
-    <module>-<id>.yml     # individual config files
+    <id>.yml     # individual config files
 ```
 
 If there is a specific config for a processor, then it should only be in the specific config subdirectory.
@@ -139,6 +146,8 @@ This way, developers and users can send the output of processors to a separate l
 
 A set of scripts which can start/stop/restart whole workflows and individual processors.
 Resides in ``bin/``.
+
+The orchestrators duties are defined in [Orchestrator.md](Orchestrator.md)
 
 
 # Integrations with other systems
