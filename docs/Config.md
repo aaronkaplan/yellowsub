@@ -60,6 +60,8 @@ group: enricher       # ignored for now
 groupname: enricher   # this field is ignored for now
 module: processors.enrichers.mispattributesearcher    # where the python module resides
 run_mode: continuous   # ignored for now. "continuous is the default"
+input_datamodel: "..."      # the name of the input datamodel. See [Datamodels.md](Datamodels.md)
+output_datamodel: "..."     # Detto...
 parameters: 
   misp_uri: "https://192.168.5.108/"                                            
   misp_api_key: "123456789"                                                              
@@ -94,8 +96,8 @@ group: enricher       # ignored for now
 groupname: enricher   # this field is ignored for now
 module: processors.enrichers.mispattributesearcher    # where the python module resides
 run_mode: continuous   # ignored for now. "continuous is the default"
-input_datamodel: "..."
-output_datamodel: "..."
+input_datamodel: "..."      # the name of the input datamodel. See [Datamodels.md](Datamodels.md)
+output_datamodel: "..."     # Detto...
 parameters: 
   misp_uri: "https://192.168.5.108/"                                            
   misp_api_key: "123456789"     

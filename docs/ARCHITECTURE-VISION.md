@@ -11,6 +11,10 @@ yellowsub is a *meta-SOAR* framework:
 * it shall support multiple datamodels (STIX 2.1, intelMQ DHO, AIL exchange format)
 * it was originally developed for threat hunting automation needs and has a strong focus on CTI
 
+**To emphasize: yellowsub is all about RE-USING existing standards, solutions, open source existing tools which are 
+already used in the organization**.
+
+
 # OO-Architecture
 
 The object oriented architecture is described in [this document](OO-Architecture.md).
@@ -26,7 +30,7 @@ The AbstractProcessor class defines the following interface:
 * each Processor MUST have an ID (unique string). The ID of a processor serves as the instance ID of a 
   particularly configured processor.
 * The ID also serves as the key for finding a _specific_ configuration for the processor in 
-  ``etc/processors/<module>-<id>.yml``.
+  ``etc/processors/<id>.yml``.
 * Therefore, one ID = one particularly configured processor. 
 * NOTE well: multiple unix processes may have the same processor ID (and hence the same config), but they will 
   have different PIDs. To repeat: **one ID == one configuration** for a processor.
@@ -90,6 +94,13 @@ class MyProcessor(AbstractProcessor):
         Stop processing, disconnect from incoming MQs, outgoing exchanges. Tear down DB connections etc.
         """
         pass
+
+    def process(self, channel=None, method=None, properties=None, msg: dict = {}):
+        """
+        Process a msg. msg is a python dict representing the message. See dataformat.md
+        
+        YOU NEED TO OVERRIDE THIS. This is the main function that you need to implement in your subclass of processor.
+        """
 ```
 
 ## Configuration
@@ -118,7 +129,7 @@ The config directory structure is as follows (assuming  `YELLOWSUB_CONFIG_DIR` =
   workflow.yml             # definitons of the workflows
   datamodels.yml          # definition of the internal data format
   processors/             # the directory for the processor specific configs
-    <module>-<id>.yml     # individual config files
+    <id>.yml     # individual config files
 ```
 
 If there is a specific config for a processor, then it should only be in the specific config subdirectory.
@@ -139,6 +150,8 @@ This way, developers and users can send the output of processors to a separate l
 
 A set of scripts which can start/stop/restart whole workflows and individual processors.
 Resides in ``bin/``.
+
+The orchestrators duties are defined in [Orchestrator.md](Orchestrator.md)
 
 
 # Integrations with other systems
