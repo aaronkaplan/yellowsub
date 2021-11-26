@@ -9,9 +9,10 @@ The Orchestrator's purpose is to read the relevant config YAML file(s) and to:
 
 ### I. Facilitate the Workflows' startup: 
 
- 1. instantiate (read: create a python process) each [Processor](/docs/Glossary#Processor).
- 2. Connect the newly instantiated Processor to their incoming message queue and outgoing exchanges.
- 3. Register the Processor's PID in a `/var/run/yellowsub/<processor_id>.pid` file
+1. instantiate (read: create a python process) each [Processor](/docs/Glossary#Processor)
+2. Connect the newly instantiated Processor to their incoming message queue and outgoing exchanges.
+3. Call the processor's `start()` method
+4. Register the Processor's PID in a `/var/run/yellowsub/<processor_id>.pid` file
 
 ### II. Help in stopping all or individual processors
 

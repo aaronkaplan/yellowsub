@@ -18,5 +18,5 @@ All others (``Collector``, ``Parser``, ``Enricher``, ``Filter``, ``OutputProcess
 
 # How are the processors connected to each other? How do I create a workflow?
 
-Please see the [Workflow](Workflow.md) chapter.
+Please see the [Config section on the workflow.yml](Config.md) chapter for examples on how to specify workflows in the config.
 
