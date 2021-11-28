@@ -6,6 +6,7 @@ As a pure user and / or operator of the system, please read the [Userguide.md](U
 
 If you want to understand the architecture, start with the [OO-Architecture.md](OO-Architecture.md) file, then read the
 [ARCHITECTURE-VISION.md](ARCHITECTURE-VISION.md).
+The [Configuration section](Config.md) describes how the config system works.
 
 Once you feel comfortable with the architecture and you want to extend the system or want to add processors, 
 please read the [Developer-Guide.md](Developer-Guide.md).
