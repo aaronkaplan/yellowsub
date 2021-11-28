@@ -66,7 +66,9 @@ class Config:
         return len(self.params)
 
     def get_processors(self) -> list:
-        return self.params['processors']
+        # XXX FIXME: need to os.glob(**.py) over all files, like in:
+        #  botfiles = [botfile for botfile in pathlib.Path(base_path).glob('**/*.py') if botfile.is_file() and botfile.name != '__init__.py']
+        return self.params['processors'].keys()
 
 
 # TODO:     Implement as standalone class and instantiate wherever necessary, ideally through projectutils and
