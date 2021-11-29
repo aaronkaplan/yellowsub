@@ -10,47 +10,6 @@ class ProjectUtils:
         pass
 
     @staticmethod
-    def get_config_path_env_var_resolved():
-        """
-        Get project config file path relative to the root of the project taking into consideration the env variable for
-        testing
-
-        @return:    Relative path to config file from the project root
-        @rtype:     str
-        """
-        if os.getenv("YELLOWSUB_TEST") is None:
-            return "/etc/config.yml"
-        else:
-            if os.getenv("YELLOWSUB_TEST") == "1" or str.lower(os.getenv("YELLOWSUB_TEST")) == "true":
-                return "/etc/config_test.yml"
-            else:
-                return "/etc/config.yml"
-
-    @staticmethod
-    def get_project_path_as_str():
-        """
-        Get Project root folder path as string. The method assumes that the name of the root folder is yellowsub"
-
-        @return:    Absolute path for the project root
-        @rtype:     str
-        """
-        p = os.path.dirname(os.path.realpath(__file__))
-        project_p = p[:p.find("yellowsub") + len("yellowsub")] + "/"
-        return project_p
-
-    @staticmethod
-    def get_config_path_as_str():
-        """
-        Get Project main config file path as string. The method implies that the name of the root folder is yellowsub"
-
-        @return: The path of the main configuration file as string.
-        @rtype: str
-        """
-        p = os.path.dirname(os.path.realpath(__file__))
-        config_p = p[:p.find("yellowsub") + len("yellowsub")] + ProjectUtils.get_config_path_env_var_resolved()
-        return config_p
-
-    @staticmethod
     def __setup_root_logger(config: dict = None):
         """
         Setup the root logger as per the config.yml parsed dictionary. This method should be considered private
@@ -129,7 +88,8 @@ class ProjectUtils:
             else:
                 processor_logger = logging.getLogger("yellowsub." + processor_class + "." + processor_id)
                 if len(processor_logger.handlers) == 0:
-                    formatter = logging.Formatter('%(asctime)s|%(created)s|%(name)s|%(process)d|%(levelname)s: %(message)s')
+                    formatter = logging.Formatter(
+                        '%(asctime)s|%(created)s|%(name)s|%(process)d|%(levelname)s: %(message)s')
                     logger_config = processor_config["logging"]
                     log_level = logger_config["loglevel"]
                     handlers = []

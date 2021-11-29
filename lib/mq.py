@@ -7,12 +7,11 @@ import logging
 import sys
 import time
 
-
 import pika
 
 from pathlib import Path
 
-from lib.config import Config, CONFIG_FILE_PATH_STR
+from lib.config import Config, GLOBAL_CONFIG_PATH
 from lib.utils import sanitize_password_str
 
 
@@ -27,7 +26,7 @@ class MQ:
 
     def __init__(self, id: str):
         _c = Config()
-        self.config = _c.load(Path(CONFIG_FILE_PATH_STR))       # FIXME: refactor this, make it into one line
+        self.config = _c.load(Path(GLOBAL_CONFIG_PATH))
         self.id = id
 
     def __del__(self):
@@ -47,8 +46,8 @@ class MQ:
             credentials = pika.PlainCredentials(user, password)
             logging.info("Attempting to connect with (%s:%d as %s/%s)" % (host, port, user,
                                                                           sanitize_password_str(password)))
-            self.connection = pika.BlockingConnection(pika.ConnectionParameters(host = host, port = port,
-                                                                                credentials = credentials))
+            self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=host, port=port,
+                                                                                credentials=credentials))
         except Exception as ex:
             logging.error("can't connect to the MQ system. Bailing out. Reason: %s" % (str(ex)))
             sys.exit(-1)
@@ -72,7 +71,7 @@ class MQ:
         if exchange:
             logging.info("Creating exchange %s" % exchange)
             try:
-                self.channel.exchange_declare(exchange = self.exchange, exchange_type = 'fanout', durable=True)
+                self.channel.exchange_declare(exchange=self.exchange, exchange_type='fanout', durable=True)
             except Exception as ex:
                 logging.error("can't Create exchange '%s'. Reason: %s" % (exchange, str(ex)))
                 raise ex
@@ -81,23 +80,23 @@ class MQ:
 
     def _publish(self, message: dict, routing_key=""):
         data = bytes(json.dumps(message), 'utf-8')  # JSON is always utf-8
-        self.channel.basic_publish(exchange = self.exchange, routing_key = routing_key, body = data,
-                                   properties = pika.BasicProperties(delivery_mode = 2, )  # make the message persistent
+        self.channel.basic_publish(exchange=self.exchange, routing_key=routing_key, body=data,
+                                   properties=pika.BasicProperties(delivery_mode=2, )  # make the message persistent
                                    )
 
     def _consume(self, queue: str, callback=None, auto_ack=False):
-        self.channel.basic_consume(queue = queue, on_message_callback = callback, auto_ack = auto_ack)
+        self.channel.basic_consume(queue=queue, on_message_callback=callback, auto_ack=auto_ack)
 
     def _connect_queue(self, queue_name: str = ''):
-        self.queue = self.channel.queue_declare(queue = queue_name, durable = True, exclusive = False)
-        self.channel.basic_qos(prefetch_count = 1)
+        self.queue = self.channel.queue_declare(queue=queue_name, durable=True, exclusive=False)
+        self.channel.basic_qos(prefetch_count=1)
         self.queue_name = self.queue.method.queue
 
     def _queue_bind(self):
-        self.channel.queue_bind(exchange = self.exchange, queue = self.queue_name)
+        self.channel.queue_bind(exchange=self.exchange, queue=self.queue_name)
 
     def _queue_unbind(self):
-        self.channel.queue_unbind(queue = self.queue_name, exchange = self.exchange)
+        self.channel.queue_unbind(queue=self.queue_name, exchange=self.exchange)
 
     def close(self):
         """Close the connection to rabbitmq."""
@@ -122,7 +121,7 @@ class Producer(MQ):
     def produce(self, msg: dict, routing_key: str = ""):
         """Send a msg to the exchange with the given routing_key."""
         if msg:
-            super()._publish(message = msg, routing_key = routing_key)
+            super()._publish(message=msg, routing_key=routing_key)
             logging.info("[x] Sent %r" % msg)
 
 
@@ -150,7 +149,7 @@ class Consumer(MQ):
     def consume(self) -> None:
         """Register the callback function for consuming from the exchange / queue given the routing_key."""
         logging.info("[*] Waiting for logs.")
-        self.channel.basic_consume(queue = self.queue_name, on_message_callback = self.cb_function, auto_ack = False)
+        self.channel.basic_consume(queue=self.queue_name, on_message_callback=self.cb_function, auto_ack=False)
         self.channel.start_consuming()
 
     def process(self, ch, method, properties, msg):
@@ -165,12 +164,12 @@ if __name__ == "__main__":
     logging.basicConfig()
     logging.getLogger().setLevel(logging.INFO)
 
-    parser = argparse.ArgumentParser(description = 'testing the mq module')
-    parser.add_argument('-p', '--producer', action = 'store_true', help = "run as a producer")
-    parser.add_argument('-c', '--consumer', action = 'store_true', help = "run as a consumer")
-    parser.add_argument('-e', '--exchange', help = "Exchange to connect to.", required = True)
-    parser.add_argument('-i', '--id', help = "Unique ID of the producer or consumer (used to set the queue name!)",
-                        required = True)
+    parser = argparse.ArgumentParser(description='testing the mq module')
+    parser.add_argument('-p', '--producer', action='store_true', help="run as a producer")
+    parser.add_argument('-c', '--consumer', action='store_true', help="run as a consumer")
+    parser.add_argument('-e', '--exchange', help="Exchange to connect to.", required=True)
+    parser.add_argument('-i', '--id', help="Unique ID of the producer or consumer (used to set the queue name!)",
+                        required=True)
     args = parser.parse_args()
 
     if args.producer:
@@ -182,5 +181,5 @@ if __name__ == "__main__":
         c = Consumer(args.id, args.exchange)
         c.consume()
     else:
-        print("Need to specify one of -c or -p. See --help.", file = sys.stderr)
+        print("Need to specify one of -c or -p. See --help.", file=sys.stderr)
         sys.exit(1)

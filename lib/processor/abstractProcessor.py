@@ -2,7 +2,7 @@
 
 import json
 import sys
-from lib.config import CONFIG_FILE_PATH_STR, Config
+from lib.config import GLOBAL_CONFIG_PATH, Config, PROCESSOR_CONFIG_DIR
 from lib.mq import Consumer, Producer
 from lib.utils.projectutils import ProjectUtils
 from pathlib import Path
@@ -75,23 +75,42 @@ class AbstractProcessor:
         # load the global config
         _c = Config()
         try:
-            self.config = _c.load(Path(CONFIG_FILE_PATH_STR))
+            self.config = _c.load(Path(GLOBAL_CONFIG_PATH))
         except Exception as ex:
             print("Error while loading processor {}'s global config. Reason: {}".format(self.id, str(ex)))
             sys.exit(255)
 
         # merge in the specific config
-        
+        try:
+            self.specific_config = _c.load(Path(PROCESSOR_CONFIG_DIR) / id + ".yml")
+            print(self.specific_config)
+            self.validate_specific_config(self.specific_config)
+
+        except Exception as ex:
+            print("Error while loading processor {}'s global config. Reason: {}".format(self.id, str(ex)))
+            sys.exit(255)
 
     def validate(self, msg: bytes) -> bool:
         """
         Method responsible of validating a message. Validation should do any kind
         of input checking so that on_message can process the message flawlessly
 
-        :param msg: message to be validated
-        :return: True if the message is valid, False otherwise
+        @param msg: message to be validated
+        @return: True if the message is valid, False otherwise
         """
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
+
+    def validate_specific_config(self, config: dict) -> bool:
+        """
+        Validate a specific
+        @param config:
+        @return:
+        """
+        if 'name' not in dict and self.id != dict['name']:
+            return False
+        if 'parameters' not in dict:
+            return False
+        return True
 
     def process(self, channel=None, method=None, properties=None, msg: bytes = None):
         """The process function. Gets called for every arriving message from the consumers.
@@ -108,7 +127,8 @@ class AbstractProcessor:
         :param properties: the properties attached to the message
         :param msg: the message (byte representation of a dict)
         """
-        self.logger.info("received '%r from channel %s, method: %s, properties: %r'" % (msg, channel, method, properties))
+        self.logger.info(
+            "received '%r from channel %s, method: %s, properties: %r'" % (msg, channel, method, properties))
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
     def on_message(self, msg: bytes):
@@ -170,8 +190,8 @@ class MyProcessor(AbstractProcessor):
         # here we should read the config on where to connect to...
 
         # this is an example only and the connection to the exchanges and incoming queues will be done by the orchestrator.
-        self.consumer = Consumer(id = id, exchange = "MyEx", callback = self.process)
-        self.producer = Producer(id = id, exchange = "MyEx2")
+        self.consumer = Consumer(id=id, exchange="MyEx", callback=self.process)
+        self.producer = Producer(id=id, exchange="MyEx2")
 
     def process(self, channel=None, method=None, properties=None, msg: bytes = None):
         """
@@ -188,7 +208,7 @@ class MyProcessor(AbstractProcessor):
         # do something with the msg in the process() function, the msg is in self.msg
         # ...
         # then send it onwards to the outgoing exchange
-        self.producer.produce(msg = self.msg, routing_key = "")
+        self.producer.produce(msg=self.msg, routing_key="")
 
     def start(self):
         """Start the processor."""
