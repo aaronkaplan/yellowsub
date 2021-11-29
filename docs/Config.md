@@ -162,7 +162,7 @@ workflow2:
     ... 
 ```
 
-# Dataformat config file
+# Datamodel config file
 
 XXX coming ... FIXME
 

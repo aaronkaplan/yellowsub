@@ -97,7 +97,7 @@ class MyProcessor(AbstractProcessor):
 
     def process(self, channel=None, method=None, properties=None, msg: dict = {}):
         """
-        Process a msg. msg is a python dict representing the message. See dataformat.md
+        Process a msg. msg is a python dict representing the message. See Datamodel.md
         
         YOU NEED TO OVERRIDE THIS. This is the main function that you need to implement in your subclass of processor.
         """
