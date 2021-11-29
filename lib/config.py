@@ -10,6 +10,7 @@ TTL = config['redis'].get('cache_ttl', 24*3600)         # 1 day default
 """
 
 import os
+import logging
 import yaml
 from pathlib import Path
 
@@ -43,6 +44,7 @@ class Config:
             with open(file, 'r') as _f:
                 self.params = yaml.safe_load(_f)
         except (OSError, FileNotFoundError) as ex:
+            logging.error('Could not load config file %s. Reason: %s' % (file, str(ex)))
             raise ValueError('File not found: %r.' % file)
             # FIXME: here, we might also have other exceptions maybe? Catch them!
         return self.params
