@@ -82,7 +82,6 @@ class TestProjectUtils(TestCase):
         self.__delete_loggers()
         with self.assertRaises(RuntimeError):
             ProjectUtils.get_logger(logger_name)
-        pass
 
     def test____setup_root_logger(self):
         config = ""
@@ -131,14 +130,14 @@ class TestProjectUtils(TestCase):
         h = root_logger_handlers[0]
         self.assertEqual(h.level, 20)
         self.assertEqual(type(h).__name__, "TimedRotatingFileHandler")
-        self.assertEqual(h.formatter._fmt, "%(asctime)s|%(created)s|%(name)s|%(levelname)s: %(message)s")
+        self.assertEqual(h.formatter._fmt, "%(asctime)s|%(created)s|%(name)s|%(process)d|%(levelname)s: %(message)s")
         self.assertEqual(h.stream.name, "/tmp/yellowsub.INFO.log")
         # TODO: DG_Comment: should also check rotating interval. I have not figured out a way to do this.
 
         h = root_logger_handlers[1]
         self.assertEqual(h.level, 30)
         self.assertEqual(type(h).__name__, "TimedRotatingFileHandler")
-        self.assertEqual(h.formatter._fmt, "%(asctime)s|%(created)s|%(name)s|%(levelname)s: %(message)s")
+        self.assertEqual(h.formatter._fmt, "%(asctime)s|%(created)s|%(name)s|%(process)d|%(levelname)s: %(message)s")
         self.assertEqual(h.stream.name, "/tmp/yellowsub.WARN.log")
         # TODO: DG_Comment: should also check rotating interval. I have not figured out a way to do this.
 
@@ -195,14 +194,14 @@ class TestProjectUtils(TestCase):
         h = root_logger_handlers[0]
         self.assertEqual(h.level, 20)
         self.assertEqual(type(h).__name__, "TimedRotatingFileHandler")
-        self.assertEqual(h.formatter._fmt, "%(asctime)s|%(created)s|%(name)s|%(levelname)s: %(message)s")
+        self.assertEqual(h.formatter._fmt, "%(asctime)s|%(created)s|%(name)s|%(process)d|%(levelname)s: %(message)s")
         self.assertEqual(h.stream.name, "/tmp/yellowsub.INFO.log")
         # TODO: DG_Comment: should also check rotating interval. I have not figured out a way to do this.
 
         h = root_logger_handlers[1]
         self.assertEqual(h.level, 30)
         self.assertEqual(type(h).__name__, "TimedRotatingFileHandler")
-        self.assertEqual(h.formatter._fmt, "%(asctime)s|%(created)s|%(name)s|%(levelname)s: %(message)s")
+        self.assertEqual(h.formatter._fmt, "%(asctime)s|%(created)s|%(name)s|%(process)d|%(levelname)s: %(message)s")
         self.assertEqual(h.stream.name, "/tmp/yellowsub.WARN.log")
         # TODO: DG_Comment: should also check rotating interval. I have not figured out a way to do this.
 
@@ -235,14 +234,14 @@ class TestProjectUtils(TestCase):
         h = root_logger_handlers[0]
         self.assertEqual(h.level, 20)
         self.assertEqual(type(h).__name__, "TimedRotatingFileHandler")
-        self.assertEqual(h.formatter._fmt, "%(asctime)s|%(created)s|%(name)s|%(levelname)s: %(message)s")
+        self.assertEqual(h.formatter._fmt, "%(asctime)s|%(created)s|%(name)s|%(process)d|%(levelname)s: %(message)s")
         self.assertEqual(h.stream.name, "/tmp/yellowsub.INFO.log")
         # TODO: DG_Comment: should also check rotating interval. I have not figured out a way to do this.
 
         h = root_logger_handlers[1]
         self.assertEqual(h.level, 30)
         self.assertEqual(type(h).__name__, "TimedRotatingFileHandler")
-        self.assertEqual(h.formatter._fmt, "%(asctime)s|%(created)s|%(name)s|%(levelname)s: %(message)s")
+        self.assertEqual(h.formatter._fmt, "%(asctime)s|%(created)s|%(name)s|%(process)d|%(levelname)s: %(message)s")
         self.assertEqual(h.stream.name, "/tmp/yellowsub.WARN.log")
         # TODO: DG_Comment: should also check rotating interval. I have not figured out a way to do this.
 
@@ -285,14 +284,14 @@ class TestProjectUtils(TestCase):
         h = processor_logger_handlers[0]
         self.assertEqual(h.level, 20)
         self.assertEqual(type(h).__name__, "TimedRotatingFileHandler")
-        self.assertEqual(h.formatter._fmt, "%(asctime)s|%(created)s|%(name)s|%(levelname)s: %(message)s")
+        self.assertEqual(h.formatter._fmt, "%(asctime)s|%(created)s|%(name)s|%(process)d|%(levelname)s: %(message)s")
         self.assertEqual(h.stream.name, "/tmp/yellowsub.mispattributesearcher.INFO.log")
         # TODO: DG_Comment: should also check rotating interval. I have not figured out a way to do this.
 
         h = processor_logger_handlers[1]
         self.assertEqual(h.level, 30)
         self.assertEqual(type(h).__name__, "TimedRotatingFileHandler")
-        self.assertEqual(h.formatter._fmt, "%(asctime)s|%(created)s|%(name)s|%(levelname)s: %(message)s")
+        self.assertEqual(h.formatter._fmt, "%(asctime)s|%(created)s|%(name)s|%(process)d|%(levelname)s: %(message)s")
         self.assertEqual(h.stream.name, "/tmp/yellowsub.mispattributesearcher.WARN.log")
         # TODO: DG_Comment: should also check rotating interval. I have not figured out a way to do this.
 
