@@ -9,31 +9,39 @@ TTL = config['redis'].get('cache_ttl', 24*3600)         # 1 day default
 
 """
 
+import os
 import yaml
 from lib.utils.projectutils import ProjectUtils
 from pathlib import Path
 
-__all__ = ["ROOTDIR", "CONFIG_FILE_PATH_STR", "Config"]
+__all__ = ["ROOTDIR", "CONFIG_DIR", "CONFIG_FILE_PATH_STR", "Config"]
 
 
 class Config:
     """The Configuration file class."""
     params = dict()
+    ROOTDIR: Path = Path(ProjectUtils.get_project_path_as_str())
+    CONFIG_DIR = Path(os.getenv('YELLOWSUB_CONFIG_DIR', ROOTDIR / 'etc'))
 
     def __init__(self):
         self.params = dict()
 
-    def load(self, file: Path):
-        """Load the config file."""
 
-        # if no path is supplied get the config from the default location inside the project folder
-        if file is None:
-            file = Path(ProjectUtils.get_config_path_as_str())
+    def load(self, file: Path = CONFIG_DIR / 'config.yml') -> dict:
+        """
+        Load the config file.
+
+        If file is not given, load the default etc/config.yml config file.
+
+        @returns: dict with the config options.
+
+        """
+
         try:
             with open(file, 'r') as _f:
                 self.params = yaml.safe_load(_f)
         except (OSError, FileNotFoundError) as ex:
-            print("could not load config file %s. Reason: %s" % (file, str(ex)))
+            raise ValueError('File not found: %r.' % file)
             # FIXME: here, we might also have other exceptions maybe? Catch them!
         return self.params
 
@@ -66,8 +74,15 @@ class Config:
         return len(self.params)
 
     def get_processors(self) -> list:
+        """
+        Get a list of configured processors. Both etc/config.yml and etc/processors/* is searched.
+
+        @returns: list of processor IDs
+        """
         # XXX FIXME: need to os.glob(**.py) over all files, like in:
         #  botfiles = [botfile for botfile in pathlib.Path(base_path).glob('**/*.py') if botfile.is_file() and botfile.name != '__init__.py']
+        #conf_files = [conffile for confile in pathlib.Path(CONFIG_DIR / 'processors')
+
         return self.params['processors'].keys()
 
 
@@ -79,8 +94,6 @@ class Config:
 # FIXME:    this still creates the global config dict. This is going away.
 #           DG_Comment: I believe these globals should be part of the Config class or rather be called from PorjectUtils
 #                       as static methods wherever they are needed
-ROOTDIR: str = ProjectUtils.get_project_path_as_str()
+ROOTDIR: Path = Path(ProjectUtils.get_project_path_as_str())
 CONFIG_FILE_PATH_STR: str = ProjectUtils.get_config_path_as_str()
-
-
-
+CONFIG_DIR=Path(os.getenv('YELLOWSUB_CONFIG_DIR', ROOTDIR / 'etc'))
