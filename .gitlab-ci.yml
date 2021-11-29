@@ -49,7 +49,7 @@ unit-tests:
   script:
     - pip3 install  nose pytest-cov 
     - service redis-server start
-    - export PYTHONPATH=lib ; export ROOTDIR=$(pwd); pytest --cov=./ tests
+    - export PYTHONPATH=lib ; export YELLOWSUB_ROOT_DIR=$(pwd); pytest --cov=./ tests
 
 # run:
 #  script:
