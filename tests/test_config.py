@@ -33,6 +33,6 @@ class TestConfig(TestCase):
     def test_get_processors(self):
         # config = self.load_testcases_config()
         _c = Config()
-        _c.load(Path(ROOTDIR) / 'tests' / 'data' / 'etc' / 'config.yml')
+        _c.load(Path(ROOT_DIR) / 'tests' / 'data' / 'etc' / 'config.yml')
         print(_c.get_processors())
         assert 'gethostbyname' in _c.get_processors()

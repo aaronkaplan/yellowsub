@@ -2,7 +2,6 @@ import inspect
 from builtins import RuntimeError
 from unittest import TestCase
 from lib.utils.projectutils import ProjectUtils
-import os
 import sys
 import logging
 
