@@ -65,7 +65,7 @@ class ProjectUtils:
             if "logging" not in config.keys():
                 raise RuntimeError("the global logger is not defined in the config")
             else:
-                formatter = logging.Formatter('%(asctime)s|%(created)s|%(name)s|%(levelname)s: %(message)s')
+                formatter = logging.Formatter('%(asctime)s|%(created)s|%(name)s|%(process)d|%(levelname)s: %(message)s')
                 logger_config = config["logging"]
                 log_level = logger_config["loglevel"]
                 handlers = []
@@ -129,7 +129,7 @@ class ProjectUtils:
             else:
                 processor_logger = logging.getLogger("yellowsub." + processor_class + "." + processor_id)
                 if len(processor_logger.handlers) == 0:
-                    formatter = logging.Formatter('%(asctime)s|%(created)s|%(name)s|%(levelname)s: %(message)s')
+                    formatter = logging.Formatter('%(asctime)s|%(created)s|%(name)s|%(process)d|%(levelname)s: %(message)s')
                     logger_config = processor_config["logging"]
                     log_level = logger_config["loglevel"]
                     handlers = []
