@@ -23,7 +23,7 @@ You can imagine it as a meta-[SOAR](https://en.wikipedia.org/wiki/Computer_secur
 
 It follows the "Harmonized Automation Architecture" document.
 
-As an underlying principle it uses the internal [common data format](docs/Dataformat.md) (which is extensible).
+As an underlying principle it uses the internal [common data format](docs/Datamodel.md) (which is extensible).
 
 It consists of / uses:
 

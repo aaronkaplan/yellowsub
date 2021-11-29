@@ -1,6 +1,6 @@
 """Processor - a subclass of Abstract Processor."""
 import json
-# from lib.dataformat import DataFormat
+# from lib.dataformat import DataModel
 from lib.processor.abstractProcessor import AbstractProcessor
 
 

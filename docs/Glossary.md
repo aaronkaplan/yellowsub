@@ -12,5 +12,5 @@
 | Message                          | payload (in JSON format) plus standardized header. Note that messages may contain more complex objects such as STIX data |  See XXX |
 | Message Queue                    | A FIFO | See [AMQP](https://www.rabbitmq.com/tutorials/amqp-concepts.html) for an intro. | 
 | Exchange                         | A router for messages to selected message queues | See [AMQP](https://www.rabbitmq.com/tutorials/amqp-concepts.html) for an intro. | 
-| Config                           | A processor has its own config (for example for API keys) and the Workflow is also specified in a config. | See ``etc/*`` | | [Config.md](Config.md)
-| Datamodel                        | a.k.a "Data format" - a definiton of the payload of a message | STIX-2.1 | 
+| Config                           | A processor has its own config (for example for API keys) and the Workflow is also specified in a config. | See ``etc/*`` | [Config.md](Config.md)
+| Datamodel                        | a.k.a "Data format" - a definiton of the payload of a message | STIX-2.1 | [Datamodel.md](Datamodel.md) 

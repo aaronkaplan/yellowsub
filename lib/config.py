@@ -16,7 +16,7 @@ from pathlib import Path
 
 __all__ = ["ROOT_DIR", "CONFIG_DIR", "GLOBAL_CONFIG_PATH", "PROCESSOR_CONFIG_DIR", "Config"]
 
-ROOT_DIR: Path = Path(os.getenv('YELLOWSUB_ROOT_DIR', '~/yellowsub/etc'))  # if not specified, assume $HOME/yellowsub
+ROOT_DIR: Path = Path(os.getenv('YELLOWSUB_ROOT_DIR', '~/yellowsub'))  # if not specified, assume $HOME/yellowsub
 CONFIG_DIR = Path(os.getenv('YELLOWSUB_CONFIG_DIR', ROOT_DIR / 'etc'))  # ROOT_DIR/etc
 GLOBAL_CONFIG_PATH = Path(CONFIG_DIR / 'config.yml')  # ROOT_DIR/etc/config.yml
 PROCESSOR_CONFIG_DIR = Path(CONFIG_DIR / 'processors')
