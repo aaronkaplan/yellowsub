@@ -7,6 +7,8 @@ from lib.mq import Consumer, Producer
 from lib.utils.projectutils import ProjectUtils
 from pathlib import Path
 from typing import List
+from pydantic.utils import deep_update
+
 
 
 class AbstractProcessor:
@@ -85,9 +87,9 @@ class AbstractProcessor:
             self.specific_config = _c.load(Path(PROCESSOR_CONFIG_DIR) / id + ".yml")
             print(self.specific_config)
             self.validate_specific_config(self.specific_config)
-
+            self.config = deep_update(self.config, self.specific_config)
         except Exception as ex:
-            print("Error while loading processor {}'s global config. Reason: {}".format(self.id, str(ex)))
+            print("Error while loading processor {}'s specific config. Reason: {}".format(self.id, str(ex)))
             sys.exit(255)
 
     def validate(self, msg: bytes) -> bool:

@@ -88,12 +88,3 @@ class Config:
         # conf_files = [conffile for confile in pathlib.Path(CONFIG_DIR / 'processors')
 
         return self.params['processors'].keys()
-
-# TODO:     Implement as standalone class and instantiate wherever necessary, ideally through projectutils and
-#           env variables rather than instantiating globally. Will probably need to implement all the interfaces
-#           that dict implements at that point to support dict like interaction.
-# if __name__ == "__main__":
-
-# FIXME:    this still creates the global config dict. This is going away.
-#           DG_Comment: I believe these globals should be part of the Config class or rather be called from PorjectUtils
-#                       as static methods wherever they are needed
