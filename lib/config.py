@@ -17,6 +17,11 @@ from pathlib import Path
 __all__ = ["ROOTDIR", "CONFIG_DIR", "CONFIG_FILE_PATH_STR", "Config"]
 
 
+ROOTDIR: Path = Path(ProjectUtils.get_project_path_as_str())
+CONFIG_FILE_PATH_STR: str = ProjectUtils.get_config_path_as_str()
+CONFIG_DIR = Path(os.getenv('YELLOWSUB_CONFIG_DIR', ROOTDIR / 'etc'))
+
+
 class Config:
     """The Configuration file class."""
     params = dict()
@@ -25,7 +30,6 @@ class Config:
 
     def __init__(self):
         self.params = dict()
-
 
     def load(self, file: Path = CONFIG_DIR / 'config.yml') -> dict:
         """
@@ -81,7 +85,7 @@ class Config:
         """
         # XXX FIXME: need to os.glob(**.py) over all files, like in:
         #  botfiles = [botfile for botfile in pathlib.Path(base_path).glob('**/*.py') if botfile.is_file() and botfile.name != '__init__.py']
-        #conf_files = [conffile for confile in pathlib.Path(CONFIG_DIR / 'processors')
+        # conf_files = [conffile for confile in pathlib.Path(CONFIG_DIR / 'processors')
 
         return self.params['processors'].keys()
 
@@ -94,6 +98,3 @@ class Config:
 # FIXME:    this still creates the global config dict. This is going away.
 #           DG_Comment: I believe these globals should be part of the Config class or rather be called from PorjectUtils
 #                       as static methods wherever they are needed
-ROOTDIR: Path = Path(ProjectUtils.get_project_path_as_str())
-CONFIG_FILE_PATH_STR: str = ProjectUtils.get_config_path_as_str()
-CONFIG_DIR=Path(os.getenv('YELLOWSUB_CONFIG_DIR', ROOTDIR / 'etc'))
