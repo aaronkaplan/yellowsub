@@ -17,7 +17,7 @@ from pathlib import Path
 __all__ = ["ROOTDIR", "CONFIG_DIR", "CONFIG_FILE_PATH_STR", "Config"]
 
 
-ROOTDIR: Path = Path(ProjectUtils.get_project_path_as_str())
+ROOTDIR: Path = Path(ProjectUtils.get_project_path_as_str())         # default $HOME/yellowsub, or ENV var: YELLOWSUB_ROOT_DIR
 CONFIG_FILE_PATH_STR: str = ProjectUtils.get_config_path_as_str()
 CONFIG_DIR = Path(os.getenv('YELLOWSUB_CONFIG_DIR', ROOTDIR / 'etc'))
 

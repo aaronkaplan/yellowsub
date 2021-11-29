@@ -81,6 +81,7 @@ class AbstractProcessor:
             sys.exit(255)
 
         # merge in the specific config
+        
 
     def validate(self, msg: bytes) -> bool:
         """
