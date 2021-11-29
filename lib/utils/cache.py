@@ -62,6 +62,7 @@ class Cache:
     def __len__(self) -> int:
         """Return how many keys are stored in redis."""
 
+        numkeys = 0
         info = self.r.info("keyspace")
         print("type(info) = %s. info=%s" % (type(info), info))
         db = "db%d" % self.db
