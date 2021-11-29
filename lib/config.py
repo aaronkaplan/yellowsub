@@ -39,7 +39,6 @@ class Config:
 
         """
 
-        print("DEBUGGING: running in directory: {}".format(os.getenv('CWD')))  # XXX FIXME remove me.
         try:
             with open(file, 'r') as _f:
                 self.params = yaml.safe_load(_f)

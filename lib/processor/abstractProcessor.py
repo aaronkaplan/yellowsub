@@ -2,13 +2,12 @@
 
 import json
 import sys
-from lib.config import GLOBAL_CONFIG_PATH, Config, PROCESSOR_CONFIG_DIR
+from lib.config import Config, GLOBAL_CONFIG_PATH, PROCESSOR_CONFIG_DIR
 from lib.mq import Consumer, Producer
 from lib.utils.projectutils import ProjectUtils
 from pathlib import Path
-from typing import List
 from pydantic.utils import deep_update
-
+from typing import List
 
 
 class AbstractProcessor:
@@ -129,8 +128,7 @@ class AbstractProcessor:
         :param properties: the properties attached to the message
         :param msg: the message (byte representation of a dict)
         """
-        self.logger.info(
-            "received '%r from channel %s, method: %s, properties: %r'" % (msg, channel, method, properties))
+        self.logger.info("received '%r from channel %s, method: %s, properties: %r'" % (msg, channel, method, properties))
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
     def on_message(self, msg: bytes):
@@ -192,8 +190,8 @@ class MyProcessor(AbstractProcessor):
         # here we should read the config on where to connect to...
 
         # this is an example only and the connection to the exchanges and incoming queues will be done by the orchestrator.
-        self.consumer = Consumer(id=id, exchange="MyEx", callback=self.process)
-        self.producer = Producer(id=id, exchange="MyEx2")
+        self.consumer = Consumer(id = id, exchange = "MyEx", callback = self.process)
+        self.producer = Producer(id = id, exchange = "MyEx2")
 
     def process(self, channel=None, method=None, properties=None, msg: bytes = None):
         """
@@ -210,7 +208,7 @@ class MyProcessor(AbstractProcessor):
         # do something with the msg in the process() function, the msg is in self.msg
         # ...
         # then send it onwards to the outgoing exchange
-        self.producer.produce(msg=self.msg, routing_key="")
+        self.producer.produce(msg = self.msg, routing_key = "")
 
     def start(self):
         """Start the processor."""
