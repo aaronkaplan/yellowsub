@@ -16,11 +16,10 @@ Also see the unit test in tests/test_cache.py please.
 
 import time
 import redis
-from pathlib import Path
-from lib.config import Config, CONFIG_FILE_PATH_STR
+from lib.config import Config, GLOBAL_CONFIG_PATH
 
 c = Config()
-config = c.load(Path(CONFIG_FILE_PATH_STR))
+config = c.load(GLOBAL_CONFIG_PATH)     # this is a bit redundant FIXME
 TTL = config['redis'].get('cache_ttl', 24 * 3600)  # 1 day default
 
 
@@ -31,7 +30,7 @@ class Cache:
         """Construct it."""
 
         _c = Config()
-        self.config = _c.load(Path(CONFIG_FILE_PATH_STR))
+        self.config = _c.load(GLOBAL_CONFIG_PATH)
 
         self.host = self.config['redis'].get('host', "localhost")
         self.port = int(self.config['redis'].get('port', 6379))
