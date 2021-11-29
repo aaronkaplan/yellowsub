@@ -11,27 +11,26 @@ TTL = config['redis'].get('cache_ttl', 24*3600)         # 1 day default
 
 import os
 import yaml
-from lib.utils.projectutils import ProjectUtils
 from pathlib import Path
 
-__all__ = ["ROOTDIR", "CONFIG_DIR", "CONFIG_FILE_PATH_STR", "Config"]
+__all__ = ["ROOT_DIR", "CONFIG_DIR", "GLOBAL_CONFIG_PATH", "PROCESSOR_CONFIG_DIR", "Config"]
 
 
-ROOTDIR: Path = Path(ProjectUtils.get_project_path_as_str())         # default $HOME/yellowsub, or ENV var: YELLOWSUB_ROOT_DIR
-CONFIG_FILE_PATH_STR: str = ProjectUtils.get_config_path_as_str()
-CONFIG_DIR = Path(os.getenv('YELLOWSUB_CONFIG_DIR', ROOTDIR / 'etc'))
+ROOT_DIR: Path = Path(os.getenv('YELLOWSUB_ROOT_DIR',  '~/yellowsub/etc'))      # if not specified, assume $HOME/yellowsub
+CONFIG_DIR = Path(os.getenv('YELLOWSUB_CONFIG_DIR', ROOT_DIR / 'etc'))          # ROOT_DIR/etc
+GLOBAL_CONFIG_PATH = Path(CONFIG_DIR / 'config.yml')                            # ROOT_DIR/etc/config.yml
+PROCESSOR_CONFIG_DIR = Path(CONFIG_DIR / 'processors')
+
 
 
 class Config:
     """The Configuration file class."""
     params = dict()
-    ROOTDIR: Path = Path(ProjectUtils.get_project_path_as_str())
-    CONFIG_DIR = Path(os.getenv('YELLOWSUB_CONFIG_DIR', ROOTDIR / 'etc'))
 
     def __init__(self):
         self.params = dict()
 
-    def load(self, file: Path = CONFIG_DIR / 'config.yml') -> dict:
+    def load(self, file: Path = GLOBAL_CONFIG_PATH) -> dict:
         """
         Load the config file.
 
@@ -41,6 +40,7 @@ class Config:
 
         """
 
+        print("DEBUGGING: running in directory: {}".format(os.getenv('CWD')))   # XXX FIXME remove me.
         try:
             with open(file, 'r') as _f:
                 self.params = yaml.safe_load(_f)

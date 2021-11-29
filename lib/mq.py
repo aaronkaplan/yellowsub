@@ -12,7 +12,7 @@ import pika
 
 from pathlib import Path
 
-from lib.config import Config, CONFIG_FILE_PATH_STR
+from lib.config import Config, GLOBAL_CONFIG_PATH
 from lib.utils import sanitize_password_str
 
 
@@ -27,7 +27,7 @@ class MQ:
 
     def __init__(self, id: str):
         _c = Config()
-        self.config = _c.load(Path(CONFIG_FILE_PATH_STR))       # FIXME: refactor this, make it into one line
+        self.config = _c.load(Path(GLOBAL_CONFIG_PATH))
         self.id = id
 
     def __del__(self):

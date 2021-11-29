@@ -2,7 +2,7 @@
 
 import json
 import sys
-from lib.config import CONFIG_FILE_PATH_STR, Config
+from lib.config import GLOBAL_CONFIG_PATH, Config, PROCESSOR_CONFIG_DIR
 from lib.mq import Consumer, Producer
 from lib.utils.projectutils import ProjectUtils
 from pathlib import Path
@@ -75,23 +75,43 @@ class AbstractProcessor:
         # load the global config
         _c = Config()
         try:
-            self.config = _c.load(Path(CONFIG_FILE_PATH_STR))
+            self.config = _c.load(Path(GLOBAL_CONFIG_PATH))
         except Exception as ex:
             print("Error while loading processor {}'s global config. Reason: {}".format(self.id, str(ex)))
             sys.exit(255)
 
         # merge in the specific config
-        
+        try:
+            self.specific_config = _c.load(Path(PROCESSOR_CONFIG_DIR) / id + ".yml")
+            print(self.specific_config)
+            self.validate_specific_config(self.specific_config)
+
+        except Exception as ex:
+            print("Error while loading processor {}'s global config. Reason: {}".format(self.id, str(ex)))
+            sys.exit(255)
+
 
     def validate(self, msg: bytes) -> bool:
         """
         Method responsible of validating a message. Validation should do any kind
         of input checking so that on_message can process the message flawlessly
 
-        :param msg: message to be validated
-        :return: True if the message is valid, False otherwise
+        @param msg: message to be validated
+        @return: True if the message is valid, False otherwise
         """
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
+
+    def validate_specific_config(self, config: dict) -> bool:
+        """
+        Validate a specific
+        @param config:
+        @return:
+        """
+        if 'name' not in dict and self.id != dict['name']:
+            return False
+        if 'parameters' not in dict:
+            return False
+        return True
 
     def process(self, channel=None, method=None, properties=None, msg: bytes = None):
         """The process function. Gets called for every arriving message from the consumers.
