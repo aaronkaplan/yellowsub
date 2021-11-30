@@ -136,7 +136,9 @@ class FileCollector(Collector):
 
                     # Send message
                     self.producer.produce(msg=msg, routing_key="")
-
+                    
+                    # We have processed a file so let's exit the for loop an update directory listing
+                    break
 
 
 
