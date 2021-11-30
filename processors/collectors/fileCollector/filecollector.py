@@ -102,14 +102,13 @@ class FileCollector(Collector):
                         # quit here
                         finished = True
                         break
-
-                    # Try to open the file
-                    try:
-                        fd = open(filepath + self.PROCESSING_EXT, 'rb')
                     except FileNotFoundError:
                         # Maybe we were in a race condition here, so simply log it as info and continue
-                        self.logger.info("could not open file {}. Race condition?".format(filepath + self.PROCESSING_EXT))
+                        self.logger.info("could not rename file {}. Race condition?".format(filepath))
                         break
+
+                    # Try to open the file
+                    fd = open(filepath + self.PROCESSING_EXT, 'rb')
 
                     # Start building a new message
                     msg = {
@@ -136,7 +135,7 @@ class FileCollector(Collector):
 
                     # Send message
                     self.producer.produce(msg=msg, routing_key="")
-                    
+
                     # We have processed a file so let's exit the for loop an update directory listing
                     break
 
