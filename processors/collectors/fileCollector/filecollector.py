@@ -66,35 +66,77 @@ class FileCollector(Collector):
             raise RuntimeError("could not instantiate FileCollector. Reason: delete_files is not a boolean.")
         # If delete_files is false then create processed folder
         if not self.delete_files and not path.exists(self.path + "/" + self.PROCESSED_FOLDER):
-            makedirs(self.path + "/" + self.PROCESSED_FOLDER)
+            try:
+                makedirs(self.path + "/" + self.PROCESSED_FOLDER)
+            except PermissionError:
+                raise RuntimeError("could not instantiate FileCollector. Reason: could not create processed folder.")
 
     def process(self, channel=None, method=None, properties=None, msg: dict = Dict[Any, Any]) -> None:
-        # Check content of folder
-        for f in listdir(self.path):
-            # Only process files
-            if path.isfile(f):
-                # Start building a new message
-                msg = {
-                    "format": "raw",
-                    "version": 1,
-                    "type": "raw",
-                    "meta": {
-                        "uuid": uuid.uuid4(),
-                    },
-                }
-                # Rename file to .processing
-                rename(f, f + self.PROCESSING_EXT)
-                # Read content of file and convert it as base64
-                fd = open(f + self.PROCESSING_EXT, "rb")
-                base64_data = base64.encodebytes(fd.read())
-                fd.close()
-                # Add content of file to payload of msg
-                msg["payload"] = {"raw": base64_data}
-                # If option to delete file is set to true then delete the file
-                if self.delete_files:
-                    remove(f + self.PROCESSING_EXT)
-                else:
-                    replace(f + self.PROCESSING_EXT, self.path + "/" + self.PROCESSED_FOLDER + "/" + path.basename(f))
+        # Initializing finished variable to false as we just started
+        finished = False
+        # Initializing file list to empty list
+        files = []
 
-                # Send message
-                self.producer.produce(msg=msg, routing_key="")
+        # Processing
+        while not finished:
+            # Getting updated version of folder content
+            files = listdir(self.path)
+            # Switching finished flag, that way if there is only folders or files ending with processing extention
+            # while loop will auto close
+            finished = True
+
+            # Looking at all files
+            for f in files:
+                filepath = self.path + "/" + f
+                # Only handles files that do not ends with the processing extension
+                if path.isfile(filepath) and not f.endswith(self.PROCESSING_EXT):
+                    # We are still processing files, so maybe there are more let's do the loop another time
+                    finished = False
+
+                    # Rename file with processing extension
+                    try:
+                        rename(filepath, filepath + self.PROCESSING_EXT)
+                    except PermissionError:
+                        self.logger.error("could not rename file {} with processing extension. Exiting".format(filepath))
+                        # As we could not rename the file there is no way for us to handle further processing, let's
+                        # quit here
+                        finished = True
+                        break
+
+                    # Try to open the file
+                    try:
+                        fd = open(filepath + self.PROCESSING_EXT, 'rb')
+                    except FileNotFoundError:
+                        # Maybe we were in a race condition here, so simply log it as info and continue
+                        self.logger.info("could not open file {}. Race condition?".format(filepath + self.PROCESSING_EXT))
+                        break
+
+                    # Start building a new message
+                    msg = {
+                        "format": "raw",
+                        "version": 1,
+                        "type": "raw",
+                        "meta": {
+                            "uuid": uuid.uuid4(),
+                        }
+                    }
+
+                    # Read content of file and convert it as base64
+                    base64_data = base64.encodebytes(fd.read())
+                    fd.close()
+                    # Add content of file to payload of msg
+                    msg["payload"] = {"raw": base64_data}
+
+                    # If option to delete file is set to true then delete the file
+                    if self.delete_files:
+                        remove(filepath + self.PROCESSING_EXT)
+                    else:
+                        replace(filepath + self.PROCESSING_EXT,
+                                self.path + "/" + self.PROCESSED_FOLDER + "/" + f)
+
+                    # Send message
+                    self.producer.produce(msg=msg, routing_key="")
+
+
+
+
