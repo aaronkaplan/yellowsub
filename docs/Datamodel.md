@@ -56,13 +56,7 @@ This example has a message of format "cth-event-data-format" (a custom format de
   "version": 1,
   "type": "STIX-2.1",
   "meta": {
-    "uuid": "25c9487c-1ae9-11ec-99a3-b3a261e8732d",
-    "relations": [
-      {
-        "type": "is_parent_of",
-        "right_side": "38bd847a-1ae9-11ec-a308-ef1417ea8564"
-      }
-    ]
+    "uuid": "25c9487c-1ae9-11ec-99a3-b3a261e8732d"
   },
   "payload": {
     ... < stix-2.1 domain name observable goes here> ...
