@@ -5,13 +5,12 @@ import re
 from stix2 import Indicator, Bundle
 import json
 
-class HashListToStixBundleParser(Parser):
 
+class HashListToStixBundleParser(Parser):
     MD5_REGEX = re.compile(r'^[a-f0-9]{32}(:.+)?$', re.IGNORECASE)
     SHA1_REGEX = re.compile(r'^[a-f0-9]{40}(:.+)?$', re.IGNORECASE)
     SHA256_REGEX = re.compile(r'^[a-f0-9]{64}(:.+)?$', re.IGNORECASE)
     HASH_REGEXES = {'md5': MD5_REGEX, 'sha1': SHA1_REGEX, 'sha256': SHA256_REGEX}
-
 
     def __init__(self, processor_id: str, n: int = 1):
         super().__init__(processor_id, n)
@@ -28,7 +27,7 @@ class HashListToStixBundleParser(Parser):
         decoded_payload = base64.b64decode(payload).decode('utf-8')
 
         # Create list to hold created indicators
-        indicators= []
+        indicators = []
 
         # Parsing payload line by line
         for line in decoded_payload.splitlines():
@@ -54,4 +53,3 @@ class HashListToStixBundleParser(Parser):
 
         # Send the message
         self.producer.produce(msg=msg, routing_key="")
-
