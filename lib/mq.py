@@ -73,7 +73,7 @@ class MQ:
             password = self.config['rabbitmq'].get('password', "guest")
             credentials = pika.PlainCredentials(user, password)
             self.logger.info("Attempting to connect2mq with (%s:%d as %s/%s)" % (host, port, user,
-                                                                              sanitize_password_str(password)))
+                                                                                 sanitize_password_str(password)))
             self.connection = pika.BlockingConnection(pika.ConnectionParameters(host = host, port = port,
                                                                                 credentials = credentials))
         except Exception as ex:
@@ -144,7 +144,6 @@ class Producer(MQ):
         """Create queues bind them. Make stuff flowing from to the output exchange."""
         super().create_exchange(self.exchange)
 
-
     def produce(self, msg: dict, routing_key: str = ""):
         """Send a msg to the exchange with the given routing_key."""
         if msg:
@@ -160,7 +159,7 @@ class Consumer(MQ):
     def __init__(self, processor_id: str, exchange: str, queue_name: str, logger, callback=None):
         super().__init__(processor_id, logger)
         super().connect2mq()
-        super().create_exchange(exchange)     # should have been done by the producer.
+        super().create_exchange(exchange)  # should have been done by the producer.
 
         # establish callback. Here you can override the callback function if needed.
         if callback:
@@ -169,13 +168,14 @@ class Consumer(MQ):
             self.cb_function = self.process
 
         if not queue_name:
-            queue_name = "q.%s.%s" % (self.exchange, self.processor_id)        # default
+            queue_name = "q.%s.%s" % (self.exchange, self.processor_id)  # default
         self.queue_name = queue_name
 
     def start(self):
         """Create queues bind them. Make stuff flowing from the input queue."""
         super().create_queue(self.queue_name)
         super().bind_queue()
+        self.consume()
 
     def consume(self) -> None:
         """Register the callback function for consuming from the exchange / queue given the routing_key."""

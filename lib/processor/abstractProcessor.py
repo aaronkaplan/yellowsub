@@ -92,14 +92,14 @@ class AbstractProcessor:
             self.logger.debug("Specific config found: {}".format(specific_config))
             if not self.validate_specific_config(specific_config):
                 self.logger.error(
-                    "Specific config for processor ID {} is invalid. Can't start it.".format(self.processor_id))
+                        "Specific config for processor ID {} is invalid. Can't start it.".format(self.processor_id))
                 sys.exit(254)
-            self.config = deep_update(self.config, specific_config)  # FIXME, might need to re-initialize the logger here
+            self.config = deep_update(self.config,
+                                      specific_config)  # FIXME, might need to re-initialize the logger here
         except Exception as ex:
             self.logger.error(
-                "Error while loading processor {}'s specific config. Reason: {}".format(self.processor_id, str(ex)))
+                    "Error while loading processor {}'s specific config. Reason: {}".format(self.processor_id, str(ex)))
             sys.exit(255)
-
 
     def validate(self, msg: bytes) -> bool:
         """
@@ -139,7 +139,7 @@ class AbstractProcessor:
         :param msg: the message (byte representation of a dict)
         """
         self.logger.info(
-            "received '%r from channel %s, method: %s, properties: %r'" % (msg, channel, method, properties))
+                "received '%r from channel %s, method: %s, properties: %r'" % (msg, channel, method, properties))
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
     def on_message(self, msg: bytes):
@@ -179,9 +179,10 @@ class AbstractProcessor:
 
         # first start with the output side
         if self.out_exchanges:
-            if = 0
+            i = 0
             for exchange in self.out_exchanges:
-                self.producers[i] = Producer(processor_id = self.processor_id, exchange = exchange, logger = self.logger)
+                self.producers[i] = Producer(processor_id = self.processor_id, exchange = exchange,
+                                             logger = self.logger)
                 self.producers[i].start()
                 i += 1
 
@@ -191,7 +192,6 @@ class AbstractProcessor:
             self.consumer = Consumer(processor_id = self.processor_id, exchange = self.in_exchange,
                                      queue_name = self.in_queue, logger = self.logger)
             self.consumer.start()
-
 
         """
         # XXX FIXME
@@ -237,7 +237,8 @@ class MyProcessor(AbstractProcessor):
         # here we should read the config on where to connect to...
 
         # this is an example only and the connection to the exchanges and incoming queues will be done by the orchestrator.
-        self.consumer = Consumer(processor_id = processor_id, exchange = "MyEx", callback = self.process, logger = self.logger)
+        self.consumer = Consumer(processor_id = processor_id, exchange = "MyEx", callback = self.process,
+                                 queue_name = "", logger = self.logger)
         self.producer = Producer(processor_id = processor_id, exchange = "MyEx2", logger = self.logger)
 
     def process(self, channel=None, method=None, properties=None, msg: bytes = None):
@@ -256,7 +257,3 @@ class MyProcessor(AbstractProcessor):
         # ...
         # then send it onwards to the outgoing exchange
         self.producer.produce(msg = self.msg, routing_key = "")
-
-    def start(self):
-        """Start the processor."""
-        self.consumer.consume()
