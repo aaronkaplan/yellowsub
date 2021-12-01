@@ -2,12 +2,14 @@
 
 import json
 import sys
+from pathlib import Path
+from typing import List
+
+from pydantic.utils import deep_update
+
 from lib.config import Config, GLOBAL_CONFIG_PATH, PROCESSOR_CONFIG_DIR
 from lib.mq import Consumer, Producer
 from lib.utils.projectutils import ProjectUtils
-from pathlib import Path
-from pydantic.utils import deep_update
-from typing import List
 
 
 class AbstractProcessor:
@@ -85,12 +87,16 @@ class AbstractProcessor:
 
         # merge in the specific config
         try:
-            self.specific_config = _c.load(Path(PROCESSOR_CONFIG_DIR) / processor_id + ".yml")
-            print(self.specific_config)
-            self.validate_specific_config(self.specific_config)
-            self.config = deep_update(self.config, self.specific_config)
+            specific_config = _c.load(Path(PROCESSOR_CONFIG_DIR) / "{}.yml".format(processor_id))
+            self.logger.debug("Specific config found: {}".format(specific_config))
+            if not self.validate_specific_config(specific_config):
+                self.logger.error(
+                    "Specific config for processor ID {} is invalid. Can't start it.".format(self.processor_id))
+                sys.exit(254)
+            self.config = deep_update(self.config, specific_config)  # FIXME, might need to re-initialize the logger here
         except Exception as ex:
-            print("Error while loading processor {}'s specific config. Reason: {}".format(self.processor_id, str(ex)))
+            self.logger.error(
+                "Error while loading processor {}'s specific config. Reason: {}".format(self.processor_id, str(ex)))
             sys.exit(255)
 
     def validate(self, msg: bytes) -> bool:
@@ -109,9 +115,9 @@ class AbstractProcessor:
         @param config:
         @return:
         """
-        if 'name' not in dict and self.processor_id != dict['name']:
+        if 'name' not in config and self.processor_id != config['name']:
             return False
-        if 'parameters' not in dict:
+        if 'parameters' not in config:
             return False
         return True
 
@@ -130,7 +136,8 @@ class AbstractProcessor:
         :param properties: the properties attached to the message
         :param msg: the message (byte representation of a dict)
         """
-        self.logger.info("received '%r from channel %s, method: %s, properties: %r'" % (msg, channel, method, properties))
+        self.logger.info(
+            "received '%r from channel %s, method: %s, properties: %r'" % (msg, channel, method, properties))
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
     def on_message(self, msg: bytes):
@@ -192,8 +199,8 @@ class MyProcessor(AbstractProcessor):
         # here we should read the config on where to connect to...
 
         # this is an example only and the connection to the exchanges and incoming queues will be done by the orchestrator.
-        self.consumer = Consumer(processor_id = processor_id, exchange = "MyEx", callback = self.process)
-        self.producer = Producer(processor_id = processor_id, exchange = "MyEx2")
+        self.consumer = Consumer(processor_id = processor_id, exchange = "MyEx", callback = self.process, logger = self.logger)
+        self.producer = Producer(processor_id = processor_id, exchange = "MyEx2", logger = self.logger)
 
     def process(self, channel=None, method=None, properties=None, msg: bytes = None):
         """
