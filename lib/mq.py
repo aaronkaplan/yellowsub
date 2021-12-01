@@ -37,7 +37,10 @@ class MQ:
         self.config = _c.load(Path(GLOBAL_CONFIG_PATH))
         self.logger.info("Loaded global config")
 
-    def __del__(self):
+    def close(self):
+        """
+        Tear down connections and channels.
+        """
         self.logger.info("Disconnecting from MQ")
         self._queue_unbind()
         self.channel.close()
@@ -197,3 +200,5 @@ if __name__ == "__main__":
     else:
         print("Need to specify one of -c or -p. See --help.", file = sys.stderr)
         sys.exit(1)
+   if args.producer:
+       p.close()
