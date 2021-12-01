@@ -42,6 +42,7 @@ class AbstractProcessor:
 
     instances: int = 1
     config = dict()
+    logger = None
 
     def __init__(self, processor_id: str, n: int = 1):
         """
@@ -99,6 +100,7 @@ class AbstractProcessor:
                 "Error while loading processor {}'s specific config. Reason: {}".format(self.processor_id, str(ex)))
             sys.exit(255)
 
+
     def validate(self, msg: bytes) -> bool:
         """
         Method responsible of validating a message. Validation should do any kind
@@ -155,11 +157,10 @@ class AbstractProcessor:
         """
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
-    def start(self):
+    def start(self, from_ex: str, from_queue: str, to_ex: List[str]):
         """
-        Start processing incoming messages. Calling start() makes the processor ready to accept incoming message,
-        process them and send them top the output exchanges.
-        This means, start() will connect the processor to its output exchanges and its input queue.
+        start() will connect the processor to its output exchanges and its input queue (in this order).
+        After connecting to the queues and exchanges, the processor can start  processing incoming messages.
 
         The start function will then signal the orchestrator, that this processor is running.
 
@@ -167,8 +168,45 @@ class AbstractProcessor:
         connecting to DBs, reading in supporting data sets, etc.
         Therefore, the assumption here is that the config for this processor is already loaded at this stage.
 
+        @param from_ex: which exchange to connect to from_queue
+        @param from_queue: which queue to read from. The queue will be connected to from_ex
+        @param to_ex: which exchanges (possibly multiple) to send to.
+
         """
-        pass
+        self.in_exchange = from_ex
+        self.in_queue = from_queue
+        self.out_exchanges = to_ex
+
+        # first start with the output side
+        if self.out_exchanges:
+            if = 0
+            for exchange in self.out_exchanges:
+                self.producers[i] = Producer(processor_id = self.processor_id, exchange = exchange, logger = self.logger)
+                self.producers[i].start()
+                i += 1
+
+        # then the input side
+        if self.in_exchange:
+            # need a Consumer, bind the consumer to the in_exchange
+            self.consumer = Consumer(processor_id = self.processor_id, exchange = self.in_exchange,
+                                     queue_name = self.in_queue, logger = self.logger)
+            self.consumer.start()
+
+
+        """
+        # XXX FIXME
+        # we know, based on the specific config, what kind processor group this is: collector, output, enricher, etc.
+        if self.config['group'] == "collector":
+            # only need out_exchanges
+            for exchange in self.out_exchanges:
+                self.consumer = Consumer(processor_id = self.processor_id, exchange = exchange, logger = self.logger)
+        elif self.config['group'] == "outputProcessor":
+            # only need from_ex
+            self.consumer = Consumer(processor_id = self.processor_id, in_queue = from_ex, logger = self.logger)
+        else:
+            # need both
+            pass
+        """
 
     def reload(self):
         """
