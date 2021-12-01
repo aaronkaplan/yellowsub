@@ -171,7 +171,7 @@ class Consumer(MQ):
         """Handle the arriving message."""
         self.logger.info("received '%r'" % msg)
         print("[*] received '%r'" % msg)
-        self.channel.basic_ack()
+        self.channel.basic_ack(delivery_tag = method.delivery_tag)
 
 
 if __name__ == "__main__":
