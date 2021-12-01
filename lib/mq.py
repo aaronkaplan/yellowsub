@@ -173,8 +173,7 @@ class Consumer(MQ):
 
     def process(self, ch, method, properties, msg):
         """Handle the arriving message."""
-        self.logger.info("received '%r'" % msg)
-        print("[*] received '%r'" % msg)
+        self.logger.info("[*] received '%r'" % msg)
         self.channel.basic_ack(delivery_tag = method.delivery_tag)
 
 
