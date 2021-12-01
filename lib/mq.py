@@ -12,6 +12,7 @@ import pika
 from pathlib import Path
 
 from lib.config import Config, GLOBAL_CONFIG_PATH
+from lib.utils.projectutils import ProjectUtils
 from lib.utils import sanitize_password_str
 
 
@@ -24,12 +25,20 @@ class MQ:
     exchange = None
     id: str = ""
 
-    def __init__(self, id: str):
+    logger: logging.Logger = None       # the logger to be used
+
+    def __init__(self, id: str, logger = None):
+        self.id = id
+        if not logger:
+            self.logger = ProjectUtils.get_logger()
+        else:
+            self.logger = logger
         _c = Config()
         self.config = _c.load(Path(GLOBAL_CONFIG_PATH))
-        self.id = id
+        self.logger.info("Loaded global config")
 
     def __del__(self):
+        self.logger.info("Disconnecting from MQ")
         self._queue_unbind()
         self.channel.close()
 
@@ -37,46 +46,46 @@ class MQ:
         """Connect to the MQ system."""
 
         try:
-            logging.info("connecting to RabbitMQ...")
+            self.logger.info("Connecting to RabbitMQ...")
             host = self.config['rabbitmq']['host']
             port = int(self.config['rabbitmq'].get('port', 5672))
             # user and password config
             user = self.config['rabbitmq'].get('user', "guest")
             password = self.config['rabbitmq'].get('password', "guest")
             credentials = pika.PlainCredentials(user, password)
-            logging.info("Attempting to connect with (%s:%d as %s/%s)" % (host, port, user,
+            self.logger.info("Attempting to connect with (%s:%d as %s/%s)" % (host, port, user,
                                                                           sanitize_password_str(password)))
             self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=host, port=port,
                                                                                 credentials=credentials))
         except Exception as ex:
-            logging.error("can't connect to the MQ system. Bailing out. Reason: %s" % (str(ex)))
+            self.logger.error("can't connect to the MQ system. Bailing out. Reason: %s" % (str(ex)))
             sys.exit(-1)
-        logging.info("connected!")
+        self.logger.info("Done. Connected!")
 
         try:
             # set up the channel
-            logging.info("Setting up the exchange and channels...")
+            self.logger.info("Setting up the exchange and channels...")
             self.channel = self.connection.channel()
-            logging.info("channel = %r" % self.channel)
+            self.logger.info("channel = %r" % self.channel)
             self._create_exchange(exchange)
-            logging.info("exchange = %r" % self.exchange)
+            self.logger.info("exchange = %r" % self.exchange)
         except Exception as ex:
-            logging.error("can't set up channel and exchange. Reason: %s. Bailing out." % (str(ex)))
+            self.logger.error("can't set up channel and exchange. Reason: %s. Bailing out." % (str(ex)))
             sys.exit(-2)
-        logging.info("Done")
+        self.logger.info("Done")
         return True
 
     def _create_exchange(self, exchange: str = ""):
         self.exchange = exchange
         if exchange:
-            logging.info("Creating exchange %s" % exchange)
+            self.logger.info("Creating exchange %s" % exchange)
             try:
                 self.channel.exchange_declare(exchange=self.exchange, exchange_type='fanout', durable=True)
             except Exception as ex:
-                logging.error("can't Create exchange '%s'. Reason: %s" % (exchange, str(ex)))
+                self.logger.error("can't Create exchange '%s'. Reason: %s" % (exchange, str(ex)))
                 raise ex
         else:
-            logging.info("not creating exchange, using the default '' exchange.")
+            self.logger.info("not creating exchange, using the default '' exchange.")
 
     def _publish(self, message: dict, routing_key=""):
         data = bytes(json.dumps(message), 'utf-8')  # JSON is always utf-8
@@ -102,7 +111,7 @@ class MQ:
         """Close the connection to rabbitmq."""
         if self.connection:
             self.connection.close()
-            logging.info("Closed connection")
+            self.logger.info("Closed connection")
 
 
 class Producer(MQ):
@@ -114,7 +123,7 @@ class Producer(MQ):
 
     def connect(self, exchange: str = ""):
         """Connect to an exchange."""
-        logging.info("Connecting to exchange %s" % (exchange,))
+        self.logger.info("Connecting to exchange %s" % (exchange,))
         super().connect(exchange)
         # super()._connect_queue()       # producers don't need to connect to queues, they send to the exchange.
 
@@ -122,7 +131,7 @@ class Producer(MQ):
         """Send a msg to the exchange with the given routing_key."""
         if msg:
             super()._publish(message=msg, routing_key=routing_key)
-            logging.info("[x] Sent %r" % msg)
+            self.logger.info("[x] Sent %r" % msg)
 
 
 class Consumer(MQ):
@@ -148,21 +157,18 @@ class Consumer(MQ):
 
     def consume(self) -> None:
         """Register the callback function for consuming from the exchange / queue given the routing_key."""
-        logging.info("[*] Waiting for logs.")
+        self.logger.info("[*] Waiting for logs.")
         self.channel.basic_consume(queue=self.queue_name, on_message_callback=self.cb_function, auto_ack=False)
         self.channel.start_consuming()
 
     def process(self, ch, method, properties, msg):
         """Handle the arriving message."""
-        logging.info("received '%r'" % msg)
+        self.logger.info("received '%r'" % msg)
         print("[*] received '%r'" % msg)
         self.channel.basic_ack()
 
 
 if __name__ == "__main__":
-
-    logging.basicConfig()
-    logging.getLogger().setLevel(logging.INFO)
 
     parser = argparse.ArgumentParser(description='testing the mq module')
     parser.add_argument('-p', '--producer', action='store_true', help="run as a producer")
