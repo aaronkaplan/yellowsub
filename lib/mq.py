@@ -27,8 +27,8 @@ class MQ:
 
     logger: logging.Logger = None  # the logger to be used
 
-    def __init__(self, id: str, logger=None):
-        self.id = id
+    def __init__(self, processor_id: str, logger=None):
+        self.id = processor_id
         if not logger:
             self.logger = ProjectUtils.get_logger()
         else:
@@ -127,8 +127,8 @@ class MQ:
 class Producer(MQ):
     """A producer, based on the base functionality of MQ."""
 
-    def __init__(self, id: str, exchange: str, logger):
-        super().__init__(id, logger)
+    def __init__(self, processor_id: str, exchange: str, logger):
+        super().__init__(processor_id, logger)
         self.connect(exchange)
 
     def connect(self, exchange: str = ""):
@@ -149,8 +149,8 @@ class Consumer(MQ):
 
     cb_function = None
 
-    def __init__(self, id: str, exchange: str, logger, callback=None):
-        super().__init__(id, logger)
+    def __init__(self, processor_id: str, exchange: str, logger, callback=None):
+        super().__init__(processor_id, logger)
         super().connect(exchange)
         queue_name = "q.%s.%s" % (self.exchange, self.id)
         if callback:
@@ -181,7 +181,7 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--producer', action = 'store_true', help = "run as a producer")
     parser.add_argument('-c', '--consumer', action = 'store_true', help = "run as a consumer")
     parser.add_argument('-e', '--exchange', help = "Exchange to connect to.", required = True)
-    parser.add_argument('-i', '--id', help = "Unique ID of the producer or consumer (used to set the queue name!)",
+    parser.add_argument('-i', '--processor_id', help = "Unique ID of the producer or consumer (used to set the queue name!)",
                         required = True)
     args = parser.parse_args()
 

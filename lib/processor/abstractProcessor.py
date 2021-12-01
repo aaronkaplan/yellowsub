@@ -31,64 +31,66 @@ class AbstractProcessor:
     Queue 1 has two consumers c1 and c2. They will get the messages round robin again . Queue 2 has one consumer c3.
     Queue 3 has no consumers, Queue 4 has two consumers c4 and c5 again.
     """
-    id: str = None
+    processor_id: str = None
     consumer: Consumer = None
-    in_queue: str = None
     producer: Producer = None
+
+    in_queue: str = None
     out_exchanges: List[str] = []
+
     instances: int = 1
     config = dict()
 
-    def __init__(self, id: str, n: int = 1):
+    def __init__(self, processor_id: str, n: int = 1):
         """
-        :param id: the ID of the processor. Used to set the queue names
+        :param processor_id: the ID of the processor. Used to set the queue names
         :param n: Number of (unix, system) processes should be instantiated for parallel processing
         """
-        assert isinstance(id, str), "ID needs to be a string."
-        assert id, "ID needs a value when instantiating a processor."
+        assert isinstance(processor_id, str), "ID needs to be a string."
+        assert processor_id, "ID needs a value when instantiating a processor."
 
-        self.id = id
+        self.processor_id = processor_id
         self.instances = n
 
         # make sure the config is loaded
-        self.load_config(id)
+        self.load_config(processor_id)
 
-        # setup logger using the global config the processor class name and the id of the processor
+        # setup logger using the global config the processor class name and the processor_id of the processor
         # TODO: DG_Comment :this can and should be moved to a higher level (orchestrator) as it does not pertain
         #       to the processor itself in addition setting up the logger should probably be made at the same
         #       level and not using ProjectUtils
-        ProjectUtils.configure_logger(self.config, self.__class__.__name__, self.id)
+        ProjectUtils.configure_logger(self.config, self.__class__.__name__, self.processor_id)
 
         # using getLogger from ProjectUtils to get the logger
-        self.logger = ProjectUtils.get_logger(self.__class__.__name__ + "." + str(self.id))
+        self.logger = ProjectUtils.get_logger(self.__class__.__name__ + "." + str(self.processor_id))
 
         # Do other startup stuff like connecting to an enrichment DB such as maxmind or so.
         # Load the input queue and output exchanges, this processor will have to connect to
 
-    def load_config(self, id: str):
+    def load_config(self, processor_id: str):
         """
         Load the global config file (usually etc/config.yml) and also check if a specific config file
-        for this processor exists in etc.d/<id>.yml. If such a specific config file exist, merge it into the
+        for this processor exists in etc.d/<processor_id>.yml. If such a specific config file exist, merge it into the
         self.config dict
 
-        :param id: The processor's ID string
+        :param processor_id: The processor's ID string
         """
         # load the global config
         _c = Config()
         try:
             self.config = _c.load(Path(GLOBAL_CONFIG_PATH))
         except Exception as ex:
-            print("Error while loading processor {}'s global config. Reason: {}".format(self.id, str(ex)))
+            print("Error while loading processor {}'s global config. Reason: {}".format(self.processor_id, str(ex)))
             sys.exit(255)
 
         # merge in the specific config
         try:
-            self.specific_config = _c.load(Path(PROCESSOR_CONFIG_DIR) / id + ".yml")
+            self.specific_config = _c.load(Path(PROCESSOR_CONFIG_DIR) / processor_id + ".yml")
             print(self.specific_config)
             self.validate_specific_config(self.specific_config)
             self.config = deep_update(self.config, self.specific_config)
         except Exception as ex:
-            print("Error while loading processor {}'s specific config. Reason: {}".format(self.id, str(ex)))
+            print("Error while loading processor {}'s specific config. Reason: {}".format(self.processor_id, str(ex)))
             sys.exit(255)
 
     def validate(self, msg: bytes) -> bool:
@@ -107,7 +109,7 @@ class AbstractProcessor:
         @param config:
         @return:
         """
-        if 'name' not in dict and self.id != dict['name']:
+        if 'name' not in dict and self.processor_id != dict['name']:
             return False
         if 'parameters' not in dict:
             return False
@@ -185,13 +187,13 @@ class MyProcessor(AbstractProcessor):
 
     msg = None
 
-    def __init__(self, id: str, n: int = 1, incoming_queue="", outgoing_exchanges=[]):
-        super().__init__(id, n)
+    def __init__(self, processor_id: str, n: int = 1, incoming_queue="", outgoing_exchanges=[]):
+        super().__init__(processor_id, n)
         # here we should read the config on where to connect to...
 
         # this is an example only and the connection to the exchanges and incoming queues will be done by the orchestrator.
-        self.consumer = Consumer(id = id, exchange = "MyEx", callback = self.process)
-        self.producer = Producer(id = id, exchange = "MyEx2")
+        self.consumer = Consumer(processor_id = processor_id, exchange = "MyEx", callback = self.process)
+        self.producer = Producer(processor_id = processor_id, exchange = "MyEx2")
 
     def process(self, channel=None, method=None, properties=None, msg: bytes = None):
         """
@@ -204,7 +206,7 @@ class MyProcessor(AbstractProcessor):
         """
         self.msg = json.loads(msg)
         # validate the message here
-        self.logger.info("MyProcessor (ID: %s). Got msg %r" % (self.id, self.msg))
+        self.logger.info("MyProcessor (ID: %s). Got msg %r" % (self.processor_id, self.msg))
         # do something with the msg in the process() function, the msg is in self.msg
         # ...
         # then send it onwards to the outgoing exchange
