@@ -37,7 +37,10 @@ class MQ:
         self.config = _c.load(Path(GLOBAL_CONFIG_PATH))
         self.logger.info("Loaded global config")
 
-    def __del__(self):
+    def close(self):
+        """
+        Tear down the RabbitMQ connection and channel.
+        """
         self.logger.info("Disconnecting from MQ")
         self._queue_unbind()
         self.channel.close()
@@ -187,7 +190,8 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--producer', action = 'store_true', help = "run as a producer")
     parser.add_argument('-c', '--consumer', action = 'store_true', help = "run as a consumer")
     parser.add_argument('-e', '--exchange', help = "Exchange to connect to.", required = True)
-    parser.add_argument('-i', '--processor_id', help = "Unique ID of the producer or consumer (used to set the queue name!)",
+    parser.add_argument('-i', '--processor_id',
+                        help = "Unique ID of the producer or consumer (used to set the queue name!)",
                         required = True)
     args = parser.parse_args()
 
