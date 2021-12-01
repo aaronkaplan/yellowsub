@@ -206,6 +206,7 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--producer', action = 'store_true', help = "run as a producer")
     parser.add_argument('-c', '--consumer', action = 'store_true', help = "run as a consumer")
     parser.add_argument('-e', '--exchange', help = "Exchange to connect2mq to.", required = True)
+    parser.add_argument('-q', '--queue_name', help = "Queue name to read from.", required = False)
     parser.add_argument('-i', '--processor_id',
                         help = "Unique ID of the producer or consumer (used to set the queue name!)",
                         required = True)
@@ -217,7 +218,11 @@ if __name__ == "__main__":
             p.produce({"msg": i})
             time.sleep(3)
     elif args.consumer:
-        c = Consumer(args.processor_id, args.exchange, queue_name = "", logger = logger)
+        if args.queue_name:
+            queue_name = args.queue_name
+        else:
+            queue_name = ""     # auto-decide
+        c = Consumer(args.processor_id, args.exchange, queue_name = queue_name, logger = logger)
         c.consume()
     else:
         print("Need to specify one of -c or -p. See --help.", file = sys.stderr)
