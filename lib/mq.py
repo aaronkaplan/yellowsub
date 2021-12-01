@@ -185,13 +185,13 @@ class Consumer(MQ):
 
     def process(self, ch, method, properties, msg):
         """Handle the arriving message."""
-        raise RuntimeError("Not implemented in the abstract Consumer. Need to override this method in the derived "
-                           "class.")
+        # raise RuntimeError("Not implemented in the abstract Consumer. Need to override this method in the derived "
+        #                    "class.")
         #
         # A typical Consumer would do:
-        # self.logger.info("[*] received '%r'" % msg)
+        self.logger.info("[*] received '%r'" % msg)
         #   # ACKing is important:
-        # self.channel.basic_ack(delivery_tag = method.delivery_tag)
+        self.channel.basic_ack(delivery_tag = method.delivery_tag)
 
 
 if __name__ == "__main__":
