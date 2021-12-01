@@ -116,12 +116,13 @@ class MQ:
     def _queue_unbind(self):
         self.channel.queue_unbind(queue = self.queue_name, exchange = self.exchange)
 
-    def close(self):
-        """Close the connection to rabbitmq."""
-        if self.connection:
-            self.channel.close()
-            self.connection.close()
-            self.logger.info("Closed connection")
+    # keeping here as a sketch, but actually this moved to __del__. FIXME
+    # def close(self):
+    #     """Close the connection to rabbitmq."""
+    #     if self.connection:
+    #         self.channel.close()
+    #         self.connection.close()
+    #         self.logger.info("Closed connection")
 
 
 class Producer(MQ):
