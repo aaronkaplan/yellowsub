@@ -44,6 +44,7 @@ from os import path, makedirs, listdir, remove, replace, rename
 import uuid
 import base64
 
+
 class FileCollector(Collector):
 
     PROCESSED_FOLDER = "processed"
@@ -138,6 +139,4 @@ class FileCollector(Collector):
 
                     # We have processed a file so let's exit the for loop an update directory listing
                     break
-
-
 

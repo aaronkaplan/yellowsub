@@ -23,12 +23,12 @@ class MQ:
     queue = None
     queue_name = ""
     exchange = None
-    id: str = ""
+    processor_id: str = ""
 
     logger: logging.Logger = None  # the logger to be used
 
     def __init__(self, processor_id: str, logger=None):
-        self.id = processor_id
+        self.processor_id = processor_id
         if not logger:
             self.logger = ProjectUtils.get_logger()
         else:
@@ -37,10 +37,7 @@ class MQ:
         self.config = _c.load(Path(GLOBAL_CONFIG_PATH))
         self.logger.info("Loaded global config")
 
-    def close(self):
-        """
-        Tear down connections and channels.
-        """
+    def __del__(self):
         self.logger.info("Disconnecting from MQ")
         self._queue_unbind()
         self.channel.close()
@@ -156,7 +153,7 @@ class Consumer(MQ):
     def __init__(self, processor_id: str, exchange: str, logger, callback=None):
         super().__init__(processor_id, logger)
         super().connect(exchange)
-        queue_name = "q.%s.%s" % (self.exchange, self.id)
+        queue_name = "q.%s.%s" % (self.exchange, self.processor_id)
         if callback:
             self.cb_function = callback
         else:
@@ -180,7 +177,12 @@ class Consumer(MQ):
 
 if __name__ == "__main__":
 
-    logger = ProjectUtils.get_logger("test")
+    _c = Config()
+    config = _c.load()
+    print("Loaded config: %r" % config)
+
+    ProjectUtils.configure_logger(config, processor_class = None, processor_id = None)
+    logger = ProjectUtils.get_logger("")
     parser = argparse.ArgumentParser(description = 'testing the mq module')
     parser.add_argument('-p', '--producer', action = 'store_true', help = "run as a producer")
     parser.add_argument('-c', '--consumer', action = 'store_true', help = "run as a consumer")
@@ -190,15 +192,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.producer:
-        p = Producer(args.id, args.exchange, logger)
+        p = Producer(args.processor_id, args.exchange, logger)
         for i in range(10):
             p.produce({"msg": i})
             time.sleep(3)
     elif args.consumer:
-        c = Consumer(args.id, args.exchange, logger)
+        c = Consumer(args.processor_id, args.exchange, logger)
         c.consume()
     else:
         print("Need to specify one of -c or -p. See --help.", file = sys.stderr)
         sys.exit(1)
-   if args.producer:
-       p.close()
