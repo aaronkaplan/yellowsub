@@ -7,8 +7,6 @@ from lib.processor.abstractProcessor import AbstractProcessor
 class Processor(AbstractProcessor):
     """The main Processor class, all others derive from it."""
 
-    # logger = ...
-
     def __init__(self, processor_id: str, n: int = 1):
         super().__init__(processor_id, n)
         self.start()
