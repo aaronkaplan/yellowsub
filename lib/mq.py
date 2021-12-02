@@ -118,7 +118,7 @@ class MQ:
                                                 auto_delete = False)
         self.logger.debug("create_queue(): queue = %r" % self.queue)
         self.channel.basic_qos(prefetch_count = 1)
-        self.queue_name = self.queue.method.queue
+        # self.queue_name = self.queue.method.queue
 
     def bind_queue(self):
         """
