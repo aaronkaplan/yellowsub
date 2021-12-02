@@ -140,7 +140,7 @@ class Producer(MQ):
 
     def __init__(self, processor_id: str, exchange: str, logger):
         super().__init__(processor_id, logger)
-        self.connect2mq()
+        super().connect2mq()
         self.exchange = exchange
 
     def start(self):
