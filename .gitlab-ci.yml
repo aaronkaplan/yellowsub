@@ -38,9 +38,9 @@ syntax-checks:
   script:
     - pip3 install  flake8 
 
-    - flake8 . --ignore=E251,E225,E741,E501,W605,W391 --exclude=.git,venv,contrib --count --show-source --statistics
+    - flake8 . --ignore=E251,E225,E126,E741,E501,W605,W391 --exclude=.git,venv,contrib --count --show-source --statistics
     # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-    - flake8 . --ignore=E251,E225,E741,E501,W605,W391 --exclude=.git,venv,contrib --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - flake8 . --ignore=E251,E225,E126,E741,E501,W605,W391 --exclude=.git,venv,contrib --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     # - tox -e py36,flake8   # you can also use tox
 
 
