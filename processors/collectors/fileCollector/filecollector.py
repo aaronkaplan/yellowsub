@@ -139,4 +139,3 @@ class FileCollector(Collector):
 
                     # We have processed a file so let's exit the for loop an update directory listing
                     break
-
