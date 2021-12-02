@@ -38,7 +38,7 @@ class AbstractProcessor:
     producer: Producer = None
 
     in_queue: str = None
-    out_exchanges: List[str] = []
+    out_exchanges: List[str] = []  # FIXME
 
     instances: int = 1
     config = dict()
