@@ -141,8 +141,9 @@ The workflows.yml file MAY contain multiple workflows (DAGs) which may even be d
 A workflow has a `workflow_id`, description and some metadata.
 
 Special cases:
-* a collector does not have to specify an input_queue 
-* an outputProcessor does not have to specify an output_exchanges list
+* a collector does not have to specify a `from` 
+* an outputProcessor does not have to specify a `to`
+* all the other ones (enrichers, filters, parser) must have both a `from` and `to`.
 
 Syntax:
 
