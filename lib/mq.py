@@ -179,7 +179,7 @@ class Consumer(MQ):
 
     def consume(self) -> None:
         """Register the callback function for consuming from the exchange / queue given the routing_key."""
-        self.logger.info("[*] Waiting for logs.")
+        self.logger.info("[*] Waiting for logs on queue {}.".format(self.queue_name))
         self.channel.basic_consume(queue = self.queue_name, on_message_callback = self.cb_function, auto_ack = False)
         self.channel.start_consuming()
 
