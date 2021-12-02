@@ -173,11 +173,11 @@ class Consumer(MQ):
         if not queue_name:
             queue_name = "q.%s.%s" % (self.exchange, self.processor_id)  # default
         self.queue_name = queue_name
-        super().create_queue(self.queue_name)
-        super().bind_queue()
 
     def start(self):
         """Create queues bind them. Make stuff flowing from the input queue."""
+        super().create_queue(self.queue_name)
+        super().bind_queue()
         self.consume()
 
     def consume(self) -> None:
@@ -218,6 +218,7 @@ if __name__ == "__main__":
 
     if args.producer:
         p = Producer(args.processor_id, args.exchange, logger= logger)
+        p.start()
         for i in range(10):
             p.produce({"msg": i})
             time.sleep(3)
@@ -227,6 +228,7 @@ if __name__ == "__main__":
         else:
             qn = ""     # auto-decide
         c = Consumer(args.processor_id, args.exchange, queue_name = qn, logger = logger)
+        c.start()
         c.consume()
     else:
         print("Need to specify one of -c or -p. See --help.", file = sys.stderr)
