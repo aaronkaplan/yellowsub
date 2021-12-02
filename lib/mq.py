@@ -117,7 +117,7 @@ class MQ:
         self.queue = self.channel.queue_declare(queue = queue_name, durable = True, exclusive = False,
                                                 auto_delete = False)
         self.channel.basic_qos(prefetch_count = 1)
-        self.queue_name = self.queue.method.queue
+        # self.queue_name = self.queue.method.queue
 
     def bind_queue(self):
         """
