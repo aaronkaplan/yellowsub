@@ -157,7 +157,7 @@ class AbstractProcessor:
         """
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
-    def start(self, from_ex: str, from_queue: str, to_ex: List[str]):
+    def start(self, from_ex: str, from_queue: str, to_ex: str):
         """
         start() will connect the processor to its output exchanges and its input queue (in this order).
         After connecting to the queues and exchanges, the processor can start  processing incoming messages.
@@ -175,16 +175,12 @@ class AbstractProcessor:
         """
         self.in_exchange = from_ex
         self.in_queue = from_queue
-        self.out_exchanges = to_ex
+        self.out_exchange = to_ex
 
         # first start with the output side
-        if self.out_exchanges:
-            i = 0
-            for exchange in self.out_exchanges:
-                self.producers[i] = Producer(processor_id = self.processor_id, exchange = exchange,
-                                             logger = self.logger)
-                self.producers[i].start()
-                i += 1
+        if self.out_exchange:
+            self.producer = Producer(processor_id = self.processor_id, exchange = exchange, logger = self.logger)
+            self.producer.start()
 
         # then the input side
         if self.in_exchange:
