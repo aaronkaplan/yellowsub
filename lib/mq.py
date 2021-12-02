@@ -171,10 +171,10 @@ class Consumer(MQ):
         if not queue_name:
             queue_name = "q.%s.%s" % (self.exchange, self.processor_id)  # default
         self.queue_name = queue_name
+        super().create_queue(self.queue_name)
 
     def start(self):
         """Create queues bind them. Make stuff flowing from the input queue."""
-        super().create_queue(self.queue_name)
         super().bind_queue()
         self.consume()
 
