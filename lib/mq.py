@@ -174,10 +174,10 @@ class Consumer(MQ):
             queue_name = "q.%s.%s" % (self.exchange, self.processor_id)  # default
         self.queue_name = queue_name
         super().create_queue(self.queue_name)
+        super().bind_queue()
 
     def start(self):
         """Create queues bind them. Make stuff flowing from the input queue."""
-        super().bind_queue()
         self.consume()
 
     def consume(self) -> None:
@@ -193,6 +193,7 @@ class Consumer(MQ):
         #
         # A typical Consumer would do:
         self.logger.info("[*] received '%r'" % msg)
+        print("[*] received '%r'" % msg)
         #   # ACKing is important:
         self.channel.basic_ack(delivery_tag = method.delivery_tag)
 
