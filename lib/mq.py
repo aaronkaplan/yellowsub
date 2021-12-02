@@ -142,16 +142,19 @@ class Producer(MQ):
         super().__init__(processor_id, logger)
         super().connect2mq()
         self.exchange = exchange
+        super().create_exchange(self.exchange)
 
     def start(self):
-        """Create queues bind them. Make stuff flowing from to the output exchange."""
-        super().create_exchange(self.exchange)
+        """Start the processor (whatever needs to be done for that like setting running=True or so."""
+        pass
 
     def produce(self, msg: dict, routing_key: str = ""):
         """Send a msg to the exchange with the given routing_key."""
         if msg:
             super()._publish(msg = msg, routing_key = routing_key)
             self.logger.info("[x] Sent %r" % msg)
+        # since we have mandatory=True as a flag, you will see an error here if there are no queues connected to the
+        # exchange! Capture it. XXX FIXME.
 
 
 class Consumer(MQ):
@@ -163,6 +166,8 @@ class Consumer(MQ):
         super().__init__(processor_id, logger)
         super().connect2mq()
         super().create_exchange(exchange)  # should have been done by the producer.
+        super().create_queue(self.queue_name)
+        super().bind_queue()
 
         # establish callback. Here you can override the callback function if needed.
         if callback:
@@ -176,8 +181,6 @@ class Consumer(MQ):
 
     def start(self):
         """Create queues bind them. Make stuff flowing from the input queue."""
-        super().create_queue(self.queue_name)
-        super().bind_queue()
         self.consume()
 
     def consume(self) -> None:
@@ -195,6 +198,7 @@ class Consumer(MQ):
         self.logger.info("[*] received '%r'" % msg)
         print("[*] received '%r'" % msg)
         #   # ACKing is important:
+        # XXX FIXME: we should wrap this or specify it in the documentation AND int eh sample processor code!!
         self.channel.basic_ack(delivery_tag = method.delivery_tag)
 
 
@@ -229,7 +233,6 @@ if __name__ == "__main__":
             qn = ""     # auto-decide
         c = Consumer(args.processor_id, args.exchange, queue_name = qn, logger = logger)
         c.start()
-        c.consume()
     else:
         print("Need to specify one of -c or -p. See --help.", file = sys.stderr)
         sys.exit(1)

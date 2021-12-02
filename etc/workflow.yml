@@ -3,8 +3,8 @@ workflow:
   author: "kaplale"
   flow:
   # simple linear example: get urls from somewhere (configured in the url_collector.yml) and do parallel lookups in safebrowsing, finally write the enriched results to a file.
-  - { proc_id: "url_collector", to: ["ex1", "ex2"] }
-  - { proc_id: "is_url_on_safebrowsing", from: "ex1", to: ["ex15"], paralellism: 3 }
+  - { proc_id: "url_collector", to: "ex1" }
+  - { proc_id: "is_url_on_safebrowsing", from: "ex1", to: "ex15", paralellism: 3 }
   - { proc_id: "output_file_writer", from: "ex15"}
 
 workflow2:
@@ -12,6 +12,6 @@ workflow2:
   author: "kaplale"
   flow:
   # simple linear example: get urls from somewhere (configured in the url_collector.yml) and do parallel lookups in safebrowsing, finally write the enriched results to a file.
-  - { proc_id: "url_collector", to: ["ex100", "ex200"] }
-  - { proc_id: "is_url_on_safebrowsing", from: "ex100", to: ["ex150"], paralellism: 3 }
+  - { proc_id: "url_collector", to: "ex100" }
+  - { proc_id: "is_url_on_safebrowsing", from: "ex100", to: "ex150", paralellism: 3 }
   - { proc_id: "output_file_writer", from: "ex150"}
