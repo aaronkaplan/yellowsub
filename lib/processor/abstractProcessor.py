@@ -179,7 +179,7 @@ class AbstractProcessor:
 
         # first start with the output side
         if self.out_exchange:
-            self.producer = Producer(processor_id = self.processor_id, exchange = exchange, logger = self.logger)
+            self.producer = Producer(processor_id = self.processor_id, exchange = self.out_exchange, logger = self.logger)
             self.producer.start()
 
         # then the input side
