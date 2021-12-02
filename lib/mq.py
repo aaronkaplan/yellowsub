@@ -118,13 +118,15 @@ class MQ:
                                                 auto_delete = False)
         self.logger.debug("create_queue(): queue = %r" % self.queue)
         self.channel.basic_qos(prefetch_count = 1)
-        # self.queue_name = self.queue.method.queue
+        self.queue_name = self.queue.method.queue
+        self.logger.debug("queue_name = %r" % self.queue_name)
 
     def bind_queue(self):
         """
         Bind the queue to the (already created) exchange.
         """
-        self.channel.queue_bind(exchange = self.exchange, queue = self.queue_name)
+        retv = self.channel.queue_bind(exchange = self.exchange, queue = self.queue_name)
+        self.logger.debug("bind_queue(): answer = %r" % retv)
 
     def unbind_queue(self):
         """
@@ -220,10 +222,10 @@ if __name__ == "__main__":
             time.sleep(3)
     elif args.consumer:
         if args.queue_name:
-            queue_name = args.queue_name
+            qn = args.queue_name
         else:
-            queue_name = ""     # auto-decide
-        c = Consumer(args.processor_id, args.exchange, queue_name = queue_name, logger = logger)
+            qn = ""     # auto-decide
+        c = Consumer(args.processor_id, args.exchange, queue_name = qn, logger = logger)
         c.consume()
     else:
         print("Need to specify one of -c or -p. See --help.", file = sys.stderr)
