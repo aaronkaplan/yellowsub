@@ -43,9 +43,7 @@ class HashListToStixBundleParser(Parser):
 
             # Creating File object
             f = File(hashes={hash_family: line})
-            od = ObservedData(object_refs=[f.id])
             objects.append(f)
-            objects.append(od)
 
         # Create the bundle
         bundle = Bundle(objects)
