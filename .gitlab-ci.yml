@@ -38,9 +38,9 @@ syntax-checks:
   script:
     - pip3 install  flake8 
 
-    - flake8 . --ignore=E251,E225,E741,E501,W605,W391 --exclude=.git,venv,contrib --count --show-source --statistics
+    - flake8 . --ignore=E251,E225,E126,E741,E501,W605,W391 --exclude=.git,venv,contrib --count --show-source --statistics
     # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-    - flake8 . --ignore=E251,E225,E741,E501,W605,W391 --exclude=.git,venv,contrib --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - flake8 . --ignore=E251,E225,E126,E741,E501,W605,W391 --exclude=.git,venv,contrib --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     # - tox -e py36,flake8   # you can also use tox
 
 
@@ -51,23 +51,13 @@ unit-tests:
     - service redis-server start
     - export PYTHONPATH=lib ; export YELLOWSUB_ROOT_DIR=$(pwd); pytest --cov=./ tests
 
-# run:
-#  script:
-#    - python setup.py bdist_wheel
-#    # an alternative approach is to install and run:
-#    - pip install dist/*
-#    # run the command here
-#  artifacts:
-#    paths:
-#      - dist/*.whl
-#
-#pages:
-#  script:
-#    - pip install sphinx sphinx-rtd-theme
-#    - cd doc ; make html
-#    - mv build/html/ ../public/
-#  artifacts:
-#    paths:
-#      - public
-#  rules:
-#    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+semgrep-checks:
+  tags: [Dev]
+  script:
+    - pip3 install  semgrep
+    - semgrep --config=p/ci --metrics=off lib
+    - semgrep --config=p/security-audit --metrics=off lib
+    - semgrep --config r/python.lang.correctness --metrics=off lib
+    - semgrep --config r/python.lang.maintainability --metrics=off lib
+    - semgrep --config r/python.lang.best-practice   --metrics=off lib
+

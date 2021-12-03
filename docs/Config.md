@@ -53,6 +53,7 @@ This is an example specific config file for ID = "mispattributesearcher".
 It is called `etc/processors/mispattributesearcher.yml`
 
 ```yaml
+# Minimum required config for a processor:
 name: myMispattributesearcher1 # the ID
 description: The MISPattributesearcher enricher will search for events in MISP for a given IoC (IP address, etc..)
 enabled: true         # enable it or not
@@ -62,6 +63,8 @@ module: processors.enrichers.mispattributesearcher    # where the python module 
 run_mode: continuous   # ignored for now. "continuous is the default"
 input_datamodel: "..."      # the name of the input datamodel. See [Datamodels.md](Datamodels.md)
 output_datamodel: "..."     # Detto...
+
+# Needed specific parameters for this processor: API keys, etc...
 parameters: 
   misp_uri: "https://192.168.5.108/"                                            
   misp_api_key: "123456789"                                                              
@@ -89,19 +92,24 @@ it may do so, by simply repeating (and changing) the relevant structure inside t
 Example:
 
 ```yaml
-name: mispattributesearcher # the ID
-description: The MISPattributesearcher enricher will search for events in MISP for a given IoC (IP address, etc..)
-enabled: true         # enable it or not
-group: enricher       # ignored for now
-groupname: enricher   # this field is ignored for now
-module: processors.enrichers.mispattributesearcher    # where the python module resides
-run_mode: continuous   # ignored for now. "continuous is the default"
-input_datamodel: "..."      # the name of the input datamodel. See [Datamodels.md](Datamodels.md)
-output_datamodel: "..."     # Detto...
+# Minimum required config for a processor:
+name: mispattributesearcher    # the ID
+description: "The MISPattributesearcher enricher will search for events in MISP for a given IoC (IP address, etc..)"
+enabled: true                  # enable it or not
+group: enricher                # ignored for now
+groupname: enricher            # this field is ignored for now
+module: processors.enrichers.mispattributesearcher              # where the python module resides
+run_mode: continuous           # ignored for now. "continuous is the default"
+input_datamodel: "..."         # the name of the input datamodel. See [Datamodels.md](Datamodels.md)
+output_datamodel: "..."        # Detto...
+
+# Needed specific parameters for this processor: API keys, etc...
 parameters: 
   misp_uri: "https://192.168.5.108/"                                            
   misp_api_key: "123456789"     
-  logging: # override any of the settings of the global logger here if needed
+
+# Section to override global config (note that this needs to be at the top nesting level!):
+logging: # override any of the settings of the global logger here if needed
       loglevel: 'DEBUG'
       handlers:
         - handler:
@@ -115,7 +123,12 @@ parameters:
 ```
 
 Note that in this example, the mispattributesearcher processor's log files
-will be sent to different files than by default.
+will be sent to different files than by default. This is due to the fact that (see [abstractProcessor.py](abstractProcessor.py)) 
+the specific config will be copied over (on top of) the global config within a processor unix process context:
+
+``python
+            self.config = deep_update(self.config, self.specific_config)
+``
 
 
 # Workflow config file
@@ -162,7 +175,7 @@ workflow2:
     ... 
 ```
 
-# Dataformat config file
+# Datamodel config file
 
 XXX coming ... FIXME
 

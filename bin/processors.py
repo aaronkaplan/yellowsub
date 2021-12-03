@@ -26,28 +26,28 @@ def cli(ctx, config, rootdir, verbose):
 
 
 @cli.command(short_help='Start processor')
-@click.option('--id', type=str, help='Start a specific workflow ID. Default: *', default='*', required=False)
+@click.option('--processor-id', type=str, help='Start a specific workflow ID. Default: *', default='*', required=False)
 @click.pass_context
-def start(ctx, id):
+def start(ctx, processor_id):
     """
     Start all (default) or a specific processor by ID.
     """
 
     if id != '*':
-        click.echo("Starting processor ID {} using {}".format(id, ctx.obj['config']))
+        click.echo("Starting processor ID {} using {}".format(processor_id, ctx.obj['config']))
     else:
         click.echo("Starting all processor in {}".format(ctx.obj['config']))
 
 
 @cli.command(short_help='Stop processor')
-@click.option('--id', type=str, help='Stop a specific processor ID.', default='*', required=True)
+@click.option('--processor-id', type=str, help='Stop a specific processor ID.', default='*', required=True)
 @click.pass_context
-def stop(ctx, id):
+def stop(ctx, processor_id):
     """
     Stop a specific processor given by ID.
     """
 
-    click.echo("Stoping processor ID {}".format(id))
+    click.echo("Stoping processor ID {}".format(processor_id))
 
 
 @cli.command(short_help='List processors')

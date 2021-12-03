@@ -6,13 +6,14 @@ import json
 import logging
 import sys
 import time
+from pathlib import Path
 
 import pika
-
-from pathlib import Path
+import pika.exceptions
 
 from lib.config import Config, GLOBAL_CONFIG_PATH
 from lib.utils import sanitize_password_str
+from lib.utils.projectutils import ProjectUtils
 
 
 class MQ:
@@ -22,107 +23,135 @@ class MQ:
     queue = None
     queue_name = ""
     exchange = None
-    id: str = ""
+    processor_id: str = ""
 
-    def __init__(self, id: str):
+    logger: logging.Logger = None  # the logger to be used
+
+    def __init__(self, processor_id: str, logger=None):
+        self.processor_id = processor_id
+        if not logger:
+            self.logger = ProjectUtils.get_logger()
+        else:
+            self.logger = logger
         _c = Config()
         self.config = _c.load(Path(GLOBAL_CONFIG_PATH))
-        self.id = id
+        self.logger.info("Loaded global config")
 
-    def __del__(self):
-        self._queue_unbind()
+    def close(self):
+        """
+        Tear down the RabbitMQ connection and channel.
+        """
+        self.logger.info("Disconnecting from MQ")
+        self.unbind_queue()
         self.channel.close()
+        self.connection.close()
 
-    def connect(self, exchange: str = ""):
-        """Connect to the MQ system."""
+    def _setup_channel(self):
+        """
+        Do the RabbitMQ channel setup. No creation of queues, exchanges etc. yet.
+        Internal method, called by connect2mq().
+        """
+        try:
+            self.logger.info("Setting up the channels...")
+            self.channel = self.connection.channel()
+            self.channel.confirm_delivery()  # required to be informed if a basic_publish() fails!
+            self.logger.debug("channel = %r" % self.channel)
+        except Exception as ex:
+            self.logger.error("can't set up channel. Reason: %s. Bailing out." % (str(ex)))
+            sys.exit(-2)
+        self.logger.info("Done")
+
+    def connect2mq(self):
+        """Connect to the MQ system. Calls _setup_channel()"""
 
         try:
-            logging.info("connecting to RabbitMQ...")
+            self.logger.info("Connecting to RabbitMQ...")
             host = self.config['rabbitmq']['host']
             port = int(self.config['rabbitmq'].get('port', 5672))
             # user and password config
             user = self.config['rabbitmq'].get('user', "guest")
             password = self.config['rabbitmq'].get('password', "guest")
             credentials = pika.PlainCredentials(user, password)
-            logging.info("Attempting to connect with (%s:%d as %s/%s)" % (host, port, user,
-                                                                          sanitize_password_str(password)))
-            self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=host, port=port,
-                                                                                credentials=credentials))
+            self.logger.info("Attempting to connect2mq with (%s:%d as %s/%s)" % (host, port, user,
+                                                                                 sanitize_password_str(password)))
+            self.connection = pika.BlockingConnection(pika.ConnectionParameters(host = host, port = port,
+                                                                                credentials = credentials))
         except Exception as ex:
-            logging.error("can't connect to the MQ system. Bailing out. Reason: %s" % (str(ex)))
+            self.logger.error("can't connect2mq to the MQ system. Bailing out. Reason: %s" % (str(ex)))
             sys.exit(-1)
-        logging.info("connected!")
+        self.logger.info("Done. Connected!")
+        self._setup_channel()
 
-        try:
-            # set up the channel
-            logging.info("Setting up the exchange and channels...")
-            self.channel = self.connection.channel()
-            logging.info("channel = %r" % self.channel)
-            self._create_exchange(exchange)
-            logging.info("exchange = %r" % self.exchange)
-        except Exception as ex:
-            logging.error("can't set up channel and exchange. Reason: %s. Bailing out." % (str(ex)))
-            sys.exit(-2)
-        logging.info("Done")
-        return True
-
-    def _create_exchange(self, exchange: str = ""):
+    def create_exchange(self, exchange: str = ""):
+        """
+        Create an exchange. This operation is idempotent. Pre-condition: channel and connection was set up.
+        @param exchange: the name of the exchange
+        """
         self.exchange = exchange
-        if exchange:
-            logging.info("Creating exchange %s" % exchange)
-            try:
-                self.channel.exchange_declare(exchange=self.exchange, exchange_type='fanout', durable=True)
-            except Exception as ex:
-                logging.error("can't Create exchange '%s'. Reason: %s" % (exchange, str(ex)))
-                raise ex
-        else:
-            logging.info("not creating exchange, using the default '' exchange.")
+        self.logger.info("Creating exchange %s" % exchange)
+        try:
+            self.channel.exchange_declare(exchange = self.exchange, exchange_type = 'fanout', durable = True)
+        except Exception as ex:
+            self.logger.error("can't Create exchange '%s'. Reason: %s" % (exchange, str(ex)))
+            raise ex
 
-    def _publish(self, message: dict, routing_key=""):
-        data = bytes(json.dumps(message), 'utf-8')  # JSON is always utf-8
-        self.channel.basic_publish(exchange=self.exchange, routing_key=routing_key, body=data,
-                                   properties=pika.BasicProperties(delivery_mode=2, )  # make the message persistent
-                                   )
+    def _publish(self, msg: dict, routing_key=""):
+        data = bytes(json.dumps(msg), 'utf-8')  # JSON is always utf-8
+        try:
+            self.channel.basic_publish(exchange = self.exchange, routing_key = routing_key, body = data,
+                                       properties = pika.BasicProperties(delivery_mode = 2, ),
+                                       # make the message persistent
+                                       mandatory = True
+                                       )
+        except pika.exceptions.UnroutableError as ex:
+            self.logger.error("Could not publish message. Reason: {}".format(str(ex)))
 
     def _consume(self, queue: str, callback=None, auto_ack=False):
-        self.channel.basic_consume(queue=queue, on_message_callback=callback, auto_ack=auto_ack)
+        self.channel.basic_consume(queue = queue, on_message_callback = callback, auto_ack = auto_ack)
 
-    def _connect_queue(self, queue_name: str = ''):
-        self.queue = self.channel.queue_declare(queue=queue_name, durable=True, exclusive=False)
-        self.channel.basic_qos(prefetch_count=1)
+    def create_queue(self, queue_name: str = ''):
+        """
+        Create a queue in RabbitMQ. Do not connect it yet to an exchange.
+        @param queue_name: the name of the queue
+        """
+        self.queue = self.channel.queue_declare(queue = queue_name, durable = True, exclusive = False,
+                                                auto_delete = False)
+        self.logger.debug("create_queue(): queue = %r" % self.queue)
+        self.channel.basic_qos(prefetch_count = 1)
         self.queue_name = self.queue.method.queue
+        self.logger.debug("queue_name = %r" % self.queue_name)
 
-    def _queue_bind(self):
-        self.channel.queue_bind(exchange=self.exchange, queue=self.queue_name)
+    def bind_queue(self):
+        """
+        Bind the queue to the (already created) exchange.
+        """
+        retv = self.channel.queue_bind(exchange = self.exchange, queue = self.queue_name)
+        self.logger.debug("bind_queue(): answer = %r" % retv)
 
-    def _queue_unbind(self):
-        self.channel.queue_unbind(queue=self.queue_name, exchange=self.exchange)
-
-    def close(self):
-        """Close the connection to rabbitmq."""
-        if self.connection:
-            self.connection.close()
-            logging.info("Closed connection")
+    def unbind_queue(self):
+        """
+        Disconnect the queue from any exchanges.
+        """
+        self.channel.queue_unbind(queue = self.queue_name, exchange = self.exchange)
 
 
 class Producer(MQ):
     """A producer, based on the base functionality of MQ."""
 
-    def __init__(self, id: str, exchange: str):
-        super().__init__(id)
-        self.connect(exchange)
+    def __init__(self, processor_id: str, exchange: str, logger):
+        super().__init__(processor_id, logger)
+        super().connect2mq()
+        self.exchange = exchange
 
-    def connect(self, exchange: str = ""):
-        """Connect to an exchange."""
-        logging.info("Connecting to exchange %s" % (exchange,))
-        super().connect(exchange)
-        # super()._connect_queue()       # producers don't need to connect to queues, they send to the exchange.
+    def start(self):
+        """Create queues bind them. Make stuff flowing from to the output exchange."""
+        super().create_exchange(self.exchange)
 
     def produce(self, msg: dict, routing_key: str = ""):
         """Send a msg to the exchange with the given routing_key."""
         if msg:
-            super()._publish(message=msg, routing_key=routing_key)
-            logging.info("[x] Sent %r" % msg)
+            super()._publish(msg = msg, routing_key = routing_key)
+            self.logger.info("[x] Sent %r" % msg)
 
 
 class Consumer(MQ):
@@ -130,56 +159,83 @@ class Consumer(MQ):
 
     cb_function = None
 
-    def __init__(self, id: str, exchange: str, callback=None):
-        super().__init__(id)
-        super().connect(exchange)
-        queue_name = "q.%s.%s" % (self.exchange, self.id)
+    def __init__(self, processor_id: str, exchange: str, queue_name: str, logger, callback=None):
+        super().__init__(processor_id, logger)
+        super().connect2mq()
+        super().create_exchange(exchange)  # should have been done by the producer.
+
+        # establish callback. Here you can override the callback function if needed.
         if callback:
             self.cb_function = callback
         else:
             self.cb_function = self.process
 
-        super()._connect_queue(queue_name)
-        super()._queue_bind()
+        if not queue_name:
+            queue_name = "q.%s.%s" % (self.exchange, self.processor_id)  # default
+        self.queue_name = queue_name
 
-    def __del__(self):
-        super()._queue_unbind()
-        self.channel.close()
+    def start(self):
+        """Create queues bind them. Make stuff flowing from the input queue."""
+        super().create_queue(self.queue_name)
+        super().bind_queue()
+        self.consume()
 
     def consume(self) -> None:
         """Register the callback function for consuming from the exchange / queue given the routing_key."""
-        logging.info("[*] Waiting for logs.")
-        self.channel.basic_consume(queue=self.queue_name, on_message_callback=self.cb_function, auto_ack=False)
+        self.logger.info("[*] Waiting for logs on queue {}.".format(self.queue_name))
+        self.channel.basic_consume(queue = self.queue_name, on_message_callback = self.cb_function, auto_ack = False)
         self.channel.start_consuming()
 
     def process(self, ch, method, properties, msg):
         """Handle the arriving message."""
-        logging.info("received '%r'" % msg)
+        # raise RuntimeError("Not implemented in the abstract Consumer. Need to override this method in the derived "
+        #                    "class.")
+        #
+        # A typical Consumer would do:
+        self.logger.info("[*] received '%r'" % msg)
         print("[*] received '%r'" % msg)
-        self.channel.basic_ack()
+        self.ack(method)
+
+    def ack(self, method):
+        """
+        Acknowledge a message to RabbitMQ.
+        @param method: the method parameter from process()
+        """
+        self.channel.basic_ack(delivery_tag = method.delivery_tag)
 
 
 if __name__ == "__main__":
 
-    logging.basicConfig()
-    logging.getLogger().setLevel(logging.INFO)
+    _c = Config()
+    config = _c.load()
+    print("Loaded config: %r" % config)
 
-    parser = argparse.ArgumentParser(description='testing the mq module')
-    parser.add_argument('-p', '--producer', action='store_true', help="run as a producer")
-    parser.add_argument('-c', '--consumer', action='store_true', help="run as a consumer")
-    parser.add_argument('-e', '--exchange', help="Exchange to connect to.", required=True)
-    parser.add_argument('-i', '--id', help="Unique ID of the producer or consumer (used to set the queue name!)",
-                        required=True)
+    ProjectUtils.configure_logger(config, processor_class = None, processor_id = None)
+    logger = ProjectUtils.get_logger("")
+    parser = argparse.ArgumentParser(description = 'testing the mq module')
+    parser.add_argument('-p', '--producer', action = 'store_true', help = "run as a producer")
+    parser.add_argument('-c', '--consumer', action = 'store_true', help = "run as a consumer")
+    parser.add_argument('-e', '--exchange', help = "Exchange to connect2mq to.", required = True)
+    parser.add_argument('-q', '--queue_name', help = "Queue name to read from.", required = False)
+    parser.add_argument('-i', '--processor_id',
+                        help = "Unique ID of the producer or consumer (used to set the queue name!)",
+                        required = True)
     args = parser.parse_args()
 
     if args.producer:
-        p = Producer(args.id, args.exchange)
+        p = Producer(args.processor_id, args.exchange, logger= logger)
+        p.start()
         for i in range(10):
             p.produce({"msg": i})
             time.sleep(3)
     elif args.consumer:
-        c = Consumer(args.id, args.exchange)
+        if args.queue_name:
+            qn = args.queue_name
+        else:
+            qn = ""     # auto-decide
+        c = Consumer(args.processor_id, args.exchange, queue_name = qn, logger = logger)
+        c.start()
         c.consume()
     else:
-        print("Need to specify one of -c or -p. See --help.", file=sys.stderr)
+        print("Need to specify one of -c or -p. See --help.", file = sys.stderr)
         sys.exit(1)

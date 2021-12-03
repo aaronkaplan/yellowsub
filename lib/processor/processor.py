@@ -1,16 +1,14 @@
 """Processor - a subclass of Abstract Processor."""
 import json
-# from lib.dataformat import DataFormat
+# from lib.dataformat import DataModel
 from lib.processor.abstractProcessor import AbstractProcessor
 
 
 class Processor(AbstractProcessor):
     """The main Processor class, all others derive from it."""
 
-    # logger = ...
-
-    def __init__(self, id: str, n: int = 1):
-        super().__init__(id, n)
+    def __init__(self, processor_id: str, n: int = 1):
+        super().__init__(processor_id, n)
         self.start()
 
     def _convert_to_internal_df(self, msg: bytes) -> dict:
@@ -33,8 +31,8 @@ class Processor(AbstractProcessor):
         if not msg:
             return
         msg = self._convert_to_internal_df(msg)
-        if self.id in self.config['processors'] and 'validate_msg' in self.config['processors'][self.id] and \
-                self.config['processors'][self.id]['validate_msg']:
+        if self.processor_id in self.config['processors'] and 'validate_msg' in self.config['processors'][self.processor_id] and \
+                self.config['processors'][self.processor_id]['validate_msg']:
             self.validate(msg)
         self.process(channel, method, properties, msg)
         # here we submit to the other exchanges
