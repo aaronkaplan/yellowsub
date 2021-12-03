@@ -2,7 +2,7 @@ from lib.processor.parser import Parser
 from typing import Dict, Any
 import base64
 import re
-from stix2 import Bundle, File, ObservedData
+from stix2 import Bundle, File
 import json
 
 
