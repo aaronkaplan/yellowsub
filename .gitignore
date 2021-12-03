@@ -115,6 +115,7 @@ lib64
 
 #pycharm extras
 .idea/
+.idea.bak/
 
 
 # Spyder project settings

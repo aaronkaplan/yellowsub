@@ -59,7 +59,7 @@ class ProjectUtils:
         @param processor_class: Processor class as returned by self.__class__.__name__ from within the calling class.
                                 This must match case-insensitive with the processor name inside the config.yml
         @type processor_class: str
-        @param processor_id: The ID of the processor that this logger is being set up for as returned by self.id from
+        @param processor_id: The ID of the processor that this logger is being set up for as returned by self.processor_id from
                                 withing the calling class
         @type processor_id: str
         @return: None
@@ -114,8 +114,8 @@ class ProjectUtils:
     def get_logger(logger_name: str = None):
         """
         Return the configured logger as described by the logger name. The caller should call this using
-        "yellowsub." + self.__class__.__name__ + "." + self.id.
-        If a logger is not defined for the processor (identified by class and id) the root "yellowsub" logger will
+        "yellowsub." + self.__class__.__name__ + "." + self.processor_id.
+        If a logger is not defined for the processor (identified by class and processor_id) the root "yellowsub" logger will
         be returned
         @param logger_name: The name of the logger requested
         @type logger_name: str
