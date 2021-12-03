@@ -54,10 +54,10 @@ unit-tests:
 semgrep-checks:
   tags: [Dev]
   script:
-    - pip3 install  semgrep 
+    - pip3 install  semgrep
     - semgrep --config=p/ci --metrics=off lib
     - semgrep --config=p/security-audit --metrics=off lib
     - semgrep --config r/python.lang.correctness --metrics=off lib
     - semgrep --config r/python.lang.maintainability --metrics=off lib
     - semgrep --config r/python.lang.best-practice   --metrics=off lib
-  
+
