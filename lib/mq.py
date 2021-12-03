@@ -194,7 +194,13 @@ class Consumer(MQ):
         # A typical Consumer would do:
         self.logger.info("[*] received '%r'" % msg)
         print("[*] received '%r'" % msg)
-        #   # ACKing is important:
+        self.ack(method)
+
+    def ack(self, method):
+        """
+        Acknowledge a message to RabbitMQ.
+        @param method: the method parameter from process()
+        """
         self.channel.basic_ack(delivery_tag = method.delivery_tag)
 
 
