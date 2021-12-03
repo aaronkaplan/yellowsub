@@ -165,9 +165,6 @@ class Consumer(MQ):
     def __init__(self, processor_id: str, exchange: str, queue_name: str, logger, callback=None):
         super().__init__(processor_id, logger)
         super().connect2mq()
-        super().create_exchange(exchange)  # should have been done by the producer.
-        super().create_queue(self.queue_name)
-        super().bind_queue()
 
         # establish callback. Here you can override the callback function if needed.
         if callback:
@@ -178,6 +175,10 @@ class Consumer(MQ):
         if not queue_name:
             queue_name = "q.%s.%s" % (self.exchange, self.processor_id)  # default
         self.queue_name = queue_name
+
+        super().create_exchange(exchange)  # should have been done by the producer.
+        super().create_queue(self.queue_name)
+        super().bind_queue()
 
     def start(self):
         """Create queues bind them. Make stuff flowing from the input queue."""
@@ -196,7 +197,6 @@ class Consumer(MQ):
         #
         # A typical Consumer would do:
         self.logger.info("[*] received '%r'" % msg)
-        print("[*] received '%r'" % msg)
         #   # ACKing is important:
         # XXX FIXME: we should wrap this or specify it in the documentation AND int eh sample processor code!!
         self.channel.basic_ack(delivery_tag = method.delivery_tag)
