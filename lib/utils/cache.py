@@ -16,8 +16,10 @@ Also see the unit test in tests/test_cache.py please.
 
 import time
 import redis
-from lib.config import config
+from lib.config import Config, GLOBAL_CONFIG_PATH
 
+c = Config()
+config = c.load(GLOBAL_CONFIG_PATH)     # this is a bit redundant FIXME
 TTL = config['redis'].get('cache_ttl', 24 * 3600)  # 1 day default
 
 
@@ -27,10 +29,13 @@ class Cache:
     def __init__(self):
         """Construct it."""
 
-        self.host = config['redis'].get('host', "localhost")
-        self.port = int(config['redis'].get('port', 6379))
-        self.password = config['redis'].get('password', None)
-        self.db = int(config['redis'].get('db', 2))
+        _c = Config()
+        self.config = _c.load(GLOBAL_CONFIG_PATH)
+
+        self.host = self.config['redis'].get('host', "localhost")
+        self.port = int(self.config['redis'].get('port', 6379))
+        self.password = self.config['redis'].get('password', None)
+        self.db = int(self.config['redis'].get('db', 2))
         self.r = redis.StrictRedis(host = self.host, port = self.port, db = self.db, password = self.password,
                                    decode_responses = True)
         if not self.r.exists("cache_metadata"):
@@ -54,9 +59,10 @@ class Cache:
             self.r.expire(key, ttl)
         return rv
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Return how many keys are stored in redis."""
 
+        numkeys = 0
         info = self.r.info("keyspace")
         print("type(info) = %s. info=%s" % (type(info), info))
         db = "db%d" % self.db
@@ -64,5 +70,10 @@ class Cache:
             numkeys = info[db]["keys"]
         return numkeys
 
+    def flushdb(self):
+        """Flush the current redis DB. WARNING: this flushes it! No confirmation asked."""
+        return self.r.flushdb()
 
+
+# XXX FIXME: this global cache var needs to die XXX
 cache = Cache()

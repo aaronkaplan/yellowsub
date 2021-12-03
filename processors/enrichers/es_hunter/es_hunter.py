@@ -1,6 +1,6 @@
 import logging
-import socket
-import uuid
+# import socket
+# import uuid
 from lib.processor.enricher import Enricher
 
 

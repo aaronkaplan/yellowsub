@@ -1,5 +1,6 @@
 # Developer Guide
 
+
 ## Where is what?  Code repository overview
 
 ``lib/`` contains the core components of the framework:
@@ -8,11 +9,33 @@
   here are abstract classes and will be instantiated by the actual processors. See ``processors/*`` for the concrete
   implementations.
   * ``lib/utils/*`` all utilities libraries such as redis cache, password sanitization for printing passwords/API keys in logs etc.
-  * ``processors/*`` concrete implementations of collectors, parsers, enrichers, filters, outputProcessors. See the
+
+Processors:
+  * ``processors/*`` _concrete_ implementations of collectors, parsers, enrichers, filters, outputProcessors. See the
   corresponding subdirs.
+  * ``bin/``  orchestrator: starting and stopping processors and workflows
   * ``docs/`` documentation
   * ``tests/`` unit tests
   * ``etc/*`` the config sample directory
+
+
+## Setting up your developing environment
+
+### git pre-commit hook
+The git client hooks are stored inside /yellowsub/contrib/hooks.
+
+You need to make sure these are executable in your local repo.
+
+Example:
+```chmod +x contrib/hooks/pre-commit```
+
+In addition you need to create symlinks for them inside your local yellowsub/.git/hooks/ folder. By convention the files
+under yellowsub/.git/hooks have to have no extension and be executable in order to be run. **Make sure your 
+symlink is properly set up**
+
+Example:
+```ln -s ./contrib/hooks/pre-commit ./.git/hooks/pre-commit```
+
 
 
 ## How do I write my own processor?
@@ -88,6 +111,24 @@ Simple! We tell the processor class via its __init__() function:
 
 
 Next step:
+
+
+# Style
+
+We will adhere to PEP8.
+
+## String formatting
+
+Please use the f-string syntax: print(f"foo {}".format("xyz"))
+
+## Docstrings
+
+We use Epytext docstring formats. Please make sure that 
+
+* every class has a docstring 
+* every method
+* every function has docstring
+* every module MUST have a docstring
 
 
 

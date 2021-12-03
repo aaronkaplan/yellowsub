@@ -35,6 +35,8 @@ class GetHostByName(Enricher):
 
     def process(self, channel=None, method=None, properties=None, msg: dict = {}):
         fqdn = msg.get('fqdn', None)
+        self.logger.warn("(warning) about to log %s" %fqdn)
+        self.logger.info("here is some info for %s" %fqdn)
         if fqdn:
             ips = get_ips_by_dns_lookup(fqdn)
             msg['ips'] = ips
@@ -46,7 +48,7 @@ if __name__ == "__main__":
     print(ips)
     assert '93.184.216.34' in ips
 
-    e = GetHostByName(id = "sample-gethostbyname")
+    e = GetHostByName(processor_id = "sample-gethostbyname")
     newmsg = e.process("ch1", msg = {"fqdn": "example.com"})
     print(newmsg)
     assert 'ips' in newmsg.keys() and '93.184.216.34' in newmsg['ips']
@@ -59,3 +61,4 @@ if __name__ == "__main__":
     newmsg = e.process("ch1", msg = {"fqdn": "ipv6.google.com"})
     print(newmsg)
     assert 'ips' in newmsg.keys() and '2a00:1450:4016:' in newmsg['ips'][0]
+

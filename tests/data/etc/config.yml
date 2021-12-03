@@ -1,0 +1,57 @@
+# Sample config value. Fixture for unit testing the config.py module
+general:
+  mq: rabbitmq
+
+rabbitmq:
+  host: localhost
+  port: 5672
+  #user: guest
+  #password: guest
+
+redis:
+  cache_ttl: 86400              # 1 day
+  host: localhost
+  port: 6379
+  db: 2
+
+
+logger:
+  output: '/var/log/my-log-file.log'    # MANDATORY, default: file. Possible other options: 'syslog', 'stderr'
+  loglevel: INFO                 # the default log levels of syslog go here, MANDATORY. Default: INFO
+  facility: yellowsub            # optional
+
+
+processors:
+  # list of settings for each individual processor instance
+  gethostbyname:
+    dns_recursor: "8.8.8.8"
+    validate_msg: True
+    logging: # override any of the settings of the global logger here if needed
+      loglevel: 'DEBUG'
+      handlers:
+        - handler:
+            type: 'TimedRotatingFileHandler'
+            output: 'var/log/yellowsub.gethostbyname.INFO.log'
+            loglevel: 'INFO'
+        - handler:
+            type: 'TimedRotatingFileHandler'
+            output: 'var/log/yellowsub.gethostbyname.WARN.log'
+            loglevel: 'WARN'
+  mispattributesearcher:
+    misp_uri: "https://192.168.5.108/"
+    misp_api_key: ""
+    logging: # override any of the settings of the global logger here if needed
+      loglevel: 'DEBUG'
+      handlers:
+        - handler:
+            type: 'TimedRotatingFileHandler'
+            output: 'var/log/yellowsub.mispattributesearcher.INFO.log'
+            loglevel: 'INFO'
+        - handler:
+            type: 'TimedRotatingFileHandler'
+            output: 'var/log/yellowsub.mispattributesearcher.WARN.log'
+            loglevel: 'WARN'
+
+
+workflows:
+  - { input_queue: <name of queue> , processor: <processor_id of processor> , output_exchange: <processor_id of output exchange> }

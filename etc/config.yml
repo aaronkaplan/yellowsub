@@ -1,1 +1,37 @@
-../lib/config.yml
+general:
+  mq: rabbitmq
+
+rabbitmq:
+  host: localhost
+  port: 5672
+  #user: guest
+  #password: guest
+
+redis:
+  cache_ttl: 86400              # 1 day
+  host: localhost
+  port: 6379
+  db: 2
+
+
+logging:
+  loglevel: 'DEBUG'             # optional, the actual loglevel will be set on the individual handlers, default=DEBUG
+  facility: 'yellowsub'         # optional
+  handlers:
+    - handler:
+        type: 'TimedRotatingFileHandler'
+        output: 'var/log/yellowsub.DEBUG.log'
+        loglevel: 'DEBUG'           # optional
+    - handler:
+        type: 'TimedRotatingFileHandler'
+        output: 'var/log/yellowsub.INFO.log'
+        loglevel: 'INFO'
+    - handler:
+        type: 'TimedRotatingFileHandler'
+        output: 'var/log/yellowsub.WARN.log'
+        loglevel: 'WARN'           # optional
+
+http:
+  http_proxy: "http://my.example.com:8080/"
+  https_proxy: "https://my.example.com:8080/"
+  verify_ssl: False

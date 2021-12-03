@@ -6,7 +6,7 @@
 
 # Official language image. Look for the different tagged releases at:
 # https://hub.docker.com/r/library/python/tags/
-image: ubuntu:latest
+image: debian:bullseye
 
 # Change pip's cache directory to be inside the project directory since we can
 # only cache local items.
@@ -24,45 +24,40 @@ cache:
     - venv/
 
 before_script:
-  - python -V  # Print out python version for debugging
-  - python -m pip install --upgrade pip
-  - pip install virtualenv
+  - apt update; apt -y upgrade
+  - DEBIAN_FRONTEND=noninteractive apt -y install python3.9 python3-pip
+  - python3.9 -V  # Print out python version for debugging
+  - pip3 install virtualenv
   - virtualenv venv
   - source venv/bin/activate
-  - if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-  - sudo apt install redis
+  - if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
+  - apt -y install redis-server
 
 syntax-checks:
+  tags: [Dev]
   script:
-    - pip install  flake8 
-    - flake8 . --ignore=E251 --count --select=E9,F63,F7,F82 --show-source --statistics
+    - pip3 install  flake8 
+
+    - flake8 . --ignore=E251,E225,E126,E741,E501,W605,W391 --exclude=.git,venv,contrib --count --show-source --statistics
     # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-    - flake8 . --ignore=E251 --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - flake8 . --ignore=E251,E225,E126,E741,E501,W605,W391 --exclude=.git,venv,contrib --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     # - tox -e py36,flake8   # you can also use tox
 
 
 unit-tests:
+  tags: [Dev]
   script:
-    - pip install  nose pytest-cov 
-    - export PYTHONPATH=lib ; export ROOTDIR=$(pwd); pytest --cov=./ tests
+    - pip3 install  nose pytest-cov 
+    - service redis-server start
+    - export PYTHONPATH=lib ; export YELLOWSUB_ROOT_DIR=$(pwd); pytest --cov=./ tests
 
-# run:
-#  script:
-#    - python setup.py bdist_wheel
-#    # an alternative approach is to install and run:
-#    - pip install dist/*
-#    # run the command here
-#  artifacts:
-#    paths:
-#      - dist/*.whl
-#
-#pages:
-#  script:
-#    - pip install sphinx sphinx-rtd-theme
-#    - cd doc ; make html
-#    - mv build/html/ ../public/
-#  artifacts:
-#    paths:
-#      - public
-#  rules:
-#    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+semgrep-checks:
+  tags: [Dev]
+  script:
+    - pip3 install  semgrep
+    - semgrep --config=p/ci --metrics=off lib
+    - semgrep --config=p/security-audit --metrics=off lib
+    - semgrep --config r/python.lang.correctness --metrics=off lib
+    - semgrep --config r/python.lang.maintainability --metrics=off lib
+    - semgrep --config r/python.lang.best-practice   --metrics=off lib
+
