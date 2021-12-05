@@ -1,13 +1,14 @@
 """Workflows orchestrator"""
 
-import click
 import sys
+
+import click
 
 
 @click.group()
-@click.option('--config', default='etc/config.yml', type=click.Path(exists=True), help='The main config file.')
-@click.option('--rootdir', default='.', type=click.Path(exists=True), help='The root directory')
-@click.option('--verbose', is_flag=True)
+@click.option('--config', default = 'etc/config.yml', type = click.Path(exists = True), help = 'The main config file.')
+@click.option('--rootdir', default = '.', type = click.Path(exists = True), help = 'The root directory')
+@click.option('--verbose', is_flag = True)
 @click.pass_context
 def cli(ctx, config, rootdir, verbose):
     ctx.ensure_object(dict)
@@ -25,8 +26,9 @@ def cli(ctx, config, rootdir, verbose):
     pass
 
 
-@cli.command(short_help='Start workflows')
-@click.option('--workflow-id', type=str, help='Start a specific workflow ID. Default: *', default='*', required=False)
+@cli.command(short_help = 'Start workflows')
+@click.option('--workflow-id', type = str, help = 'Start a specific workflow ID. Default: *', default = '*',
+              required = False)
 @click.pass_context
 def start(ctx, workflow_id):
     """
@@ -39,8 +41,9 @@ def start(ctx, workflow_id):
         click.echo("Starting all workflows in {}".format(ctx.obj['config']))
 
 
-@cli.command(short_help='Stop workflows')
-@click.option('--workflow-id', type=str, help='Stop a specific workflow ID. Default: *', default='*', required=False)
+@cli.command(short_help = 'Stop workflows')
+@click.option('--workflow-id', type = str, help = 'Stop a specific workflow ID. Default: *', default = '*',
+              required = False)
 @click.pass_context
 def stop(ctx, workflow_id):
     """
@@ -53,7 +56,7 @@ def stop(ctx, workflow_id):
         click.echo("Stopping all workflows in {}".format(ctx.obj['config']))
 
 
-@cli.command(short_help='List workflows')
+@cli.command(short_help = 'List workflows')
 @click.pass_context
 def list(ctx):
     """
@@ -65,7 +68,7 @@ def list(ctx):
 
 # ###############################
 # Sample workflow. Take this as a basis on how to create workflows via reading workflow.yml
-@cli.command(short_help='Start DEMO workflows')
+@cli.command(short_help = 'Start DEMO workflows')
 @click.pass_context
 def start_demo(ctx):
     """
@@ -75,7 +78,7 @@ def start_demo(ctx):
     click.echo("Starting DEMO workflows")
     try:
         from processors.collectors.fileCollector.filecollector import FileCollector
-        from processors.parsers.flatlisttostixbundleparser import  HashListToStixBundleParser
+        from processors.parsers.flatlisttostixbundleparser import HashListToStixBundleParser
         from processors.enrichers.null.nullEnricher import nullEnricher
         from processors.outputProcessors.fileOutput.fileoutput import FileOutput
     except Exception as ex:
@@ -86,11 +89,11 @@ def start_demo(ctx):
     enricher = nullEnricher(processor_id = "MyEnricher")
     output = FileOutput(processor_id = "MyOutput")
 
-    output.start(from_ex = "ex3", to_ex = None)     # missing popen here!
+    output.start(from_ex = "ex3", to_ex = None)  # missing popen here!
     enricher.start(from_ex = "ex2", to_ex = "ex3")
     parser.start(from_ex = "ex1", to_ex = "ex2")
     fcollector.start(to_ex = "ex1")
 
 
 if __name__ == '__main__':
-    cli(obj={})
+    cli(obj = {})
