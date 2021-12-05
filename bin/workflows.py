@@ -67,7 +67,7 @@ def list(ctx):
 # Sample workflow. Take this as a basis on how to create workflows via reading workflow.yml
 @cli.command(short_help='Start DEMO workflows')
 @click.pass_context
-def start(ctx):
+def start_demo(ctx):
     """
     Start a very simple DEMO workflow: filecollector -> parser -> enricher -> fileOutput
                                                    ex1       ex2         ex3
@@ -79,7 +79,7 @@ def start(ctx):
         from processors.enrichers.null.nullEnricher import nullEnricher
         from processors.outputProcessors.fileOutput.fileoutput import FileOutput
     except Exception as ex:
-        click.echo("Could not find processors.")
+        click.echo("Could not find processors. Reason: {}".format(str(ex)))
         sys.exit(255)
     fcollector = FileCollector(processor_id = "MyFileCollector")
     parser = HashListToStixBundleParser(processor_id = "MyParser")
@@ -90,6 +90,7 @@ def start(ctx):
     enricher.start(from_ex = "ex2", to_ex = "ex3")
     parser.start(from_ex = "ex1", to_ex = "ex2")
     fcollector.start(to_ex = "ex1")
+
 
 if __name__ == '__main__':
     cli(obj={})
