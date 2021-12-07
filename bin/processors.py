@@ -1,12 +1,12 @@
 """Workflows orchestrator"""
 
 import click
-# import lib.config
+# import lib.config     # FIXME, should YELLOWSUB_ROOT_DIR here...
 
 
 @click.group()
 @click.option('--config', default='etc/config.yml', type=click.Path(exists=True), help='The main config file.')
-@click.option('--rootdir', default='.', type=click.Path(exists=True), help='The root directory')
+@click.option('--rootdir', default='.', type=click.Path(exists=True), help='The root directory')        # FIXME: YELLOWSUB_ROOT_DIR
 @click.option('--verbose', is_flag=True)
 @click.pass_context
 def cli(ctx, config, rootdir, verbose):
@@ -26,7 +26,7 @@ def cli(ctx, config, rootdir, verbose):
 
 
 @cli.command(short_help='Start processor')
-@click.option('--processor-id', type=str, help='Start a specific workflow ID. Default: *', default='*', required=False)
+@click.option('--processor-id', type=str, help='Start a specific processor ID. Default: *', default='*', required=False)
 @click.pass_context
 def start(ctx, processor_id):
     """
