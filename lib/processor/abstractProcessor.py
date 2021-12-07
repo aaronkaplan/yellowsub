@@ -4,6 +4,7 @@ import json
 import sys
 from pathlib import Path
 from typing import List
+import logging
 
 from pydantic.utils import deep_update
 
@@ -54,6 +55,9 @@ class AbstractProcessor:
 
         self.processor_id = processor_id
         self.instances = n
+
+        # initial logger, this is going to be overwritten
+        self.logger = logging.getLogger()
 
         # make sure the config is loaded
         self.load_config(processor_id)
