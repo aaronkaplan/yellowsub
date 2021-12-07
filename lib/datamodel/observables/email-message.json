@@ -61,8 +61,8 @@
           },
           "minItems": 1
         },
-        "message_id" : {
-          "type" : "string",
+        "message_id": {
+          "type": "string",
           "description": "Specifies the Message-ID field of the email message."
         },
         "subject": {
@@ -174,7 +174,11 @@
       ]
     },
     "email-additional-header-fields": {
-      "allOf": [{ "$ref": "../common/dictionary.json" }],
+      "allOf": [
+        {
+          "$ref": "../common/dictionary.json"
+        }
+      ],
       "description": "Specifies any other header fields (except for date, received_lines, content_type, from_ref, sender_ref, to_refs, cc_refs, bcc_refs, and subject) found in the email message, as a dictionary.",
       "not": {
         "patternProperties": {

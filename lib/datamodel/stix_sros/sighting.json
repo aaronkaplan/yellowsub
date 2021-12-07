@@ -21,9 +21,9 @@
           "title": "id",
           "pattern": "^sighting--"
         },
-        "description" : {
-          "type" : "string",
-          "description" : "A description that provides more details and context about the Sighting."
+        "description": {
+          "type": "string",
+          "description": "A description that provides more details and context about the Sighting."
         },
         "first_seen": {
           "$ref": "../common/timestamp.json",

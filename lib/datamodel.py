@@ -31,7 +31,7 @@ class DataModel:
         """Validate a message (JSON) against the schema. Returns True/False if it validates"""
         try:
             msg = json.loads(emessage)
-            jsonschema.validate(instance = msg, schema = self.schema)
+            jsonschema.validate(instance=msg, schema=self.schema)
         except Exception as ex:
             logging.warning('Could not validate message against schema. Reason: %s' % (str(ex)))
             return False

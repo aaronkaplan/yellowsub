@@ -20,8 +20,8 @@
       ],
       "description": "The version of the STIX specification used to represent this object."
     },
-    "name" : {
-      "type" : "string",
+    "name": {
+      "type": "string",
       "description": "A name used to identify the Marking Definition."
     },
     "created_by_ref": {
@@ -68,11 +68,15 @@
       "type": "object",
       "minProperties": 1,
       "patternProperties": {
-          "^extension-definition--[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$": {
-            "allOf": [{ "$ref": "../common/extension.json" }]
-          }
-        },
-        "additionalProperties": false
+        "^extension-definition--[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$": {
+          "allOf": [
+            {
+              "$ref": "../common/extension.json"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
     }
   },
   "oneOf": [
@@ -104,7 +108,10 @@
               "description": "The definition property contains the marking object itself."
             }
           },
-          "required": ["definition_type", "definition"]
+          "required": [
+            "definition_type",
+            "definition"
+          ]
         },
         {
           "properties": {
@@ -124,7 +131,9 @@
       ],
       "if": {
         "not": {
-          "required": ["extensions"]
+          "required": [
+            "extensions"
+          ]
         }
       },
       "then": {
@@ -161,8 +170,8 @@
           ],
           "description": "The version of the STIX specification used to represent this object."
         },
-        "name" : {
-          "type" : "string",
+        "name": {
+          "type": "string",
           "description": "A name used to identify this TLP Marking Definition."
         },
         "created": {
@@ -172,7 +181,7 @@
           ]
         },
         "definition": {
-          "type" : "object",
+          "type": "object",
           "description": "The marking object itself."
         },
         "definition_type": {
@@ -184,16 +193,16 @@
       },
       "oneOf": [
         {
-              "$ref": "#/definitions/tlp_white"
+          "$ref": "#/definitions/tlp_white"
         },
         {
-              "$ref": "#/definitions/tlp_green"
+          "$ref": "#/definitions/tlp_green"
         },
         {
-              "$ref": "#/definitions/tlp_amber"
+          "$ref": "#/definitions/tlp_amber"
         },
         {
-              "$ref": "#/definitions/tlp_red"
+          "$ref": "#/definitions/tlp_red"
         }
       ],
       "required": [

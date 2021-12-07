@@ -77,19 +77,71 @@
     },
     {
       "anyOf": [
-        { "required": ["is_self_signed"] },
-        { "required": ["hashes"] },
-        { "required": ["version"] },
-        { "required": ["serial_number"] },
-        { "required": ["signature_algorithm"] },
-        { "required": ["issuer"] },
-        { "required": ["validity_not_before"] },
-        { "required": ["validity_not_after"] },
-        { "required": ["subject"] },
-        { "required": ["subject_public_key_algorithm"] },
-        { "required": ["subject_public_key_modulus"] },
-        { "required": ["subject_public_key_exponent"] },
-        { "required": ["x509_v3_extensions"] }
+        {
+          "required": [
+            "is_self_signed"
+          ]
+        },
+        {
+          "required": [
+            "hashes"
+          ]
+        },
+        {
+          "required": [
+            "version"
+          ]
+        },
+        {
+          "required": [
+            "serial_number"
+          ]
+        },
+        {
+          "required": [
+            "signature_algorithm"
+          ]
+        },
+        {
+          "required": [
+            "issuer"
+          ]
+        },
+        {
+          "required": [
+            "validity_not_before"
+          ]
+        },
+        {
+          "required": [
+            "validity_not_after"
+          ]
+        },
+        {
+          "required": [
+            "subject"
+          ]
+        },
+        {
+          "required": [
+            "subject_public_key_algorithm"
+          ]
+        },
+        {
+          "required": [
+            "subject_public_key_modulus"
+          ]
+        },
+        {
+          "required": [
+            "subject_public_key_exponent"
+          ]
+        },
+        {
+          "required": [
+            "x509_v3_extensions"
+          ]
+        }
       ]
     }
   ],
@@ -167,22 +219,86 @@
         },
         {
           "anyOf": [
-            { "required": ["basic_constraints"] },
-            { "required": ["name_constraints"] },
-            { "required": ["policy_constraints"] },
-            { "required": ["key_usage"] },
-            { "required": ["extended_key_usage"] },
-            { "required": ["subject_key_identifier"] },
-            { "required": ["authority_key_identifier"] },
-            { "required": ["subject_alternative_name"] },
-            { "required": ["issuer_alternative_name"] },
-            { "required": ["subject_directory_attributes"] },
-            { "required": ["crl_distribution_points"] },
-            { "required": ["inhibit_any_policy"] },
-            { "required": ["private_key_usage_period_not_before"] },
-            { "required": ["private_key_usage_period_not_after"] },
-            { "required": ["certificate_policies"] },
-            { "required": ["policy_mappings"] }
+            {
+              "required": [
+                "basic_constraints"
+              ]
+            },
+            {
+              "required": [
+                "name_constraints"
+              ]
+            },
+            {
+              "required": [
+                "policy_constraints"
+              ]
+            },
+            {
+              "required": [
+                "key_usage"
+              ]
+            },
+            {
+              "required": [
+                "extended_key_usage"
+              ]
+            },
+            {
+              "required": [
+                "subject_key_identifier"
+              ]
+            },
+            {
+              "required": [
+                "authority_key_identifier"
+              ]
+            },
+            {
+              "required": [
+                "subject_alternative_name"
+              ]
+            },
+            {
+              "required": [
+                "issuer_alternative_name"
+              ]
+            },
+            {
+              "required": [
+                "subject_directory_attributes"
+              ]
+            },
+            {
+              "required": [
+                "crl_distribution_points"
+              ]
+            },
+            {
+              "required": [
+                "inhibit_any_policy"
+              ]
+            },
+            {
+              "required": [
+                "private_key_usage_period_not_before"
+              ]
+            },
+            {
+              "required": [
+                "private_key_usage_period_not_after"
+              ]
+            },
+            {
+              "required": [
+                "certificate_policies"
+              ]
+            },
+            {
+              "required": [
+                "policy_mappings"
+              ]
+            }
           ]
         }
       ]

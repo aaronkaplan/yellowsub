@@ -81,24 +81,84 @@
     }
   ],
   "anyOf": [
-    { "required": ["extensions"] },
-    { "required": ["is_hidden"] },
-    { "required": ["pid"] },
-    { "required": ["name"] },
-    { "required": ["created"] },
-    { "required": ["cwd"] },
-    { "required": ["arguments"] },
-    { "required": ["command_line"] },
-    { "required": ["environment_variables"] },
-    { "required": ["opened_connection_refs"] },
-    { "required": ["creator_user_ref"] },
-    { "required": ["image_ref"] },
-    { "required": ["parent_ref"] },
-    { "required": ["child_refs"] }
+    {
+      "required": [
+        "extensions"
+      ]
+    },
+    {
+      "required": [
+        "is_hidden"
+      ]
+    },
+    {
+      "required": [
+        "pid"
+      ]
+    },
+    {
+      "required": [
+        "name"
+      ]
+    },
+    {
+      "required": [
+        "created"
+      ]
+    },
+    {
+      "required": [
+        "cwd"
+      ]
+    },
+    {
+      "required": [
+        "arguments"
+      ]
+    },
+    {
+      "required": [
+        "command_line"
+      ]
+    },
+    {
+      "required": [
+        "environment_variables"
+      ]
+    },
+    {
+      "required": [
+        "opened_connection_refs"
+      ]
+    },
+    {
+      "required": [
+        "creator_user_ref"
+      ]
+    },
+    {
+      "required": [
+        "image_ref"
+      ]
+    },
+    {
+      "required": [
+        "parent_ref"
+      ]
+    },
+    {
+      "required": [
+        "child_refs"
+      ]
+    }
   ],
   "definitions": {
     "process-extensions-dictionary": {
-      "allOf": [{ "$ref": "../common/dictionary.json" }],
+      "allOf": [
+        {
+          "$ref": "../common/dictionary.json"
+        }
+      ],
       "patternProperties": {
         "^windows-process-ext$": {
           "type": "object",
@@ -138,12 +198,36 @@
             },
             {
               "anyOf": [
-                { "required": ["aslr_enabled"] },
-                { "required": ["dep_enabled"] },
-                { "required": ["priority"] },
-                { "required": ["owner_sid"] },
-                { "required": ["window_title"] },
-                { "required": ["startup_info"] }
+                {
+                  "required": [
+                    "aslr_enabled"
+                  ]
+                },
+                {
+                  "required": [
+                    "dep_enabled"
+                  ]
+                },
+                {
+                  "required": [
+                    "priority"
+                  ]
+                },
+                {
+                  "required": [
+                    "owner_sid"
+                  ]
+                },
+                {
+                  "required": [
+                    "window_title"
+                  ]
+                },
+                {
+                  "required": [
+                    "startup_info"
+                  ]
+                }
               ]
             }
           ]
@@ -216,14 +300,46 @@
             }
           },
           "anyOf": [
-            { "required": ["service_name"] },
-            { "required": ["descriptions"] },
-            { "required": ["display_name"] },
-            { "required": ["group_name"] },
-            { "required": ["start_type"] },
-            { "required": ["service_dll_refs"] },
-            { "required": ["service_type"] },
-            { "required": ["service_status"] }
+            {
+              "required": [
+                "service_name"
+              ]
+            },
+            {
+              "required": [
+                "descriptions"
+              ]
+            },
+            {
+              "required": [
+                "display_name"
+              ]
+            },
+            {
+              "required": [
+                "group_name"
+              ]
+            },
+            {
+              "required": [
+                "start_type"
+              ]
+            },
+            {
+              "required": [
+                "service_dll_refs"
+              ]
+            },
+            {
+              "required": [
+                "service_type"
+              ]
+            },
+            {
+              "required": [
+                "service_status"
+              ]
+            }
           ]
         }
       },
@@ -233,7 +349,11 @@
       }
     },
     "startup-info-dictionary": {
-      "allOf": [{ "$ref": "../common/dictionary.json" }],
+      "allOf": [
+        {
+          "$ref": "../common/dictionary.json"
+        }
+      ],
       "patternProperties": {
         "^lpDesktop|lpTitle|dwFillAttribute|dwFlags|wShowWindow|hStdInput|hStdOutput|hStdError$": {
           "type": "string"

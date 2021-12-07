@@ -41,12 +41,12 @@
           "type": "string",
           "description": "The detection pattern for this indicator."
         },
-        "pattern_type" : {
-          "type" : "string",
+        "pattern_type": {
+          "type": "string",
           "description": "The type of pattern used in this indicator."
         },
-        "pattern_version" : {
-          "type" : "string",
+        "pattern_version": {
+          "type": "string",
           "description": "The version of the pattern that is used."
         },
         "valid_from": {
