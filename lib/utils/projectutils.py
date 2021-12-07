@@ -50,7 +50,7 @@ class ProjectUtils:
     #       entirely in the "orchestrator" in order to parse config in one place only. The only method implemented in
     #       this class should be the get_logger method
     @staticmethod
-    def configure_logger(config: dict = None, processor_class: str = None, processor_id: str = None):
+    def configure_logger(config: dict = None, processor_class: str = None, processor_name: str = None):
         """
         Configure a logger as per the config.yml parsed dictionary
 
@@ -59,9 +59,9 @@ class ProjectUtils:
         @param processor_class: Processor class as returned by self.__class__.__name__ from within the calling class.
                                 This must match case-insensitive with the processor name inside the config.yml
         @type processor_class: str
-        @param processor_id: The ID of the processor that this logger is being set up for as returned by self.processor_id from
-                                withing the calling class
-        @type processor_id: str
+        @param processor_name: The ID of the processor that this logger is being set up for as returned by
+                                self.processor_name from within the calling class
+        @type processor_name: str
         @return: None
         @rtype: None
         """
@@ -85,7 +85,7 @@ class ProjectUtils:
                 ProjectUtils.__setup_root_logger(config)
             # DG_Comment: If there is a specific processor level logger set it up
             else:
-                processor_logger = logging.getLogger("yellowsub." + processor_class + "." + processor_id)
+                processor_logger = logging.getLogger("yellowsub." + processor_class + "." + processor_name)
                 if len(processor_logger.handlers) == 0:
                     formatter = logging.Formatter(
                         '%(asctime)s|%(created)s|%(name)s|%(process)d|%(levelname)s: %(message)s')
@@ -114,8 +114,8 @@ class ProjectUtils:
     def get_logger(logger_name: str = None):
         """
         Return the configured logger as described by the logger name. The caller should call this using
-        "yellowsub." + self.__class__.__name__ + "." + self.processor_id.
-        If a logger is not defined for the processor (identified by class and processor_id) the root "yellowsub" logger will
+        "yellowsub." + self.__class__.__name__ + "." + self.processor_name.
+        If a logger is not defined for the processor (identified by class and processor_name) the root "yellowsub" logger will
         be returned
         @param logger_name: The name of the logger requested
         @type logger_name: str

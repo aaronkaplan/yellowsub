@@ -210,14 +210,14 @@ if __name__ == "__main__":
     config = _c.load()
     print("Loaded config: %r" % config)
 
-    ProjectUtils.configure_logger(config, processor_class = None, processor_id = None)
+    ProjectUtils.configure_logger(config, processor_class = None, processor_name= None)
     logger = ProjectUtils.get_logger("")
     parser = argparse.ArgumentParser(description = 'testing the mq module')
     parser.add_argument('-p', '--producer', action = 'store_true', help = "run as a producer")
     parser.add_argument('-c', '--consumer', action = 'store_true', help = "run as a consumer")
     parser.add_argument('-e', '--exchange', help = "Exchange to connect2mq to.", required = True)
     parser.add_argument('-q', '--queue_name', help = "Queue name to read from.", required = False)
-    parser.add_argument('-i', '--processor_id',
+    parser.add_argument('-i', '--processor_name',
                         help = "Unique ID of the producer or consumer (used to set the queue name!)",
                         required = True)
     args = parser.parse_args()

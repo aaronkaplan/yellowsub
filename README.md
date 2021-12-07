@@ -56,15 +56,15 @@ Make sure your config.yml is correct, look at it and adapt the settings for redi
 
 Start a producer:
 ```bash
-python -m lib.mq --producer --exchange CTH --processor_id producer1
+python -m lib.mq --producer --exchange CTH --processor_name producer1
 ```
 
 In a different window (or multiple windows) start a (or multiple) consumers:
 ```bash
-python -m lib.mq --consumer --exchange CTH --processor_id queue1
+python -m lib.mq --consumer --exchange CTH --processor_name queue1
 ```
 
-**Note**: if you use multiple consumers and they all have the same ID, then they will all consume from the same message
+**Note**: if you use multiple consumers and they all have the identical processor_name, then they will all consume from the same message
 queue. Which means, they will get the data from this queue in a round-robin fashion.exchange
 
 

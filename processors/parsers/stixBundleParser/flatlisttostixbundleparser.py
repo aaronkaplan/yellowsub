@@ -12,8 +12,8 @@ class HashListToStixBundleParser(Parser):
     SHA256_REGEX = re.compile(r'^[a-f0-9]{64}(:.+)?$', re.IGNORECASE)
     HASH_REGEXES = {'MD5': MD5_REGEX, 'SHA1': SHA1_REGEX, 'SHA256': SHA256_REGEX}
 
-    def __init__(self, processor_id: str, n: int = 1):
-        super().__init__(processor_id, n)
+    def __init__(self, processor_name: str, n: int = 1):
+        super().__init__(processor_name, n)
 
     def process(self, channel=None, method=None, properties=None, msg: dict = Dict[Any, Any]) -> None:
         # Retrieving the raw payload

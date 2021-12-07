@@ -45,16 +45,16 @@ http:
 
 ## Per processor specific config
 
-This resides in `etc/processors/_id_.yml`, where *ID* will be the processor ID for a specific processor.
+This resides in `etc/processors/_name_.yml`, where *name* will be the *unique* processor name for a specific processor.
 
 Example:
 
-This is an example specific config file for ID = "mispattributesearcher". 
+This is an example specific config file for name = "mispattributesearcher". 
 It is called `etc/processors/mispattributesearcher.yml`
 
 ```yaml
 # Minimum required config for a processor:
-name: myMispattributesearcher1 # the ID
+name: myMispattributesearcher1 
 description: The MISPattributesearcher enricher will search for events in MISP for a given IoC (IP address, etc..)
 enabled: true         # enable it or not
 group: enricher       # ignored for now
@@ -74,7 +74,7 @@ Explanation of the fields:
 
 |Field   | Explanation | 
 |:------ | ------------ | 
-| name  | the processor ID (also present in the filename) |
+| name  | the processor name (also present in the filename) |
 | description | a human readable description of what this processor should do |
 | enabled | should this processor run ? |
 | group | possible values: enricher, collector, parser, filter, outputProcessor |
@@ -93,7 +93,7 @@ Example:
 
 ```yaml
 # Minimum required config for a processor:
-name: mispattributesearcher    # the ID
+name: mispattributesearcher
 description: "The MISPattributesearcher enricher will search for events in MISP for a given IoC (IP address, etc..)"
 enabled: true                  # enable it or not
 group: enricher                # ignored for now
@@ -153,10 +153,10 @@ workflow1:
   author: "kaplale"
   flow:
   # simple linear example: get urls from somewhere (configured in the url_collector.yml) and do parallel lookups in safebrowsing, finally write the enriched results to a file.
-  - { proc_id: "url_collector", to: ["ex1", "ex2"] }    # ex2 does nothing with it
-  - { proc_id: "urllist_parser", from: "ex1", to: ["ex3"]}
-  - { proc_id: "is_url_on_safebrowsing", from: "ex3", to: ["ex4"], paralellism: 3 }
-  - { proc_id: "output_file_writer", from: "ex4"}
+  - { processor: "url_collector", to: ["ex1", "ex2"] }    # ex2 does nothing with it
+  - { processor: "urllist_parser", from: "ex1", to: ["ex3"]}
+  - { processor: "is_url_on_safebrowsing", from: "ex3", to: ["ex4"], paralellism: 3 }
+  - { processor: "output_file_writer", from: "ex4"}
 ```
 
 Multiple workflows may be defined in this way:
@@ -178,7 +178,7 @@ workflow2:
 
 # Datamodel config file
 
-XXX coming ... FIXME
+XXX coming ... FIXME XXXX temporary file resides in `etc/datamodels.yml`
 
 # Conditions which must be met
 

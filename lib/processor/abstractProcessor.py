@@ -62,7 +62,7 @@ class AbstractProcessor:
         # make sure the config is loaded
         self.load_config(processor_id)
 
-        # setup logger using the global config the processor class name and the processor_id of the processor
+        # setup logger using the global config the processor class name and the processor_name of the processor
         # TODO: DG_Comment :this can and should be moved to a higher level (orchestrator) as it does not pertain
         #       to the processor itself in addition setting up the logger should probably be made at the same
         #       level and not using ProjectUtils
@@ -77,7 +77,7 @@ class AbstractProcessor:
     def load_config(self, processor_id: str):
         """
         Load the global config file (usually etc/config.yml) and also check if a specific config file
-        for this processor exists in etc.d/<processor_id>.yml. If such a specific config file exist, merge it into the
+        for this processor exists in etc.d/<processor_name>.yml. If such a specific config file exist, merge it into the
         self.config dict
 
         :param processor_id: The processor's ID string
@@ -199,10 +199,10 @@ class AbstractProcessor:
         if self.config['group'] == "collector":
             # only need out_exchanges
             for exchange in self.out_exchanges:
-                self.consumer = Consumer(processor_id = self.processor_id, exchange = exchange, logger = self.logger)
+                self.consumer = Consumer(processor_name = self.processor_name, exchange = exchange, logger = self.logger)
         elif self.config['group'] == "outputProcessor":
             # only need from_ex
-            self.consumer = Consumer(processor_id = self.processor_id, in_queue = from_ex, logger = self.logger)
+            self.consumer = Consumer(processor_name = self.processor_name, in_queue = from_ex, logger = self.logger)
         else:
             # need both
             pass
@@ -232,14 +232,14 @@ class MyProcessor(AbstractProcessor):
 
     msg = None
 
-    def __init__(self, processor_id: str, n: int = 1, incoming_queue="", outgoing_exchanges=[]):
-        super().__init__(processor_id, n)
+    def __init__(self, processor_name: str, n: int = 1, incoming_queue="", outgoing_exchanges=[]):
+        super().__init__(processor_name, n)
         # here we should read the config on where to connect to...
 
         # this is an example only and the connection to the exchanges and incoming queues will be done by the orchestrator.
-        self.consumer = Consumer(processor_id = processor_id, exchange = "MyEx", callback = self.process,
+        self.consumer = Consumer(processor_name = processor_name, exchange ="MyEx", callback = self.process,
                                  queue_name = "", logger = self.logger)
-        self.producer = Producer(processor_id = processor_id, exchange = "MyEx2", logger = self.logger)
+        self.producer = Producer(processor_name = processor_name, exchange ="MyEx2", logger = self.logger)
 
     def process(self, channel=None, method=None, properties=None, msg: bytes = None):
         """
