@@ -210,8 +210,17 @@ class AbstractProcessor:
             pass
         """
 
-    def run(self):
+    @classmethod
+    def run(cls, parsed_args=None):
         """The main entry point (without parameters). run() calls start(...) with the proper params."""
+
+        # need to get the processor_name
+        processor_id = "foobar"
+        # next read the config
+        config = dict()
+
+        instance = cls(processor_id)
+        instance.start(config)
 
     def reload(self):
         """
