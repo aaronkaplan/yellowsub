@@ -1,6 +1,8 @@
+import os
+from pathlib import Path
 from setuptools import find_packages, setup
 
-from version import __version__
+from lib.version import __version__
 
 with open(os.path.join(os.path.dirname(__file__), 'README.md')) as handle:
     README = handle.read()
