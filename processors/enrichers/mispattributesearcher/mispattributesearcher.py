@@ -45,6 +45,8 @@ class MispAttributeSearcher(Enricher):
             return (True, msg)
 
 
+PROCESSOR=MispAttributeSearcher
+
 if __name__ == "__main__":
     '''debugging'''
     msg={}
