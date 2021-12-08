@@ -4,6 +4,7 @@ import json
 import sys
 from pathlib import Path
 from typing import List
+import logging
 
 from pydantic.utils import deep_update
 
@@ -55,10 +56,13 @@ class AbstractProcessor:
         self.processor_id = processor_id
         self.instances = n
 
+        # initial logger, this is going to be overwritten
+        self.logger = logging.getLogger()
+
         # make sure the config is loaded
         self.load_config(processor_id)
 
-        # setup logger using the global config the processor class name and the processor_id of the processor
+        # setup logger using the global config the processor class name and the processor_name of the processor
         # TODO: DG_Comment :this can and should be moved to a higher level (orchestrator) as it does not pertain
         #       to the processor itself in addition setting up the logger should probably be made at the same
         #       level and not using ProjectUtils
@@ -73,7 +77,7 @@ class AbstractProcessor:
     def load_config(self, processor_id: str):
         """
         Load the global config file (usually etc/config.yml) and also check if a specific config file
-        for this processor exists in etc.d/<processor_id>.yml. If such a specific config file exist, merge it into the
+        for this processor exists in etc.d/<processor_name>.yml. If such a specific config file exist, merge it into the
         self.config dict
 
         :param processor_id: The processor's ID string
@@ -92,13 +96,13 @@ class AbstractProcessor:
             self.logger.debug("Specific config found: {}".format(specific_config))
             if not self.validate_specific_config(specific_config):
                 self.logger.error(
-                        "Specific config for processor ID {} is invalid. Can't start it.".format(self.processor_id))
+                    "Specific config for processor ID {} is invalid. Can't start it.".format(self.processor_id))
                 sys.exit(254)
             self.config = deep_update(self.config,
                                       specific_config)  # FIXME, might need to re-initialize the logger here
         except Exception as ex:
             self.logger.error(
-                    "Error while loading processor {}'s specific config. Reason: {}".format(self.processor_id, str(ex)))
+                "Error while loading processor {}'s specific config. Reason: {}".format(self.processor_id, str(ex)))
             sys.exit(255)
 
     def validate(self, msg: bytes) -> bool:
@@ -139,7 +143,7 @@ class AbstractProcessor:
         :param msg: the message (byte representation of a dict)
         """
         self.logger.info(
-                "received '%r from channel %s, method: %s, properties: %r'" % (msg, channel, method, properties))
+            "received '%r from channel %s, method: %s, properties: %r'" % (msg, channel, method, properties))
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
     def on_message(self, msg: bytes):
@@ -179,14 +183,14 @@ class AbstractProcessor:
 
         # first start with the output side
         if self.out_exchange:
-            self.producer = Producer(processor_id = self.processor_id, exchange = self.out_exchange, logger = self.logger)
+            self.producer = Producer(processor_id=self.processor_id, exchange=self.out_exchange, logger=self.logger)
             self.producer.start()
 
         # then the input side
         if self.in_exchange:
             # need a Consumer, bind the consumer to the in_exchange
-            self.consumer = Consumer(processor_id = self.processor_id, exchange = self.in_exchange,
-                                     queue_name = self.in_queue, logger = self.logger)
+            self.consumer = Consumer(processor_id=self.processor_id, exchange=self.in_exchange,
+                                     queue_name=self.in_queue, logger=self.logger)
             self.consumer.start()
 
         """
@@ -195,10 +199,10 @@ class AbstractProcessor:
         if self.config['group'] == "collector":
             # only need out_exchanges
             for exchange in self.out_exchanges:
-                self.consumer = Consumer(processor_id = self.processor_id, exchange = exchange, logger = self.logger)
+                self.consumer = Consumer(processor_name = self.processor_name, exchange = exchange, logger = self.logger)
         elif self.config['group'] == "outputProcessor":
             # only need from_ex
-            self.consumer = Consumer(processor_id = self.processor_id, in_queue = from_ex, logger = self.logger)
+            self.consumer = Consumer(processor_name = self.processor_name, in_queue = from_ex, logger = self.logger)
         else:
             # need both
             pass
@@ -228,14 +232,14 @@ class MyProcessor(AbstractProcessor):
 
     msg = None
 
-    def __init__(self, processor_id: str, n: int = 1, incoming_queue="", outgoing_exchanges=[]):
-        super().__init__(processor_id, n)
+    def __init__(self, processor_name: str, n: int = 1, incoming_queue="", outgoing_exchanges=[]):
+        super().__init__(processor_name, n)
         # here we should read the config on where to connect to...
 
         # this is an example only and the connection to the exchanges and incoming queues will be done by the orchestrator.
-        self.consumer = Consumer(processor_id = processor_id, exchange = "MyEx", callback = self.process,
-                                 queue_name = "", logger = self.logger)
-        self.producer = Producer(processor_id = processor_id, exchange = "MyEx2", logger = self.logger)
+        self.consumer = Consumer(processor_name=processor_name, exchange="MyEx", callback=self.process,
+                                 queue_name="", logger=self.logger)
+        self.producer = Producer(processor_name=processor_name, exchange="MyEx2", logger=self.logger)
 
     def process(self, channel=None, method=None, properties=None, msg: bytes = None):
         """
@@ -252,4 +256,4 @@ class MyProcessor(AbstractProcessor):
         # do something with the msg in the process() function, the msg is in self.msg
         # ...
         # then send it onwards to the outgoing exchange
-        self.producer.produce(msg = self.msg, routing_key = "")
+        self.producer.produce(msg=self.msg, routing_key="")

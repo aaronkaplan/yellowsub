@@ -19,7 +19,7 @@ import redis
 from lib.config import Config, GLOBAL_CONFIG_PATH
 
 c = Config()
-config = c.load(GLOBAL_CONFIG_PATH)     # this is a bit redundant FIXME
+config = c.load(GLOBAL_CONFIG_PATH)  # this is a bit redundant FIXME
 TTL = config['redis'].get('cache_ttl', 24 * 3600)  # 1 day default
 
 
@@ -36,8 +36,8 @@ class Cache:
         self.port = int(self.config['redis'].get('port', 6379))
         self.password = self.config['redis'].get('password', None)
         self.db = int(self.config['redis'].get('db', 2))
-        self.r = redis.StrictRedis(host = self.host, port = self.port, db = self.db, password = self.password,
-                                   decode_responses = True)
+        self.r = redis.StrictRedis(host=self.host, port=self.port, db=self.db, password=self.password,
+                                   decode_responses=True)
         if not self.r.exists("cache_metadata"):
             self.r.hset(b"cache_metadata", b"created_at", time.time())
 

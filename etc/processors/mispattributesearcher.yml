@@ -1,5 +1,5 @@
 # Minimum required config for a processor:
-name: mispattributesearcher   # the ID
+name: mispattributesearcher
 description: "The MISPattributesearcher enricher will search for events in MISP for a given IoC (IP address, etc..)"
 enabled: true         # enable it or not
 group: enricher       # ignored for now

@@ -74,8 +74,8 @@ class MQ:
             credentials = pika.PlainCredentials(user, password)
             self.logger.info("Attempting to connect2mq with (%s:%d as %s/%s)" % (host, port, user,
                                                                                  sanitize_password_str(password)))
-            self.connection = pika.BlockingConnection(pika.ConnectionParameters(host = host, port = port,
-                                                                                credentials = credentials))
+            self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=host, port=port,
+                                                                                credentials=credentials))
         except Exception as ex:
             self.logger.error("can't connect2mq to the MQ system. Bailing out. Reason: %s" % (str(ex)))
             sys.exit(-1)
@@ -90,7 +90,7 @@ class MQ:
         self.exchange = exchange
         self.logger.info("Creating exchange %s" % exchange)
         try:
-            self.channel.exchange_declare(exchange = self.exchange, exchange_type = 'fanout', durable = True)
+            self.channel.exchange_declare(exchange=self.exchange, exchange_type='fanout', durable=True)
         except Exception as ex:
             self.logger.error("can't Create exchange '%s'. Reason: %s" % (exchange, str(ex)))
             raise ex
@@ -98,26 +98,26 @@ class MQ:
     def _publish(self, msg: dict, routing_key=""):
         data = bytes(json.dumps(msg), 'utf-8')  # JSON is always utf-8
         try:
-            self.channel.basic_publish(exchange = self.exchange, routing_key = routing_key, body = data,
-                                       properties = pika.BasicProperties(delivery_mode = 2, ),
+            self.channel.basic_publish(exchange=self.exchange, routing_key=routing_key, body=data,
+                                       properties=pika.BasicProperties(delivery_mode=2, ),
                                        # make the message persistent
-                                       mandatory = True
+                                       mandatory=True
                                        )
         except pika.exceptions.UnroutableError as ex:
             self.logger.error("Could not publish message. Reason: {}".format(str(ex)))
 
     def _consume(self, queue: str, callback=None, auto_ack=False):
-        self.channel.basic_consume(queue = queue, on_message_callback = callback, auto_ack = auto_ack)
+        self.channel.basic_consume(queue=queue, on_message_callback=callback, auto_ack=auto_ack)
 
     def create_queue(self, queue_name: str = ''):
         """
         Create a queue in RabbitMQ. Do not connect it yet to an exchange.
         @param queue_name: the name of the queue
         """
-        self.queue = self.channel.queue_declare(queue = queue_name, durable = True, exclusive = False,
-                                                auto_delete = False)
+        self.queue = self.channel.queue_declare(queue=queue_name, durable=True, exclusive=False,
+                                                auto_delete=False)
         self.logger.debug("create_queue(): queue = %r" % self.queue)
-        self.channel.basic_qos(prefetch_count = 1)
+        self.channel.basic_qos(prefetch_count=1)
         self.queue_name = self.queue.method.queue
         self.logger.debug("queue_name = %r" % self.queue_name)
 
@@ -125,14 +125,14 @@ class MQ:
         """
         Bind the queue to the (already created) exchange.
         """
-        retv = self.channel.queue_bind(exchange = self.exchange, queue = self.queue_name)
+        retv = self.channel.queue_bind(exchange=self.exchange, queue=self.queue_name)
         self.logger.debug("bind_queue(): answer = %r" % retv)
 
     def unbind_queue(self):
         """
         Disconnect the queue from any exchanges.
         """
-        self.channel.queue_unbind(queue = self.queue_name, exchange = self.exchange)
+        self.channel.queue_unbind(queue=self.queue_name, exchange=self.exchange)
 
 
 class Producer(MQ):
@@ -150,7 +150,7 @@ class Producer(MQ):
     def produce(self, msg: dict, routing_key: str = ""):
         """Send a msg to the exchange with the given routing_key."""
         if msg:
-            super()._publish(msg = msg, routing_key = routing_key)
+            super()._publish(msg=msg, routing_key=routing_key)
             self.logger.info("[x] Sent %r" % msg)
 
 
@@ -183,7 +183,7 @@ class Consumer(MQ):
     def consume(self) -> None:
         """Register the callback function for consuming from the exchange / queue given the routing_key."""
         self.logger.info("[*] Waiting for logs on queue {}.".format(self.queue_name))
-        self.channel.basic_consume(queue = self.queue_name, on_message_callback = self.cb_function, auto_ack = False)
+        self.channel.basic_consume(queue=self.queue_name, on_message_callback=self.cb_function, auto_ack=False)
         self.channel.start_consuming()
 
     def process(self, ch, method, properties, msg):
@@ -201,7 +201,7 @@ class Consumer(MQ):
         Acknowledge a message to RabbitMQ.
         @param method: the method parameter from process()
         """
-        self.channel.basic_ack(delivery_tag = method.delivery_tag)
+        self.channel.basic_ack(delivery_tag=method.delivery_tag)
 
 
 if __name__ == "__main__":
@@ -210,20 +210,20 @@ if __name__ == "__main__":
     config = _c.load()
     print("Loaded config: %r" % config)
 
-    ProjectUtils.configure_logger(config, processor_class = None, processor_id = None)
+    ProjectUtils.configure_logger(config, processor_class=None, processor_name=None)
     logger = ProjectUtils.get_logger("")
-    parser = argparse.ArgumentParser(description = 'testing the mq module')
-    parser.add_argument('-p', '--producer', action = 'store_true', help = "run as a producer")
-    parser.add_argument('-c', '--consumer', action = 'store_true', help = "run as a consumer")
-    parser.add_argument('-e', '--exchange', help = "Exchange to connect2mq to.", required = True)
-    parser.add_argument('-q', '--queue_name', help = "Queue name to read from.", required = False)
-    parser.add_argument('-i', '--processor_id',
-                        help = "Unique ID of the producer or consumer (used to set the queue name!)",
-                        required = True)
+    parser = argparse.ArgumentParser(description='testing the mq module')
+    parser.add_argument('-p', '--producer', action='store_true', help="run as a producer")
+    parser.add_argument('-c', '--consumer', action='store_true', help="run as a consumer")
+    parser.add_argument('-e', '--exchange', help="Exchange to connect2mq to.", required=True)
+    parser.add_argument('-q', '--queue_name', help="Queue name to read from.", required=False)
+    parser.add_argument('-i', '--processor_name',
+                        help="Unique ID of the producer or consumer (used to set the queue name!)",
+                        required=True)
     args = parser.parse_args()
 
     if args.producer:
-        p = Producer(args.processor_id, args.exchange, logger= logger)
+        p = Producer(args.processor_id, args.exchange, logger=logger)
         p.start()
         for i in range(10):
             p.produce({"msg": i})
@@ -232,10 +232,10 @@ if __name__ == "__main__":
         if args.queue_name:
             qn = args.queue_name
         else:
-            qn = ""     # auto-decide
-        c = Consumer(args.processor_id, args.exchange, queue_name = qn, logger = logger)
+            qn = ""  # auto-decide
+        c = Consumer(args.processor_id, args.exchange, queue_name=qn, logger=logger)
         c.start()
         c.consume()
     else:
-        print("Need to specify one of -c or -p. See --help.", file = sys.stderr)
+        print("Need to specify one of -c or -p. See --help.", file=sys.stderr)
         sys.exit(1)

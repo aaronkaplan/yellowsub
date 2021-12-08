@@ -2,7 +2,6 @@
 
 It MUST offer its services as RESTful API.
 
-
 ## Purpose
 
 The Orchestrator's purpose is to read the relevant config YAML file(s) and to:
@@ -12,7 +11,7 @@ The Orchestrator's purpose is to read the relevant config YAML file(s) and to:
 1. instantiate (read: create a python process) each [Processor](/docs/Glossary#Processor)
 2. Connect the newly instantiated Processor to their incoming message queue and outgoing exchanges.
 3. Call the processor's `start()` method
-4. Register the Processor's PID in a `/var/run/yellowsub/<processor_id>.pid` file
+4. Register the Processor's PID in a `/var/run/yellowsub/<processor_name>.pid` file
 
 ### II. Help in stopping all or individual processors
 

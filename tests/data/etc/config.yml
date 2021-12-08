@@ -54,4 +54,4 @@ processors:
 
 
 workflows:
-  - { input_queue: <name of queue> , processor: <processor_id of processor> , output_exchange: <processor_id of output exchange> }
+  - { input_queue: <name of queue> , processor: <processor_name of processor> , output_exchange: <processor_name of output exchange> }

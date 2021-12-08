@@ -61,11 +61,11 @@
           },
           "minItems": 1
         },
-        "first_seen" : {
+        "first_seen": {
           "$ref": "../common/timestamp.json",
           "description": "The time that this Threat Actor was first seen."
         },
-        "last_seen" : {
+        "last_seen": {
           "$ref": "../common/timestamp.json",
           "description": "The time that this Threat Actor was last seen."
         },

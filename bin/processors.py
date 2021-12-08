@@ -1,12 +1,12 @@
 """Workflows orchestrator"""
 
 import click
-# import lib.config
+# import lib.config     # FIXME, should YELLOWSUB_ROOT_DIR here...
 
 
 @click.group()
 @click.option('--config', default='etc/config.yml', type=click.Path(exists=True), help='The main config file.')
-@click.option('--rootdir', default='.', type=click.Path(exists=True), help='The root directory')
+@click.option('--rootdir', default='.', type=click.Path(exists=True), help='The root directory')        # FIXME: YELLOWSUB_ROOT_DIR
 @click.option('--verbose', is_flag=True)
 @click.pass_context
 def cli(ctx, config, rootdir, verbose):
@@ -26,28 +26,28 @@ def cli(ctx, config, rootdir, verbose):
 
 
 @cli.command(short_help='Start processor')
-@click.option('--processor-id', type=str, help='Start a specific workflow ID. Default: *', default='*', required=False)
+@click.option('--processor-name', type=str, help='Start a specific processor. Default: *', default='*', required=False)
 @click.pass_context
-def start(ctx, processor_id):
+def start(ctx, processor_name):
     """
-    Start all (default) or a specific processor by ID.
+    Start all (default) or a specific processor by name.
     """
 
-    if id != '*':
-        click.echo("Starting processor ID {} using {}".format(processor_id, ctx.obj['config']))
+    if processor_name != '*':
+        click.echo("Starting processor {} using {}".format(processor_name, ctx.obj['config']))
     else:
         click.echo("Starting all processor in {}".format(ctx.obj['config']))
 
 
 @cli.command(short_help='Stop processor')
-@click.option('--processor-id', type=str, help='Stop a specific processor ID.', default='*', required=True)
+@click.option('--processor-name', type=str, help='Stop a specific processor.', default='*', required=True)
 @click.pass_context
-def stop(ctx, processor_id):
+def stop(ctx, processor_name):
     """
-    Stop a specific processor given by ID.
+    Stop a specific processor given by name.
     """
 
-    click.echo("Stoping processor ID {}".format(processor_id))
+    click.echo("Stoping processor {}".format(processor_name))
 
 
 @cli.command(short_help='List processors')

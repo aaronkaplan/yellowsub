@@ -85,25 +85,89 @@
     }
   ],
   "anyOf": [
-    { "required": ["extensions"] },
-    { "required": ["user_id"] },
-    { "required": ["credential"] },
-    { "required": ["account_login"] },
-    { "required": ["account_type"] },
-    { "required": ["display_name"] },
-    { "required": ["is_service_account"] },
-    { "required": ["is_privileged"] },
-    { "required": ["can_escalate_privs"] },
-    { "required": ["is_disabled"] },
-    { "required": ["account_created"] },
-    { "required": ["account_expires"] },
-    { "required": ["credential_last_changed"] },
-    { "required": ["account_first_login"] },
-    { "required": ["account_last_login"] }
+    {
+      "required": [
+        "extensions"
+      ]
+    },
+    {
+      "required": [
+        "user_id"
+      ]
+    },
+    {
+      "required": [
+        "credential"
+      ]
+    },
+    {
+      "required": [
+        "account_login"
+      ]
+    },
+    {
+      "required": [
+        "account_type"
+      ]
+    },
+    {
+      "required": [
+        "display_name"
+      ]
+    },
+    {
+      "required": [
+        "is_service_account"
+      ]
+    },
+    {
+      "required": [
+        "is_privileged"
+      ]
+    },
+    {
+      "required": [
+        "can_escalate_privs"
+      ]
+    },
+    {
+      "required": [
+        "is_disabled"
+      ]
+    },
+    {
+      "required": [
+        "account_created"
+      ]
+    },
+    {
+      "required": [
+        "account_expires"
+      ]
+    },
+    {
+      "required": [
+        "credential_last_changed"
+      ]
+    },
+    {
+      "required": [
+        "account_first_login"
+      ]
+    },
+    {
+      "required": [
+        "account_last_login"
+      ]
+    }
   ],
   "definitions": {
     "user-account-extensions-dictionary": {
-      "allOf": [{ "$ref": "../common/dictionary.json" }],
+      "allOf": [
+        {
+          "$ref": "../common/dictionary.json"
+        }
+      ],
       "patternProperties": {
         "^unix-account-ext$": {
           "type": "object",
@@ -135,10 +199,26 @@
             },
             {
               "anyOf": [
-                { "required": ["gid"] },
-                { "required": ["groups"] },
-                { "required": ["home_dir"] },
-                { "required": ["shell"] }
+                {
+                  "required": [
+                    "gid"
+                  ]
+                },
+                {
+                  "required": [
+                    "groups"
+                  ]
+                },
+                {
+                  "required": [
+                    "home_dir"
+                  ]
+                },
+                {
+                  "required": [
+                    "shell"
+                  ]
+                }
               ]
             }
           ]

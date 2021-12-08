@@ -96,7 +96,11 @@
   ],
   "definitions": {
     "file-extensions-dictionary": {
-      "allOf": [{ "$ref": "../common/dictionary.json" }],
+      "allOf": [
+        {
+          "$ref": "../common/dictionary.json"
+        }
+      ],
       "patternProperties": {
         "^ntfs-ext$": {
           "type": "object",
@@ -136,8 +140,16 @@
             },
             {
               "anyOf": [
-                { "required": ["sid"] },
-                { "required": ["alternate_data_streams"] }
+                {
+                  "required": [
+                    "sid"
+                  ]
+                },
+                {
+                  "required": [
+                    "alternate_data_streams"
+                  ]
+                }
               ]
             }
           ]
@@ -161,7 +173,11 @@
                   "description": "Specifies the sum of bits used for each color channel in the image in the image file, and thus the total number of pixels used for expressing the color depth of the image."
                 },
                 "exif_tags": {
-                  "allOf": [{ "$ref": "../common/dictionary.json" }],
+                  "allOf": [
+                    {
+                      "$ref": "../common/dictionary.json"
+                    }
+                  ],
                   "description": "Specifies the set of EXIF tags found in the image file, as a dictionary. Each key/value pair in the dictionary represents the name/value of a single EXIF tag.",
                   "patternProperties": {
                     "^[A-Z][a-zA-Z0-9_-]+$": {
@@ -181,11 +197,31 @@
             },
             {
               "anyOf": [
-                { "required": ["image_height"] },
-                { "required": ["image_width"] },
-                { "required": ["bits_per_pixel"] },
-                { "required": ["image_compression_algorithm"] },
-                { "required": ["exif_tags"] }
+                {
+                  "required": [
+                    "image_height"
+                  ]
+                },
+                {
+                  "required": [
+                    "image_width"
+                  ]
+                },
+                {
+                  "required": [
+                    "bits_per_pixel"
+                  ]
+                },
+                {
+                  "required": [
+                    "image_compression_algorithm"
+                  ]
+                },
+                {
+                  "required": [
+                    "exif_tags"
+                  ]
+                }
               ]
             }
           ]
@@ -205,7 +241,11 @@
                   "description": "Specifies whether the PDF file has been optimized."
                 },
                 "document_info_dict": {
-                  "allOf": [{ "$ref": "../common/dictionary.json" }],
+                  "allOf": [
+                    {
+                      "$ref": "../common/dictionary.json"
+                    }
+                  ],
                   "patternProperties": {
                     "^[a-zA-Z0-9_-]{0,250}$": {
                       "type": "string"
@@ -225,11 +265,31 @@
             },
             {
               "anyOf": [
-                { "required": ["version"] },
-                { "required": ["is_optimized"] },
-                { "required": ["document_info_dict"] },
-                { "required": ["pdfid0"] },
-                { "required": ["pdfid1"] }
+                {
+                  "required": [
+                    "version"
+                  ]
+                },
+                {
+                  "required": [
+                    "is_optimized"
+                  ]
+                },
+                {
+                  "required": [
+                    "document_info_dict"
+                  ]
+                },
+                {
+                  "required": [
+                    "pdfid0"
+                  ]
+                },
+                {
+                  "required": [
+                    "pdfid1"
+                  ]
+                }
               ]
             }
           ]

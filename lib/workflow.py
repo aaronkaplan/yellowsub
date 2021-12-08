@@ -6,7 +6,7 @@ import yaml
 # from config import config
 
 
-DEFAULT_WORKFLOW_FILE="etc/workflow.yml"
+DEFAULT_WORKFLOW_FILE = "etc/workflow.yml"
 
 
 class Workflow():

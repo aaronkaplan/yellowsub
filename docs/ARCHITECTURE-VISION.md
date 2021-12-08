@@ -45,7 +45,7 @@ class MyProcessor(Enricher):
         ...
         pass
 
-myproc = MyProcessor(id="the-quick-brown-fox")         # <-- **Note the processor_id= parameter here!**
+myproc = MyProcessor(id="the-quick-brown-fox")         # <-- **Note the processor_name= parameter here!**
 myproc.start()
 ```
 
@@ -108,8 +108,8 @@ class MyProcessor(AbstractProcessor):
 There are two types of configurations: global and per processor specific config.
 The global config file resides in ``etc/config.yml`` and is in [YAML format](https://en.wikipedia.org/wiki/YAML).
 
-The per processor specific config files reside in ``etc/processors/<id>.yml``, where  
-_id_ is the processor ID (i.e. the unique identifier for a set of configs for a processor).
+The per processor specific config files reside in ``etc/processors/<name>.yml``, where  
+_name_ is the *unique* processor name (i.e. the unique identifier for a set of configs for a processor).
 The specific per processor config MAY override the global config.
 
 For details of the allowed contents of the config files, see [Config.md](Config.md)
@@ -129,14 +129,14 @@ The config directory structure is as follows (assuming  `YELLOWSUB_CONFIG_DIR` =
   workflow.yml             # definitons of the workflows
   datamodels.yml          # definition of the internal data format
   processors/             # the directory for the processor specific configs
-    <id>.yml     # individual config files
+    <name>.yml     # individual config files
 ```
 
 If there is a specific config for a processor, then it should only be in the specific config subdirectory.
 
 For the workflows, we have the `workflow.yml` config.
 Datamodels (i.e. the internal data format) are defined in `datamodels.yml`
-Every workflow file contains workflow definitions, which in turn need to reference the processor IDs.
+Every workflow file contains workflow definitions, which in turn need to reference the processor names.
 
 
 ## Logger
