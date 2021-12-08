@@ -1,5 +1,4 @@
 # According to https://www.python.org/dev/peps/pep-0518/, we need this file.
 
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["setuptools", "wheel"]  # PEP 508 specifications.
