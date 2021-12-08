@@ -20,15 +20,15 @@ logging:
   handlers:
     - handler:
         type: 'TimedRotatingFileHandler'
-        output: 'var/log/yellowsub.DEBUG.log'
+        output: '/var/log/yellowsub.DEBUG.log'
         loglevel: 'DEBUG'           # optional
     - handler:
         type: 'TimedRotatingFileHandler'
-        output: 'var/log/yellowsub.INFO.log'
+        output: '/var/log/yellowsub.INFO.log'
         loglevel: 'INFO'
     - handler:
         type: 'TimedRotatingFileHandler'
-        output: 'var/log/yellowsub.WARN.log'
+        output: '/var/log/yellowsub.WARN.log'
         loglevel: 'WARN'           # optional
 
 http:
