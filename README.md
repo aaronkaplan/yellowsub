@@ -11,7 +11,10 @@ Author: aaron kaplan <aaron@lo-res.org>, <Leon-Aaron.Kaplan@ext.ec.europa.eu>
 
 ![yellowsub icon](docs/Submarine-icon.png)
 
-Yellowsub is a proof of concept message queue based automation framework.
+Yellowsub is a Threat Intelligence Platform for automation. It can automate incidence response and 
+Cyber Threat Intelligence (CTI) tasks.
+
+It's current status is 'proof of concept'.
 It was developed to automate the tasks of our Cyber Threat Hunting team.
 
 It strictly follows the **KISS principle** (_Keep it Simple and Stupid_). It's an intentionally
@@ -42,31 +45,17 @@ Getting it installed:
 ```bash
 git clone ...<this repo>
 apt install virtualenv
-virtualenv --python=python3.8 venv
+virtualenv --python=python3.9 venv
 source venv/bin/activate
 pip install -r requirements.txt
-export ROOTDIR=`pwd`            # set ROOTDIR to the place where everything is installed
+export YELLOWSUB_ROOT_DIR=`pwd`            # set ROOTDIR to the place where everything is installed
 # get rabbitMQ and redis installed via docker and listening on localhost. See docs/Getting-Started.md
 ...
+# use setup.py to install a locally editable version of all commands:
+pip install -e .
 # start an example workflow
-# python bin/orchestrate.py -c etc/example-workflow.yml
+workflows start 
 ```
-
-Make sure your config.yml is correct, look at it and adapt the settings for redis and rabbitmq
-
-Start a producer:
-```bash
-python -m lib.mq --producer --exchange CTH --processor_id producer1
-```
-
-In a different window (or multiple windows) start a (or multiple) consumers:
-```bash
-python -m lib.mq --consumer --exchange CTH --processor_id queue1
-```
-
-**Note**: if you use multiple consumers and they all have the same ID, then they will all consume from the same message
-queue. Which means, they will get the data from this queue in a round-robin fashion.exchange
-
 
 ## Overview
 
