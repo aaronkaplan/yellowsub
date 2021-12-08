@@ -10,3 +10,7 @@ class nullEnricher(Enricher):
     def process(self, channel=None, method=None, properties=None, msg: dict = {}):
         self.producer.produce(msg, routing_key = "")
         self.consumer.ack(method)
+
+
+PROCESSOR=nullEnricher
+

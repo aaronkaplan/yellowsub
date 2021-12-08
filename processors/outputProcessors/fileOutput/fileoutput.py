@@ -53,3 +53,7 @@ class FileOutput(OutputProcessor):
         self.logger.info()
         json.dump(payload, fd)
         fd.close()
+
+
+PROCESSOR=FileOutput
+

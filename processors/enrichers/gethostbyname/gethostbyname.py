@@ -43,6 +43,8 @@ class GetHostByName(Enricher):
         return msg
 
 
+PROCESSOR=GetHostByName
+
 if __name__ == "__main__":
     ips = get_ips_by_dns_lookup(fqdn = 'example.com')
     print(ips)
