@@ -84,9 +84,9 @@ def start_demo(ctx):
     except Exception as ex:
         click.echo("Could not find processors. Reason: {}".format(str(ex)))
         sys.exit(255)
-    fcollector = FileCollector(processor_name="MyFileCollector")
-    parser = HashListToStixBundleParser(processor_id = "MyParser")
-    enricher = nullEnricher(processor_name="MyEnricher")
+    fcollector = FileCollector(processor_name = "MyFileCollector")
+    parser = HashListToStixBundleParser(processor_name = "MyParser")
+    enricher = nullEnricher(processor_name = "MyEnricher")
     output = FileOutput(processor_name="MyOutput")
 
     output.start(from_ex = "ex3", to_ex = None)  # missing popen here!
