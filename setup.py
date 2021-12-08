@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 from setuptools import find_packages, setup
 
 from version import __version__
