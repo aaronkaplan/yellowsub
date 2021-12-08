@@ -30,6 +30,7 @@ setup(
                       'as well as Cyber Threat Intelligence and hunting. It is flexible in the formats it supports and '
                       'can connect to multiple ',
         long_description = README,
+        keywords='incident handling CERT CSIRT TIP Threat Intelligence Platform SOAR',
         packages = find_packages(),
         include_package_data = True,
         install_requires = [
