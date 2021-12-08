@@ -1,6 +1,5 @@
 """The Abstract Processor class"""
 
-import json
 import sys
 from pathlib import Path
 from typing import List
@@ -45,22 +44,22 @@ class AbstractProcessor:
     config = dict()
     logger = None
 
-    def __init__(self, processor_id: str, n: int = 1):
+    def __init__(self, processor_name: str, n: int = 1):
         """
-        :param processor_id: the ID of the processor. Used to set the queue names
+        :param processor_name: the ID of the processor. Used to set the queue names
         :param n: Number of (unix, system) processes should be instantiated for parallel processing
         """
-        assert isinstance(processor_id, str), "ID needs to be a string."
-        assert processor_id, "ID needs a value when instantiating a processor."
+        assert isinstance(processor_name, str), "ID needs to be a string."
+        assert processor_name, "ID needs a value when instantiating a processor."
 
-        self.processor_name = processor_id
+        self.processor_name = processor_name
         self.instances = n
 
         # initial logger, this is going to be overwritten
         self.logger = logging.getLogger()
 
         # make sure the config is loaded
-        self.load_config(processor_id)
+        self.load_config(processor_name)
 
         # setup logger using the global config the processor class name and the processor_name of the processor
         # TODO: DG_Comment :this can and should be moved to a higher level (orchestrator) as it does not pertain
@@ -74,13 +73,13 @@ class AbstractProcessor:
         # Do other startup stuff like connecting to an enrichment DB such as maxmind or so.
         # Load the input queue and output exchanges, this processor will have to connect to
 
-    def load_config(self, processor_id: str):
+    def load_config(self, processor_name: str):
         """
         Load the global config file (usually etc/config.yml) and also check if a specific config file
         for this processor exists in etc.d/<processor_name>.yml. If such a specific config file exist, merge it into the
         self.config dict
 
-        :param processor_id: The processor's ID string
+        :param processor_name: The processor's ID string
         """
         # load the global config
         _c = Config()
@@ -92,7 +91,7 @@ class AbstractProcessor:
 
         # merge in the specific config
         try:
-            specific_config = _c.load(Path(PROCESSOR_CONFIG_DIR) / "{}.yml".format(processor_id))
+            specific_config = _c.load(Path(PROCESSOR_CONFIG_DIR) / "{}.yml".format(processor_name))
             self.logger.debug("Specific config found: {}".format(specific_config))
             if not self.validate_specific_config(specific_config):
                 self.logger.error(
@@ -172,6 +171,9 @@ class AbstractProcessor:
         connecting to DBs, reading in supporting data sets, etc.
         Therefore, the assumption here is that the config for this processor is already loaded at this stage.
 
+        If you are looking for the main "run" entrypoint to a Processor, please look at the "run()" method (which
+        in turn calls start(...) with the right params).
+
         @param from_ex: which exchange to connect to from_queue
         @param from_queue: which queue to read from. The queue will be connected to from_ex
         @param to_ex: which exchanges (possibly multiple) to send to.
@@ -229,34 +231,33 @@ class AbstractProcessor:
         """
         pass
 
-
-class MyProcessor(AbstractProcessor):
-    """Sample of a processor."""
-
-    msg = None
-
-    def __init__(self, processor_name: str, n: int = 1, incoming_queue="", outgoing_exchanges=[]):
-        super().__init__(processor_name, n)
-        # here we should read the config on where to connect to...
-
-        # this is an example only and the connection to the exchanges and incoming queues will be done by the orchestrator.
-        self.consumer = Consumer(processor_name=processor_name, exchange="MyEx", callback=self.process,
-                                 queue_name="", logger=self.logger)
-        self.producer = Producer(processor_name=processor_name, exchange="MyEx2", logger=self.logger)
-
-    def process(self, channel=None, method=None, properties=None, msg: bytes = None):
-        """
-        The main process() callback function. It gets called from rabbitMQ on every message that comes in.
-
-        :param channel: The channel the message came in from
-        :param method:  the method
-        :param properties: the properties attached to the message
-        :param msg: the message (byte representation of a dict). Example:  msg = b'{"msg": 0}', type(msg) = '<class 'bytes'>
-        """
-        self.msg = json.loads(msg)
-        # validate the message here
-        self.logger.info("MyProcessor (ID: %s). Got msg %r" % (self.processor_name, self.msg))
-        # do something with the msg in the process() function, the msg is in self.msg
-        # ...
-        # then send it onwards to the outgoing exchange
-        self.producer.produce(msg=self.msg, routing_key="")
+# class MyProcessor(AbstractProcessor):
+#     """Sample of a processor."""
+#
+#     msg = None
+#
+#     def __init__(self, processor_name: str, n: int = 1, incoming_queue="", outgoing_exchanges=[]):
+#         super().__init__(processor_name, n)
+#         # here we should read the config on where to connect to...
+#
+#         # this is an example only and the connection to the exchanges and incoming queues will be done by the orchestrator.
+#         self.consumer = Consumer(processor_name=processor_name, exchange="MyEx", callback=self.process,
+#                                  queue_name="", logger=self.logger)
+#         self.producer = Producer(processor_name=processor_name, exchange="MyEx2", logger=self.logger)
+#
+#     def process(self, channel=None, method=None, properties=None, msg: bytes = None):
+#         """
+#         The main process() callback function. It gets called from rabbitMQ on every message that comes in.
+#
+#         :param channel: The channel the message came in from
+#         :param method:  the method
+#         :param properties: the properties attached to the message
+#         :param msg: the message (byte representation of a dict). Example:  msg = b'{"msg": 0}', type(msg) = '<class 'bytes'>
+#         """
+#         self.msg = json.loads(msg)
+#         # validate the message here
+#         self.logger.info("MyProcessor (ID: %s). Got msg %r" % (self.processor_name, self.msg))
+#         # do something with the msg in the process() function, the msg is in self.msg
+#         # ...
+#         # then send it onwards to the outgoing exchange
+#         self.producer.produce(msg=self.msg, routing_key="")

@@ -15,7 +15,7 @@ processorfiles = [processorfile for processorfile in Path(base_path).glob('**/*.
 for file in processorfiles:
     file = Path(str(file).replace(str(base_path), 'processors'))
     module = '.'.join(file.with_suffix('').parts)
-    PROCESSORS.append('{0} = {0}:PROCESSOR.start'.format(module))
+    PROCESSORS.append('{0} = {0}:PROCESSOR.run'.format(module))
 
 print("DEBUG: installing PROCESSORS={}".format(PROCESSORS))
 
