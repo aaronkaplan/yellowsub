@@ -223,7 +223,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.producer:
-        p = Producer(args.processor_id, args.exchange, logger=logger)
+        p = Producer(args.processor_name, args.exchange, logger=logger)
         p.start()
         for i in range(10):
             p.produce({"msg": i})
