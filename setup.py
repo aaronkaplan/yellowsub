@@ -6,6 +6,7 @@ from lib.version import __version__
 
 with open(os.path.join(os.path.dirname(__file__), 'README.md')) as handle:
     README = handle.read()
+print("DEBUG: README='{}'".format(README))
 
 PROCESSORS = []
 
