@@ -31,9 +31,9 @@ class Processor(AbstractProcessor):
         if not msg:
             return
         msg = self._convert_to_internal_df(msg)
-        if self.processor_id in self.config['processors'] and 'validate_msg' in self.config['processors'][
-            self.processor_id] and \
-                self.config['processors'][self.processor_id]['validate_msg']:
+        if self.processor_name in self.config['processors'] and 'validate_msg' in self.config['processors'][
+            self.processor_name] and \
+                self.config['processors'][self.processor_name]['validate_msg']:
             self.validate(msg)
         self.process(channel, method, properties, msg)
         # here we submit to the other exchanges

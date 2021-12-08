@@ -23,12 +23,12 @@ class MQ:
     queue = None
     queue_name = ""
     exchange = None
-    processor_id: str = ""
+    processor_name: str = ""
 
     logger: logging.Logger = None  # the logger to be used
 
-    def __init__(self, processor_id: str, logger=None):
-        self.processor_id = processor_id
+    def __init__(self, processor_name: str, logger=None):
+        self.processor_name = processor_name
         if not logger:
             self.logger = ProjectUtils.get_logger()
         else:
@@ -138,8 +138,8 @@ class MQ:
 class Producer(MQ):
     """A producer, based on the base functionality of MQ."""
 
-    def __init__(self, processor_id: str, exchange: str, logger):
-        super().__init__(processor_id, logger)
+    def __init__(self, processor_name: str, exchange: str, logger):
+        super().__init__(processor_name, logger)
         super().connect2mq()
         self.exchange = exchange
 
@@ -159,8 +159,8 @@ class Consumer(MQ):
 
     cb_function = None
 
-    def __init__(self, processor_id: str, exchange: str, queue_name: str, logger, callback=None):
-        super().__init__(processor_id, logger)
+    def __init__(self, processor_name: str, exchange: str, queue_name: str, logger, callback=None):
+        super().__init__(processor_name, logger)
         super().connect2mq()
         super().create_exchange(exchange)  # should have been done by the producer.
 
@@ -171,7 +171,7 @@ class Consumer(MQ):
             self.cb_function = self.process
 
         if not queue_name:
-            queue_name = "q.%s.%s" % (self.exchange, self.processor_id)  # default
+            queue_name = "q.%s.%s" % (self.exchange, self.processor_name)  # default
         self.queue_name = queue_name
 
     def start(self):
@@ -223,7 +223,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.producer:
-        p = Producer(args.processor_id, args.exchange, logger=logger)
+        p = Producer(args.processor_name, args.exchange, logger=logger)
         p.start()
         for i in range(10):
             p.produce({"msg": i})
@@ -233,7 +233,7 @@ if __name__ == "__main__":
             qn = args.queue_name
         else:
             qn = ""  # auto-decide
-        c = Consumer(args.processor_id, args.exchange, queue_name=qn, logger=logger)
+        c = Consumer(args.processor_name, args.exchange, queue_name=qn, logger=logger)
         c.start()
         c.consume()
     else:

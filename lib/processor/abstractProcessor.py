@@ -34,7 +34,7 @@ class AbstractProcessor:
     Queue 1 has two consumers c1 and c2. They will get the messages round robin again . Queue 2 has one consumer c3.
     Queue 3 has no consumers, Queue 4 has two consumers c4 and c5 again.
     """
-    processor_id: str = None
+    processor_name: str = None
     consumer: Consumer = None
     producer: Producer = None
 
@@ -53,7 +53,7 @@ class AbstractProcessor:
         assert isinstance(processor_id, str), "ID needs to be a string."
         assert processor_id, "ID needs a value when instantiating a processor."
 
-        self.processor_id = processor_id
+        self.processor_name = processor_id
         self.instances = n
 
         # initial logger, this is going to be overwritten
@@ -66,10 +66,10 @@ class AbstractProcessor:
         # TODO: DG_Comment :this can and should be moved to a higher level (orchestrator) as it does not pertain
         #       to the processor itself in addition setting up the logger should probably be made at the same
         #       level and not using ProjectUtils
-        ProjectUtils.configure_logger(self.config, self.__class__.__name__, self.processor_id)
+        ProjectUtils.configure_logger(self.config, self.__class__.__name__, self.processor_name)
 
         # using getLogger from ProjectUtils to get the logger
-        self.logger = ProjectUtils.get_logger(self.__class__.__name__ + "." + str(self.processor_id))
+        self.logger = ProjectUtils.get_logger(self.__class__.__name__ + "." + str(self.processor_name))
 
         # Do other startup stuff like connecting to an enrichment DB such as maxmind or so.
         # Load the input queue and output exchanges, this processor will have to connect to
@@ -87,7 +87,7 @@ class AbstractProcessor:
         try:
             self.config = _c.load(Path(GLOBAL_CONFIG_PATH))
         except Exception as ex:
-            print("Error while loading processor {}'s global config. Reason: {}".format(self.processor_id, str(ex)))
+            print("Error while loading processor {}'s global config. Reason: {}".format(self.processor_name, str(ex)))
             sys.exit(255)
 
         # merge in the specific config
@@ -96,13 +96,13 @@ class AbstractProcessor:
             self.logger.debug("Specific config found: {}".format(specific_config))
             if not self.validate_specific_config(specific_config):
                 self.logger.error(
-                    "Specific config for processor ID {} is invalid. Can't start it.".format(self.processor_id))
+                    "Specific config for processor ID {} is invalid. Can't start it.".format(self.processor_name))
                 sys.exit(254)
             self.config = deep_update(self.config,
                                       specific_config)  # FIXME, might need to re-initialize the logger here
         except Exception as ex:
             self.logger.error(
-                "Error while loading processor {}'s specific config. Reason: {}".format(self.processor_id, str(ex)))
+                "Error while loading processor {}'s specific config. Reason: {}".format(self.processor_name, str(ex)))
             sys.exit(255)
 
     def validate(self, msg: bytes) -> bool:
@@ -121,7 +121,7 @@ class AbstractProcessor:
         @param config:
         @return:
         """
-        if 'name' not in config and self.processor_id != config['name']:
+        if 'name' not in config and self.processor_name != config['name']:
             return False
         if 'parameters' not in config:
             return False
@@ -183,13 +183,13 @@ class AbstractProcessor:
 
         # first start with the output side
         if self.out_exchange:
-            self.producer = Producer(processor_id=self.processor_id, exchange=self.out_exchange, logger=self.logger)
+            self.producer = Producer(processor_name=self.processor_name, exchange=self.out_exchange, logger=self.logger)
             self.producer.start()
 
         # then the input side
         if self.in_exchange:
             # need a Consumer, bind the consumer to the in_exchange
-            self.consumer = Consumer(processor_id=self.processor_id, exchange=self.in_exchange,
+            self.consumer = Consumer(processor_name=self.processor_name, exchange=self.in_exchange,
                                      queue_name=self.in_queue, logger=self.logger)
             self.consumer.start()
 
@@ -207,6 +207,9 @@ class AbstractProcessor:
             # need both
             pass
         """
+
+    def run(self):
+        """The main entry point (without parameters). run() calls start(...) with the proper params."""
 
     def reload(self):
         """
@@ -252,7 +255,7 @@ class MyProcessor(AbstractProcessor):
         """
         self.msg = json.loads(msg)
         # validate the message here
-        self.logger.info("MyProcessor (ID: %s). Got msg %r" % (self.processor_id, self.msg))
+        self.logger.info("MyProcessor (ID: %s). Got msg %r" % (self.processor_name, self.msg))
         # do something with the msg in the process() function, the msg is in self.msg
         # ...
         # then send it onwards to the outgoing exchange
