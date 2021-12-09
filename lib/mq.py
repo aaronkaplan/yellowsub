@@ -220,7 +220,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.producer:
-        p = Producer(args.processor_name, args.exchange, logger=logger)
+        p = Producer(args.processor_name, args.exchange)
         p.start()
         for i in range(10):
             p.produce({"msg": i})
@@ -230,7 +230,7 @@ if __name__ == "__main__":
             qn = args.queue_name
         else:
             qn = ""  # auto-decide
-        c = Consumer(args.processor_name, args.exchange, queue_name=qn, logger=logger)
+        c = Consumer(args.processor_name, args.exchange, queue_name=qn)
         c.start()
         c.consume()
     else:

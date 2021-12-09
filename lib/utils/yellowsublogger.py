@@ -1,7 +1,6 @@
 import logging
 import logging.handlers
 import inspect
-from inspect import currentframe, getframeinfo
 
 
 class YellowsubLogger:
@@ -18,7 +17,7 @@ class YellowsubLogger:
 
     @staticmethod
     def setup_handler(handler_config: dict = None) -> logging.Handler:
-        if handler_config == None:
+        if handler_config is None:
             raise RuntimeError("No handler config has been passed nothing to do")
         if handler_config["type"] != "TimedRotatingFileHandler":
             raise NotImplementedError("the only supported logging handler is TimedRotatingFileHandler")
@@ -117,7 +116,6 @@ class YellowsubLogger:
             raise RuntimeError("the global logger is already defined something is wrong with the YellowsubLogger "
                                "class as it should have been deleted by this point in time")
 
-
         logger_config = config["global_config"]["logging"]
         log_level = logger_config["loglevel"]
         handlers = []
@@ -131,7 +129,7 @@ class YellowsubLogger:
             root_logger.addHandler(h)
 
         # Define all other handlers as per the config if any
-        if not "processor_configs" in config.keys():
+        if "processor_configs" not in config.keys():
             return
 
         for processor_config in config["processor_configs"]:
@@ -167,7 +165,8 @@ class YellowsubLogger:
 
         stack = inspect.stack()
         caller_class_name = stack[1][0].f_locals["self"].__class__.__name__
-        caller_method = stack[1][0].f_code.co_name
+        # this can be used at a later time if needed
+        # caller_method = stack[1][0].f_code.co_name
         specific_logger = logging.getLogger("yellowsub." + caller_class_name.lower())
 
         if len(specific_logger.handlers) !=0:
