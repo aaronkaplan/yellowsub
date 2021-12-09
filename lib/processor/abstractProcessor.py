@@ -9,7 +9,7 @@ from pydantic.utils import deep_update
 
 from lib.config import Config, GLOBAL_CONFIG_PATH, PROCESSOR_CONFIG_DIR
 from lib.mq import Consumer, Producer
-from lib.utils.projectutils import ProjectUtils
+from lib.utils.yellowsublogger import YellowsubLogger
 
 
 class AbstractProcessor:
@@ -50,7 +50,9 @@ class AbstractProcessor:
         :param n: Number of (unix, system) processes should be instantiated for parallel processing
         """
         assert isinstance(processor_name, str), "ID needs to be a string."
-        assert processor_name, "ID needs a value when instantiating a processor."
+        assert processor_name, "processor_name needs a value when instantiating a processor."
+        # TODO: DG_Comment: check that the name of the processor matches case-insensitive with the class name it is
+        #                   implemented in as per the project convention fail otherwise
 
         self.processor_name = processor_name
         self.instances = n
@@ -65,10 +67,7 @@ class AbstractProcessor:
         # TODO: DG_Comment :this can and should be moved to a higher level (orchestrator) as it does not pertain
         #       to the processor itself in addition setting up the logger should probably be made at the same
         #       level and not using ProjectUtils
-        ProjectUtils.configure_logger(self.config, self.__class__.__name__, self.processor_name)
-
-        # using getLogger from ProjectUtils to get the logger
-        self.logger = ProjectUtils.get_logger(self.__class__.__name__ + "." + str(self.processor_name))
+        self.logger = YellowsubLogger.get_logger()
 
         # Do other startup stuff like connecting to an enrichment DB such as maxmind or so.
         # Load the input queue and output exchanges, this processor will have to connect to
