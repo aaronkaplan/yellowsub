@@ -169,8 +169,7 @@ class YellowsubLogger:
         # caller_method = stack[1][0].f_code.co_name
         specific_logger = logging.getLogger("yellowsub." + caller_class_name.lower())
 
-        if len(specific_logger.handlers) !=0:
+        if len(specific_logger.handlers) != 0:
             return specific_logger
         else:
             return root_logger
-
