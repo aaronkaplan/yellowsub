@@ -33,8 +33,8 @@ class AbstractProcessor:
     Queue 1 has two consumers c1 and c2. They will get the messages round robin again . Queue 2 has one consumer c3.
     Queue 3 has no consumers, Queue 4 has two consumers c4 and c5 again.
     """
-    processor_name: str = None
-    consumer: Consumer = None
+    processor_name: str = None  # the unique name of the processor
+    consumer: Consumer = None  #
     producer: Producer = None
 
     in_queue: str = None
