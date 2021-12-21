@@ -15,3 +15,15 @@ workflow2:
   - { processor: "url_collector", to: "ex100" }
   - { processor: "is_url_on_safebrowsing", from: "ex100", to: "ex150", paralellism: 3 }
   - { processor: "output_file_writer", from: "ex150"}
+
+workflow3:
+  description: "1. Read file hashes from a file (one per line)
+                2. Transform them to STIX bundles
+                3. Enrich the bundles using VT
+                4. Write the resulting bundles to a file"
+  author: "rousben,giogada"
+  flow:
+    - { processor: "filecollector", to: "ex300" }
+    - { processor: "flatlisttostixbundleparser", from: "ex300", to: "ex310" }
+    - { processor: "vthashenricher", from: "ex320", to: "ex320", paralellism: 3}
+    - { processor: "fileoutput", from: "ex320" }

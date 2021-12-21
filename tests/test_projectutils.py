@@ -1,7 +1,9 @@
+'''
+TODO: DG_Comment: this has to be reimplemented
 import inspect
 from builtins import RuntimeError
 from unittest import TestCase
-from lib.utils.projectutils import ProjectUtils
+from lib.utils.yellowsublogger import YellowsubLogger
 import sys
 import logging
 
@@ -16,16 +18,16 @@ class TestProjectUtils(TestCase):
         logger_name = "testlogger"
         self.__delete_loggers()
         with self.assertRaises(RuntimeError):
-            ProjectUtils.get_logger(logger_name)
+            YellowsubLogger.get_logger(logger_name)
 
     def test____setup_root_logger(self):
         config = ""
         with self.assertRaises(AttributeError):
-            ProjectUtils._ProjectUtils__setup_root_logger(config)
+            YellowsubLogger._ProjectUtils__setup_root_logger(config)
 
         config = {}
         with self.assertRaises(RuntimeError):
-            ProjectUtils._ProjectUtils__setup_root_logger(config)
+            YellowsubLogger._ProjectUtils__setup_root_logger(config)
 
         config = {'logging': {
             'loglevel': 'DEBUG',
@@ -40,7 +42,7 @@ class TestProjectUtils(TestCase):
                     'output': '/tmp/yellowsub.WARN.log',
                     'loglevel': 'WARN'}}]}}
         with self.assertRaises(NotImplementedError):
-            ProjectUtils._ProjectUtils__setup_root_logger(config)
+            YellowsubLogger._ProjectUtils__setup_root_logger(config)
 
         config = {'logging': {
             'loglevel': 'DEBUG',
@@ -55,7 +57,7 @@ class TestProjectUtils(TestCase):
                     'output': '/tmp/yellowsub.WARN.log',
                     'loglevel': 'WARN'}}]}}
         self.__delete_loggers()
-        ProjectUtils._ProjectUtils__setup_root_logger(config)
+        YellowsubLogger._ProjectUtils__setup_root_logger(config)
 
         root_logger = logging.getLogger("yellowsub")
         self.assertEqual(root_logger.hasHandlers(), True)
@@ -79,11 +81,11 @@ class TestProjectUtils(TestCase):
     def test_configure_logger(self):
         config = ""
         with self.assertRaises(TypeError):
-            ProjectUtils.configure_logger(config)
+            YellowsubLogger.configure_logger(config)
 
         config = {}
         with self.assertRaises(RuntimeError):
-            ProjectUtils.configure_logger(config)
+            YellowsubLogger.configure_logger(config)
 
         config = {'logging': {
             'loglevel': 'DEBUG',
@@ -113,11 +115,11 @@ class TestProjectUtils(TestCase):
 
         # DG_Comment: test if called with a processor class that is not part of the config
         with self.assertRaises(RuntimeError):
-            ProjectUtils.configure_logger(config, "testClass", "testID")
+            YellowsubLogger.configure_logger(config, "testClass", "testID")
 
         # DG_Comment: test creation of root yellowsub logger if no processor class is provided
         self.__delete_loggers()
-        ProjectUtils.configure_logger(config, None, None)
+        YellowsubLogger.configure_logger(config, None, None)
 
         # TODO: DG_Comment: this has to parametrized and put into an internal testing method as the same code is used
         #                  both for this as well as testing the root logger setup private method.
@@ -157,7 +159,7 @@ class TestProjectUtils(TestCase):
             'processors': {'MispAttributeSearcher': {'misp_uri': 'https://192.168.5.108/',
                                                      'misp_api_key': ''}}}
         self.__delete_loggers()
-        ProjectUtils.configure_logger(config, "MispAttributeSearcher", "testId")
+        YellowsubLogger.configure_logger(config, "MispAttributeSearcher", "testId")
 
         # TODO: DG_Comment: this has to parametrized and put into an internal testing method as the same code is used
         #                  both for this as well as testing the root logger setup private method.
@@ -209,7 +211,7 @@ class TestProjectUtils(TestCase):
                                                                          'loglevel': 'WARN'}}]}}}}
 
         self.__delete_loggers()
-        ProjectUtils.configure_logger(config, "MispAttributeSearcher", "testId")
+        YellowsubLogger.configure_logger(config, "MispAttributeSearcher", "testId")
 
         processor_logger = logging.getLogger("yellowsub.MispAttributeSearcher.testId")
         self.assertEqual(processor_logger.hasHandlers(), True)
@@ -259,7 +261,7 @@ class TestProjectUtils(TestCase):
 
         self.__delete_loggers()
         with self.assertRaises(NotImplementedError):
-            ProjectUtils.configure_logger(config, "MispAttributeSearcher", "testId")
+            YellowsubLogger.configure_logger(config, "MispAttributeSearcher", "testId")
 
 
 if __name__ == '__main__':
@@ -272,3 +274,4 @@ if __name__ == '__main__':
                      name.startswith("test_")]
         for n, f in functions:
             getattr(t, n)()
+'''

@@ -13,7 +13,7 @@ import pika.exceptions
 
 from lib.config import Config, GLOBAL_CONFIG_PATH
 from lib.utils import sanitize_password_str
-from lib.utils.projectutils import ProjectUtils
+from lib.utils.yellowsublogger import YellowsubLogger
 
 
 class MQ:
@@ -30,7 +30,7 @@ class MQ:
     def __init__(self, processor_name: str, logger=None):
         self.processor_name = processor_name
         if not logger:
-            self.logger = ProjectUtils.get_logger()
+            self.logger = YellowsubLogger.get_logger()
         else:
             self.logger = logger
         _c = Config()
@@ -209,9 +209,6 @@ if __name__ == "__main__":
     _c = Config()
     config = _c.load()
     print("Loaded config: %r" % config)
-
-    ProjectUtils.configure_logger(config, processor_class=None, processor_name=None)
-    logger = ProjectUtils.get_logger("")
     parser = argparse.ArgumentParser(description='testing the mq module')
     parser.add_argument('-p', '--producer', action='store_true', help="run as a producer")
     parser.add_argument('-c', '--consumer', action='store_true', help="run as a consumer")
@@ -223,7 +220,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.producer:
-        p = Producer(args.processor_name, args.exchange, logger=logger)
+        p = Producer(args.processor_name, args.exchange)
         p.start()
         for i in range(10):
             p.produce({"msg": i})
@@ -233,7 +230,7 @@ if __name__ == "__main__":
             qn = args.queue_name
         else:
             qn = ""  # auto-decide
-        c = Consumer(args.processor_name, args.exchange, queue_name=qn, logger=logger)
+        c = Consumer(args.processor_name, args.exchange, queue_name=qn)
         c.start()
         c.consume()
     else:

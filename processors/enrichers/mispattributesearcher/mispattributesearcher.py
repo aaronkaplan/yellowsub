@@ -51,7 +51,7 @@ if __name__ == "__main__":
     '''debugging'''
     msg={}
     msg["search_value"] = "88.132.150.82"
-    ms = MispAttributeSearcher("313")
+    ms = MispAttributeSearcher("mispattributesearcher")
     c = ms.config
     print(c)
     found, message = ms.process(channel=None, method=None, properties=None, msg=msg)
