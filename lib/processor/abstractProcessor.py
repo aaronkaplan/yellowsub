@@ -5,9 +5,10 @@ from pathlib import Path
 from typing import List
 import logging
 
+import yaml
 from pydantic.utils import deep_update
 
-from lib.config import Config, GLOBAL_CONFIG_PATH, PROCESSOR_CONFIG_DIR
+from lib.config import Config, GLOBAL_CONFIG_PATH, PROCESSOR_CONFIG_DIR, GLOBAL_WORKFLOW_PATH
 from lib.mq import Consumer, Producer
 from lib.utils.yellowsublogger import YellowsubLogger
 
@@ -38,7 +39,7 @@ class AbstractProcessor:
     producer: Producer = None
 
     in_queue: str = None
-    out_exchanges: List[str] = []  # FIXME
+    out_exchange: str
 
     instances: int = 1
     config = dict()
@@ -184,39 +185,74 @@ class AbstractProcessor:
 
         # first start with the output side
         if self.out_exchange:
-            self.producer = Producer(processor_name=self.processor_name, exchange=self.out_exchange, logger=self.logger)
+            self.producer = Producer(processor_name = self.processor_name, exchange = self.out_exchange,
+                                     logger = self.logger)
             self.producer.start()
 
         # then the input side
         if self.in_exchange:
             # need a Consumer, bind the consumer to the in_exchange
-            self.consumer = Consumer(processor_name=self.processor_name, exchange=self.in_exchange,
-                                     queue_name=self.in_queue, logger=self.logger)
+            self.consumer = Consumer(processor_name = self.processor_name, exchange = self.in_exchange,
+                                     queue_name = self.in_queue, logger = self.logger)
             self.consumer.start()
 
+    @classmethod
+    def load_workflow(cls, processor_name: str) -> dict:
+        """Load the wokflow.yml file and iterate over all workflows which are defined there.
+        For each workflow, check out if <processor_name> is in the "processor" key-value pairs in a workflow.
+        If yes, read that dict line and yield back a dict : { "from": <queuename as string>, "to": <exchange name as str> }
+
         """
-        # XXX FIXME
-        # we know, based on the specific config, what kind processor group this is: collector, output, enricher, etc.
-        if self.config['group'] == "collector":
-            # only need out_exchanges
-            for exchange in self.out_exchanges:
-                self.consumer = Consumer(processor_name = self.processor_name, exchange = exchange, logger = self.logger)
-        elif self.config['group'] == "outputProcessor":
-            # only need from_ex
-            self.consumer = Consumer(processor_name = self.processor_name, in_queue = from_ex, logger = self.logger)
-        else:
-            # need both
-            pass
-        """
+        file = GLOBAL_WORKFLOW_PATH
+        try:
+            with open(file, 'r') as _f:
+                workflows = yaml.safe_load(_f)
+        except (OSError, FileNotFoundError) as ex:
+            logging.error('Could not load workflow config file %s. Reason: %s' % (file, str(ex)))
+            raise ValueError('File not found: %r.' % file)
+            # FIXME: here, we might also have other exceptions maybe? Catch them!
+
+        retval = dict()
+        # see workflow.yml for an example of how it looks like
+        for workflow in workflows:
+            if 'flow' not in workflow:
+                continue
+
+            for flowname, flow in workflow.items():
+                for k, v in flow.items():
+                    if k == "flow":
+                        for line in v:
+                            if 'processor' in line and line['processor'] == processor_name:  # found you
+                                if 'from' in line:
+                                    retval['from'] = line['from']
+                                else:
+                                    retval['from'] = None
+                                if 'to' in line:
+                                    retval['to'] = line['to']
+                                else:
+                                    retval['to'] = None
+                                if 'parallelism' in line:
+                                    retval['parallelism'] = line['parallelism']
+                                else:
+                                    retval['parallelism'] = 1
+                                yield retval
+        yield dict()
 
     @classmethod
-    def run(cls, parsed_args=None):
+    def run(cls, processor_name: str):
         """The main entry point (without parameters). run() calls start(...) with the proper params."""
 
-        # need to get the processor_name
-        processor_id = "foobar"
-        # next read the config
-        config = dict()
+        # next read the workflow.yml config -> we need to get the input queue and output exchange.
+        workflow = load_workflow(processor_name)
+        print(workflow)
+
+        # IDEA taken from intelmq:
+        # 1. read the python module (importlib or similar)
+        # 2. read the PROCESSOR variable --> this gives the name of the class we need to instantiate in run()
+        # 3. the run() class method gets the from: /to: exchanges
+        # 4. it will then create an object instance of that particular Processor class and...
+        # 5. call the start() method with the from: / to: paramaters
+        # but as a separate unix process... (popen, psutils)
 
         instance = cls(processor_id)
         instance.start(config)
