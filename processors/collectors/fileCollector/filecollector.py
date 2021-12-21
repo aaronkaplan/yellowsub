@@ -54,9 +54,10 @@ class FileCollector(Collector):
         super().__init__(processor_name, n)
         # Retrieving configuration
         config = self.config
+        print(config)
         try:
-            self.path = config["processors"][self.__class__.__name__]["path"]
-            self.delete_files = config["processors"][self.__class__.__name__]["delete_files"]
+            self.path = config["parameters"]["path"]
+            self.delete_files = config["parameters"]["delete_files"]
         except KeyError as e:
             raise RuntimeError("could not load config for FileCollector Reason: {}".format(str(e)))
         # Checking folder exists
@@ -78,6 +79,7 @@ class FileCollector(Collector):
         # Initializing file list to empty list
         files = []
 
+        print("RUNNING THE file collector...")
         # Processing
         while not finished:
             # Getting updated version of folder content
@@ -117,16 +119,17 @@ class FileCollector(Collector):
                         "version": 1,
                         "type": "raw",
                         "meta": {
-                            "uuid": uuid.uuid4(),
+                            "uuid": str(uuid.uuid4())
                         }
                     }
 
                     # Read content of file and convert it as base64
-                    base64_data = base64.encodebytes(fd.read())
+                    base64_data = str(base64.encodebytes(fd.read()))
                     fd.close()
                     # Add content of file to payload of msg
                     msg["payload"] = {"raw": base64_data}
 
+                    print(f"msg = {msg}")
                     # If option to delete file is set to true then delete the file
                     if self.delete_files:
                         remove(filepath + self.PROCESSING_EXT)

@@ -4,9 +4,12 @@ import sys
 from pathlib import Path
 from typing import List
 import logging
+import argparse
 
 import yaml
 from pydantic.utils import deep_update
+
+from importlib import import_module
 
 from lib.config import Config, GLOBAL_CONFIG_PATH, PROCESSOR_CONFIG_DIR, GLOBAL_WORKFLOW_PATH
 from lib.mq import Consumer, Producer
@@ -38,13 +41,14 @@ class AbstractProcessor:
     consumer: Consumer = None  #
     producer: Producer = None
 
-    in_queue: str = None
-    out_exchange: str
+    from_q: str = None
+    to_ex: str
 
     instances: int = 1
-    config = dict()
+    config = dict()     # the merged configuration for the processor.
     logger = None
 
+    
     def __init__(self, processor_name: str, n: int = 1):
         """
         :param processor_name: the ID of the processor. Used to set the queue names
@@ -68,7 +72,7 @@ class AbstractProcessor:
         # TODO: DG_Comment :this can and should be moved to a higher level (orchestrator) as it does not pertain
         #       to the processor itself in addition setting up the logger should probably be made at the same
         #       level and not using ProjectUtils
-        self.logger = YellowsubLogger.get_logger()
+        # self.logger = YellowsubLogger.get_logger()
 
         # Do other startup stuff like connecting to an enrichment DB such as maxmind or so.
         # Load the input queue and output exchanges, this processor will have to connect to
@@ -160,7 +164,7 @@ class AbstractProcessor:
         """
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
-    def start(self, from_ex: str, from_queue: str, to_ex: str):
+    def start(self, from_q: str, to_ex: str, to_q: str):
         """
         start() will connect the processor to its output exchanges and its input queue (in this order).
         After connecting to the queues and exchanges, the processor can start  processing incoming messages.
@@ -179,25 +183,27 @@ class AbstractProcessor:
         @param to_ex: which exchanges (possibly multiple) to send to.
 
         """
-        self.in_exchange = from_ex
-        self.in_queue = from_queue
-        self.out_exchange = to_ex
+
+        self.from_q = from_q
+        self.to_ex = to_ex
+        self.to_q = to_q
 
         # first start with the output side
-        if self.out_exchange:
-            self.producer = Producer(processor_name = self.processor_name, exchange = self.out_exchange,
+        if self.to_ex:
+            print("about to start a producer...")
+            self.producer = Producer(processor_name = self.processor_name, exchange = self.to_ex, to_q = self.to_q,
                                      logger = self.logger)
             self.producer.start()
 
         # then the input side
         if self.in_exchange:
             # need a Consumer, bind the consumer to the in_exchange
-            self.consumer = Consumer(processor_name = self.processor_name, exchange = self.in_exchange,
-                                     queue_name = self.in_queue, logger = self.logger)
+            print("about to start a consumer...")
+            self.consumer = Consumer(processor_name = self.processor_name, from_q = self.from_q, queue_name = self.from_q, logger = self.logger)
             self.consumer.start()
 
     @classmethod
-    def load_workflow(cls, processor_name: str) -> dict:
+    def load_workflows(cls, processor_name: str) -> dict:
         """Load the wokflow.yml file and iterate over all workflows which are defined there.
         For each workflow, check out if <processor_name> is in the "processor" key-value pairs in a workflow.
         If yes, read that dict line and yield back a dict : { "from": <queuename as string>, "to": <exchange name as str> }
@@ -214,37 +220,65 @@ class AbstractProcessor:
 
         retval = dict()
         # see workflow.yml for an example of how it looks like
-        for workflow in workflows:
-            if 'flow' not in workflow:
+        for name, settings in workflows.items():
+
+            if 'flow' not in settings:
                 continue
 
-            for flowname, flow in workflow.items():
-                for k, v in flow.items():
-                    if k == "flow":
-                        for line in v:
-                            if 'processor' in line and line['processor'] == processor_name:  # found you
-                                if 'from' in line:
-                                    retval['from'] = line['from']
-                                else:
-                                    retval['from'] = None
-                                if 'to' in line:
-                                    retval['to'] = line['to']
-                                else:
-                                    retval['to'] = None
-                                if 'parallelism' in line:
-                                    retval['parallelism'] = line['parallelism']
-                                else:
-                                    retval['parallelism'] = 1
-                                yield retval
-        yield dict()
+            for flow in settings["flow"]:
+
+                if 'processor' not in flow:
+                    continue
+                
+                if flow['processor'] not in processor_name:
+                    continue
+
+                retval['from_q'] = flow.get('from_q', None)
+                retval['to_ex'] = flow.get('to_ex', None)
+                retval['to_q'] = flow.get('to_q', None)
+                retval['parallelism'] = flow.get('parallelism', 1)
+
+                yield retval
 
     @classmethod
-    def run(cls, processor_name: str):
+    def _create_argparser(cls):
+        """
+        shamlessly copied & modified from intelmq
+        """
+        argparser = argparse.ArgumentParser(usage='%(prog)s [OPTIONS] PROCESSOR_NAME')
+        argparser.add_argument('processor_name', nargs='?', metavar='PROCESSOR_NAME', help='unique processor_name')
+        return argparser
+
+    @classmethod
+    def run(cls, parsed_args=None):
         """The main entry point (without parameters). run() calls start(...) with the proper params."""
 
+        if not parsed_args:
+            parsed_args = cls._create_argparser().parse_args()
+
+        if not parsed_args.processor_name:
+            sys.exit('No processor name given.')
+        processor_name = parsed_args.processor_name
+
+
         # next read the workflow.yml config -> we need to get the input queue and output exchange.
-        workflow = load_workflow(processor_name)
-        print(workflow)
+        workflows = cls.load_workflows(processor_name)      # generator
+        
+        # # get the module name:
+        # modulename="processors.collectors.filecollector"
+        # try:
+        #     module = import_module(modulename)
+        # except Exception as ex:
+        #     print(f"Error loading module: {modulename}. Reason: {ex}")
+        #     sys.exit(252)
+
+        # clsname = getattr(module, "PROCESSOR", None)
+        # if not clsname:
+        #     print(f"Could not find the class name in module {modulename}. Exiting.")
+        #     sys.exit(251)
+ 
+        # instance = cls(processor_name)
+        
 
         # IDEA taken from intelmq:
         # 1. read the python module (importlib or similar)
@@ -252,10 +286,12 @@ class AbstractProcessor:
         # 3. the run() class method gets the from: /to: exchanges
         # 4. it will then create an object instance of that particular Processor class and...
         # 5. call the start() method with the from: / to: paramaters
-        # but as a separate unix process... (popen, psutils)
+        # #### --> ignroe, this is already in a separate unix process, since we started it from the bash shell (was: but as a separate unix process... (popen, psutils)
 
-        instance = cls(processor_id)
-        instance.start(config)
+        instance = cls(processor_name)
+
+        for workflow in workflows:
+            instance.start(to_q=workflow['from_q'], from_queue=workflow['from_q'], to_ex=workflow['to_ex'])
 
     def reload(self):
         """
@@ -305,3 +341,8 @@ class AbstractProcessor:
 #         # ...
 #         # then send it onwards to the outgoing exchange
 #         self.producer.produce(msg=self.msg, routing_key="")
+
+
+if __name__ == "__main__":
+    x = AbstractProcessor("filecollector")
+    [ y for y in x.load_workflows("filecollector") ]

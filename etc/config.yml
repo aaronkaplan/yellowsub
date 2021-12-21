@@ -2,14 +2,14 @@ general:
   mq: rabbitmq
 
 rabbitmq:
-  host: localhost
+  host: queue
   port: 5672
   #user: guest
   #password: guest
 
 redis:
   cache_ttl: 86400              # 1 day
-  host: localhost
+  host: cache
   port: 6379
   db: 2
 

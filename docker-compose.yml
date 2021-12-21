@@ -1,0 +1,19 @@
+version: '3.2'
+
+services:
+    queue:
+        image: rabbitmq:3-management
+        ports: 
+            - '5671:5671'
+    cache:
+        image: redis:6-alpine
+
+    engine:
+        build:
+          context: ./
+        image: yellowsub:latest
+        volumes:
+            - ./:/development/yellowsub/
+        depends_on:
+            - queue
+            - cache

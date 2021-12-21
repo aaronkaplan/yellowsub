@@ -7,10 +7,6 @@ from lib.processor.abstractProcessor import AbstractProcessor
 class Processor(AbstractProcessor):
     """The main Processor class, all others derive from it."""
 
-    def __init__(self, processor_name: str, n: int = 1):
-        super().__init__(processor_name, n)
-        self.start()
-
     def _convert_to_internal_df(self, msg: bytes) -> dict:
         try:
             data = json.loads(msg)

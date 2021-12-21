@@ -23,7 +23,58 @@ workflow3:
                 4. Write the resulting bundles to a file"
   author: "rousben,giogada"
   flow:
-    - { processor: "filecollector", to: "ex300" }
-    - { processor: "flatlisttostixbundleparser", from: "ex300", to: "ex310" }
-    - { processor: "vthashenricher", from: "ex320", to: "ex320", paralellism: 3}
-    - { processor: "fileoutput", from: "ex320" }
+    - { processor: "filecollector", to_ex: "ex300", to_q: "ex300.q"}
+    - { processor: "flatlisttostixbundleparser", from_q: "ex300.q", to_ex: "ex310" }
+    - { processor: "vthashenricher", from_q: "ex320", to_ex: "ex320", paralellism: 3}
+    - { processor: "fileoutput", from_q: "ex320" }
+
+Notes:
+1. exchange name is dynamically defined and created
+
+    - { processor: "filecollector", _exchange: "filecollector", to: "shared-queue-1"}
+    - { processor: "filecollector", _exchange: "filecollector", to: "shared-queue-2", paralellism: 3}
+
+    - { processor: "filecollector", to_exchange: "filecollector", to_q: "shared-queue-1"}
+    - { processor: "filecollector", to_exchange: "filecollector", to_q: "shared-queue-2", paralellism: 3}
+    - { processor: "fileparser", from_q: "shared-queue-1", to_exchange: "fileparser", fanout: true, to_q: "crazy-queue-1" }
+    - { processor: "fileparser", from_q: "shared-queue-1", to_exchange: "fileparser", fanout: true, to_q: "crazy-queue-2"}
+
+    - { processor: "fileparser", _exchange: "fileparser", from: "shared-queue-1", to: "crazy-queue-1"}
+    - { processor: "fileparser", _exchange: "fileparser", from: "shared-queue-2", to: "crazy-queue-2", fanout: true}
+
+
+
+exchanges:
+  ex1:
+    type: fanout
+    ... < other params>
+
+  ex2: 
+    type: direct
+    ... < other params>
+
+queues:
+  shared-queue-1:
+    bind_to: ex1
+    routing_key: "*orange"
+  shared-queue-2:
+    bind_to: ex2:
+    routing_key: "*.*.rabbit"
+
+processors:
+  filecollector:
+    from_q: shared-queue-1
+    to_ex: ex2
+
+
+
+
+processor X
+            (direct exchange)
+            -> queue1
+            -> queue2
+
+            (fanout exchange)
+            -> queue1x
+            -> queue2x
+            -> 
