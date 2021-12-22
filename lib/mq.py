@@ -138,63 +138,97 @@ class MQ:
 class Producer(MQ):
     """A producer, based on the base functionality of MQ."""
 
-    def __init__(self, processor_name: str, exchange: str, logger):
+    def __init__(self, processor_name: str, logger, to_ex: str, to_q: str):
+        if not processor_name:
+            self.logger.error("processor_name is not defined in producer. Cant continue...")
+            sys.exit(1)
+
+        if not to_ex:
+            self.logger.error("to_ex is not defined in producer. Cant continue...")
+            sys.exit(1)
+
+        if not to_q:
+            self.logger.error("to_q is not defined in producer. Cant continue...")
+            sys.exit(1)
+
         super().__init__(processor_name, logger)
         super().connect2mq()
-        self.exchange = exchange
 
-    def start(self):
-        """Create queues bind them. Make stuff flowing from to the output exchange."""
-        super().create_exchange(self.exchange)
+        self.create_queue(to_q)
+        self.create_exchange(to_ex)
+        self.bind_queue()
 
     def produce(self, msg: dict, routing_key: str = ""):
         """Send a msg to the exchange with the given routing_key."""
         if msg:
             super()._publish(msg=msg, routing_key=routing_key)
             self.logger.info("[x] Sent %r" % msg)
+            print(f"Message sent {msg}")
 
 
 class Consumer(MQ):
     """A consumer, based on the base functionality of MQ."""
 
-    cb_function = None
+    def __init__(self, processor_name: str, logger, from_q: str, callback=None):
 
-    def __init__(self, processor_name: str, exchange: str, queue_name: str, logger, callback=None):
+        if not processor_name:
+            self.logger.error("processor_name is not defined in producer. Cant continue...")
+            sys.exit(1)
+
+        if not from_q:
+            self.logger.error("from_q is not defined in producer. Cant continue...")
+            sys.exit(1)
+
         super().__init__(processor_name, logger)
         super().connect2mq()
-        super().create_exchange(exchange)  # should have been done by the producer.
+        self.create_queue(from_q)
 
-        # establish callback. Here you can override the callback function if needed.
-        if callback:
-            self.cb_function = callback
-        else:
-            self.cb_function = self.process
+        print(f"Queue name before: {from_q}")
+        self.queue_name = from_q if from_q else "q.%s.%s" % (self.exchange, self.processor_name)
+        print(f"Queue name after: {self.queue_name}")
+        self.process= callback
 
-        if not queue_name:
-            queue_name = "q.%s.%s" % (self.exchange, self.processor_name)  # default
-        self.queue_name = queue_name
-
-    def start(self):
-        """Create queues bind them. Make stuff flowing from the input queue."""
-        super().create_queue(self.queue_name)
-        super().bind_queue()
-        self.consume()
-
-    def consume(self) -> None:
+    def consume(self):
         """Register the callback function for consuming from the exchange / queue given the routing_key."""
+
         self.logger.info("[*] Waiting for logs on queue {}.".format(self.queue_name))
-        self.channel.basic_consume(queue=self.queue_name, on_message_callback=self.cb_function, auto_ack=False)
+        self.channel.basic_consume(queue=self.queue_name, on_message_callback=self.mq_msg_callback, auto_ack=False)
         self.channel.start_consuming()
 
-    def process(self, ch, method, properties, msg):
-        """Handle the arriving message."""
-        # raise RuntimeError("Not implemented in the abstract Consumer. Need to override this method in the derived "
-        #                    "class.")
-        #
-        # A typical Consumer would do:
-        self.logger.info("[*] received '%r'" % msg)
-        print("[*] received '%r'" % msg)
-        self.ack(method)
+    def _convert_to_internal_df(self, msg: bytes) -> dict:
+        try:
+            data = json.loads(msg)
+        except Exception as ex:
+            self.logger.error("Could not convert msg (bytes) to msg (JSON) internal format. Reason: %s" % str(ex))
+            return None
+        return data
+
+    def _validate(self, msg: dict) -> bool:
+        # TODO: implement me
+        return super().validate(msg)
+
+    def mq_msg_callback(self, channel=None, method=None, properties=None, msg: bytes = None):
+        """Callback function which will be registered with the MQ's callback system.
+        Initially converts the (bytes) msg to an internal data format.
+        Then calls the self.process() function."""
+
+        print("1111")
+        if not msg:
+            print("2222")
+            return
+        print(f"1Message: {msg}")
+        msg = self._convert_to_internal_df(msg)
+        print(f"2Message: {msg}")
+
+        # if self.processor_name in self.config['parameters'] and 'validate_msg' in self.config['parameters'][
+        #     self.processor_name] and \
+        #         self.config['parameters'][self.processor_name]['validate_msg']:
+        #     self._validate(msg)
+        self.process(channel, method, properties, msg)
+        # here we submit to the other exchanges
+        
+        # FIXME: this MUST be called by the process method in processor, not here! 
+        # self.ack(method)
 
     def ack(self, method):
         """
@@ -204,7 +238,13 @@ class Consumer(MQ):
         self.channel.basic_ack(delivery_tag=method.delivery_tag)
 
 
+def my_test_process(channel=None, method=None, properties=None, msg: bytes = None):
+    print(msg)
+    print("hello world")
+
 if __name__ == "__main__":
+
+    logger = logging.getLogger()
 
     _c = Config()
     config = _c.load()
@@ -212,16 +252,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='testing the mq module')
     parser.add_argument('-p', '--producer', action='store_true', help="run as a producer")
     parser.add_argument('-c', '--consumer', action='store_true', help="run as a consumer")
-    parser.add_argument('-e', '--exchange', help="Exchange to connect2mq to.", required=True)
-    parser.add_argument('-q', '--queue_name', help="Queue name to read from.", required=False)
+    parser.add_argument('-e', '--exchange', help="Exchange to connect2mq to.", required=False)
+    parser.add_argument('-q', '--queue_name', help="Queue name to read from.", required=True)
     parser.add_argument('-i', '--processor_name',
                         help="Unique ID of the producer or consumer (used to set the queue name!)",
                         required=True)
     args = parser.parse_args()
 
     if args.producer:
-        p = Producer(args.processor_name, args.exchange)
-        p.start()
+        p = Producer(args.processor_name, logger=logger, to_ex=args.exchange, to_q=args.queue_name)
         for i in range(10):
             p.produce({"msg": i})
             time.sleep(3)
@@ -230,8 +269,8 @@ if __name__ == "__main__":
             qn = args.queue_name
         else:
             qn = ""  # auto-decide
-        c = Consumer(args.processor_name, args.exchange, queue_name=qn)
-        c.start()
+
+        c = Consumer(args.processor_name, logger=logger, from_q=qn, callback=my_test_process)
         c.consume()
     else:
         print("Need to specify one of -c or -p. See --help.", file=sys.stderr)

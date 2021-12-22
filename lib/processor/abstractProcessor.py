@@ -7,6 +7,7 @@ import logging
 import argparse
 
 import yaml
+import json
 from pydantic.utils import deep_update
 
 from importlib import import_module
@@ -164,6 +165,39 @@ class AbstractProcessor:
         """
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
+
+    def _convert_to_internal_df(self, msg: bytes) -> dict:
+        try:
+            data = json.loads(msg)
+        except Exception as ex:
+            self.logger.error("Could not convert msg (bytes) to msg (JSON) internal format. Reason: %s" % str(ex))
+            return None
+        return data
+
+    def validate(self, msg: dict) -> bool:
+        # TODO: implement me
+        return super().validate(msg)
+
+    def mq_msg_callback(self, channel=None, method=None, properties=None, msg: bytes = None):
+        """Callback function which will be registered with the MQ's callback system.
+        Initially converts the (bytes) msg to an internal data format.
+        Then calls the self.process() function."""
+
+        if not msg:
+            return
+        msg = self._convert_to_internal_df(msg)         # FIXME!!!! here config['processors'] does not exist anymore!!!
+        if self.processor_name in self.config['processors'] and 'validate_msg' in self.config['processors'][
+            self.processor_name] and \
+                self.config['processors'][self.processor_name]['validate_msg']:
+            self.validate(msg)
+        self.process(channel, method, properties, msg)
+        # here we submit to the other exchanges
+
+    def process(self, channel=None, method=None, properties=None, msg: dict = {}):
+        # TODO: do we need channel, method, properties here?
+        raise RuntimeError("not implemented in the abstract base class. This should not have been called.")
+
+
     def start(self, from_q: str, to_ex: str, to_q: str):
         """
         start() will connect the processor to its output exchanges and its input queue (in this order).
@@ -191,16 +225,16 @@ class AbstractProcessor:
         # first start with the output side
         if self.to_ex:
             print("about to start a producer...")
-            self.producer = Producer(processor_name = self.processor_name, exchange = self.to_ex, to_q = self.to_q,
+            self.producer = Producer(processor_name = self.processor_name, to_ex = self.to_ex, to_q = self.to_q,
                                      logger = self.logger)
-            self.producer.start()
+            # self.producer.start()
 
         # then the input side
-        if self.in_exchange:
+        if self.from_q:
             # need a Consumer, bind the consumer to the in_exchange
-            print("about to start a consumer...")
-            self.consumer = Consumer(processor_name = self.processor_name, from_q = self.from_q, queue_name = self.from_q, logger = self.logger)
-            self.consumer.start()
+            logging.info("about to start a consumer...")
+            self.consumer = Consumer(processor_name = self.processor_name, from_q = self.from_q, queue_name = self.from_q, logger = self.logger, callback=self.process)
+            # self.consumer.start()
 
     @classmethod
     def load_workflows(cls, processor_name: str) -> dict:
@@ -288,7 +322,7 @@ class AbstractProcessor:
         # 5. call the start() method with the from: / to: paramaters
         # #### --> ignroe, this is already in a separate unix process, since we started it from the bash shell (was: but as a separate unix process... (popen, psutils)
 
-        instance = cls(processor_name)
+        instance = cls(processor_name)          # after this we have a logger in instance.logger BTW...
 
         for workflow in workflows:
             instance.start(to_q=workflow['from_q'], from_queue=workflow['from_q'], to_ex=workflow['to_ex'])
