@@ -163,7 +163,8 @@ class Producer(MQ):
         if msg:
             super()._publish(msg=msg, routing_key=routing_key)
             self.logger.info("[x] Sent %r" % msg)
-            print(f"Message sent {msg}")
+            print(f"Message sent.")
+            # print(f"Message: {msg}")
 
 
 class Consumer(MQ):

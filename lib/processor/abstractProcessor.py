@@ -229,16 +229,16 @@ class AbstractProcessor:
 
         # first start with the output side
         if self.to_ex:
-            print("about to start a producer...")
+            logging.info("about to start a producer...")
             self.producer = Producer(processor_name = self.processor_name, to_ex = self.to_ex, to_q = self.to_q,
                                      logger = self.logger)
             # self.producer.start()
 
-        self.logger.error(f"still here. From_q = {from_q}")
+        self.logger.info(f"still here. From_q = {from_q}")
         # then the input side
         if self.from_q:
             # need a Consumer, bind the consumer to the in_exchange
-            logging.error("about to start a consumer...")
+            logging.info("about to start a consumer...")
             self.consumer = Consumer(processor_name = self.processor_name, from_q = self.from_q, logger = self.logger,
                                      callback = self.process)
             self.consumer.consume()

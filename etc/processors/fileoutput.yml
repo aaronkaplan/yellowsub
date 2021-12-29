@@ -1,9 +1,9 @@
-name: FileOutput   # the name
+name: fileoutput   # the name
 description: "The fileoutput takes its input from its input queue and dumps each message to a file in a given dir."
 enabled: true         # enable it or not
-group: fileOutput       # ignored for now
+group: output       # ignored for now
 groupname: output   # this field is ignored for now
-module: "processors.outputProcessors.fileOutput.fileoutput"    # where the python module resides
+module: "processors.outputs.fileOutput.fileoutput"    # where the python module resides
 run_mode: continuous   # ignored for now. "continuous is the default"
 
 # Needed specific parameters for this processor: API keys, etc...

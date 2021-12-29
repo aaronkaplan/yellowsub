@@ -57,4 +57,3 @@ class FileOutput(OutputProcessor):
 
 
 PROCESSOR=FileOutput
-
