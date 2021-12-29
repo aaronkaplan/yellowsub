@@ -3,7 +3,8 @@ workflow:
   author: "kaplale"
   flow:
     - { processor: "filecollector", to_ex: "ex1", to_q: "q1" }
-    - { processor: "fileoutput", from_q: "q1"}
+    - { processor: "virustotalhash", from_q: "q1", to_ex: "ex2", to_q: "q2" }
+    - { processor: "fileoutput", from_q: "q2"}
 
 
 workflow1:
