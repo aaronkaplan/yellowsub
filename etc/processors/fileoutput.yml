@@ -8,4 +8,4 @@ run_mode: continuous   # ignored for now. "continuous is the default"
 
 # Needed specific parameters for this processor: API keys, etc...
 parameters:
-  path: "tmp/output/"
+  path: "tmp/output-files/"
