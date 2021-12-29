@@ -53,6 +53,7 @@ class FileOutput(OutputProcessor):
         self.logger.info("Writing message to file ...")
         json.dump(payload, fd)
         fd.close()
+        self.consumer.ack(method)
 
 
 PROCESSOR=FileOutput
