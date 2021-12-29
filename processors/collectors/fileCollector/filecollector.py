@@ -54,7 +54,7 @@ class FileCollector(Collector):
         super().__init__(processor_name, n)
         # Retrieving configuration
         config = self.config
-        print(config)
+
         try:
             self.path = config["parameters"]["path"]
             self.delete_files = config["parameters"]["delete_files"]
