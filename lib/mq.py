@@ -185,7 +185,7 @@ class Consumer(MQ):
 
         print(f"Queue name before: {from_q}")
         self.queue_name = from_q if from_q else "q.%s.%s" % (self.exchange, self.processor_name)
-        print(f"Queue name after: {self.queue_name}")
+        print(f"Queue name after normalization: {self.queue_name}")
         self.process= callback
 
     def consume(self):

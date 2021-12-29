@@ -24,9 +24,9 @@ class YellowsubLogger:
 
         h_type = handler_config["type"]
         h_output = handler_config["output"]
-        h_log_level = handler_config["loglevel"]
-        handler = getattr(logging.handlers, h_type)(h_output, when="midnight", interval=1,
-                                                    backupCount=30)
+        h_log_level = handler_config["loglevel"]  # FIXME: if a handler_config dict is passed but no level, ... boom!
+        handler = getattr(logging.handlers, h_type)(h_output, when = "midnight", interval = 1,
+                                                    backupCount = 30)
         handler.setLevel(h_log_level)
 
         formatter = logging.Formatter('%(asctime)s|%(created)s|logger_name:%(name)s|process_pid:%(process)d|'
@@ -157,6 +157,7 @@ class YellowsubLogger:
         """
         root_logger = logging.getLogger("yellowsub")
 
+        # FIXME: this check broke everything (aaron)
         # DG_Comment: if the root logger is not setup it means we are trying to get loggers before setting them up
         # so we fail
         if len(root_logger.handlers) == 0:

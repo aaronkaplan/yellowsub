@@ -39,8 +39,9 @@ his responsibility to bind the upstream queue to his exchange.
 
 A processor is responsible to:
 1. create the upstream queues, if upstream queues are defined and not created
-2. create the downstream queues, if downstream queues are defined and not created (the downstream queue name comes from the workflow.yml file)
-3. create the downstream exchange, if downstream queues are defined
+2. create the downstream exchange, if downstream queues are defined
+3. create the downstream queues, if downstream queues are defined and not created (the downstream queue name comes from
+   the workflow.yml file)
 4. connect/bind downstream exchange to all downstream queues
 
 

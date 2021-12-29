@@ -64,7 +64,7 @@ class AbstractProcessor:
         self.instances = n
 
         # initial logger, this is going to be overwritten
-        self.logger = logging.getLogger()
+        self.logger = logging.getLogger("yellowsub-pre-config-loading")
 
         # make sure the config is loaded
         self.load_config(processor_name)
@@ -73,6 +73,7 @@ class AbstractProcessor:
         # TODO: DG_Comment :this can and should be moved to a higher level (orchestrator) as it does not pertain
         #       to the processor itself in addition setting up the logger should probably be made at the same
         #       level and not using ProjectUtils
+        # YellowsubLogger.setup_loggers()
         # self.logger = YellowsubLogger.get_logger()
 
         # Do other startup stuff like connecting to an enrichment DB such as maxmind or so.
@@ -100,14 +101,19 @@ class AbstractProcessor:
             self.logger.debug("Specific config found: {}".format(specific_config))
             if not self.validate_specific_config(specific_config):
                 self.logger.error(
-                    "Specific config for processor ID {} is invalid. Can't start it.".format(self.processor_name))
+                        "Specific config for processor ID {} is invalid. Can't start it.".format(self.processor_name))
                 sys.exit(254)
             self.config = deep_update(self.config,
                                       specific_config)  # FIXME, might need to re-initialize the logger here
         except Exception as ex:
             self.logger.error(
-                "Error while loading processor {}'s specific config. Reason: {}".format(self.processor_name, str(ex)))
+                    "Error while loading processor {}'s specific config. Reason: {}".format(self.processor_name,
+                                                                                            str(ex)))
             sys.exit(255)
+
+        # After we loaded the config, we can finally create our real logger.
+        # YellowsubLogger.setup_loggers(self.config)
+        # self.logger = YellowsubLogger.get_logger()
 
     def validate(self, msg: bytes) -> bool:
         """
@@ -212,10 +218,9 @@ class AbstractProcessor:
         If you are looking for the main "run" entrypoint to a Processor, please look at the "run()" method (which
         in turn calls start(...) with the right params).
 
-        @param from_ex: which exchange to connect to from_queue
-        @param from_queue: which queue to read from. The queue will be connected to from_ex
+        @param to_q: the destination queue to send data to
+        @param from_q: which queue to read from. The queue will be connected to from_ex
         @param to_ex: which exchanges (possibly multiple) to send to.
-
         """
 
         self.from_q = from_q
@@ -229,12 +234,14 @@ class AbstractProcessor:
                                      logger = self.logger)
             # self.producer.start()
 
+        self.logger.error(f"still here. From_q = {from_q}")
         # then the input side
         if self.from_q:
             # need a Consumer, bind the consumer to the in_exchange
-            logging.info("about to start a consumer...")
-            self.consumer = Consumer(processor_name = self.processor_name, from_q = self.from_q, queue_name = self.from_q, logger = self.logger, callback=self.process)
-            # self.consumer.start()
+            logging.error("about to start a consumer...")
+            self.consumer = Consumer(processor_name = self.processor_name, from_q = self.from_q, logger = self.logger,
+                                     callback = self.process)
+            self.consumer.consume()
 
     @classmethod
     def load_workflows(cls, processor_name: str) -> dict:
@@ -325,7 +332,7 @@ class AbstractProcessor:
         instance = cls(processor_name)          # after this we have a logger in instance.logger BTW...
 
         for workflow in workflows:
-            instance.start(to_q=workflow['from_q'], from_queue=workflow['from_q'], to_ex=workflow['to_ex'])
+            instance.start(to_q = workflow['to_q'], from_q = workflow['from_q'], to_ex = workflow['to_ex'])
 
     def reload(self):
         """
