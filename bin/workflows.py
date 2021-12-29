@@ -80,7 +80,7 @@ def start_demo(ctx):
         from processors.collectors.fileCollector.filecollector import FileCollector
         from processors.parsers.flatlisttostixbundleparser import HashListToStixBundleParser
         from processors.enrichers.null.nullEnricher import nullEnricher
-        from processors.outputProcessors.fileOutput.fileoutput import FileOutput
+        from processors.outputs.fileOutput.fileoutput import FileOutput
     except Exception as ex:
         click.echo("Could not find processors. Reason: {}".format(str(ex)))
         sys.exit(255)
