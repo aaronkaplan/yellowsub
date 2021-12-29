@@ -1,11 +1,29 @@
 """VirusTotalHashEnricher: this basically passes through the message. Useful for testing."""
 
+from typing import Union
+import vt
+import sys
+
 from lib.processor.enricher import Enricher
 
 
 class VirusTotalHash(Enricher):
     def __init__(self, processor_name: str, n: int = 1):
         super(VirusTotalHash, self).__init__(processor_name, n)
+        try:
+            self.client = vt.Client(self.config['parameters']['apikey'])
+        except Exception as ex:
+            sys.exit('Could not initialize VT API client. Did you specify an API key in the config?')
+
+    def _is_harmless_by_hash(hash: str) -> Union[None, int]:
+        """classify according to VT based on it's malware hash."""
+        result: vt.Object
+        try:
+            result = self.client.get_object(f"/files/{hash}")
+        except vt.error.APIError as ex:
+            self.logger.error("No results for hash {hash} in VT. Ignoring.")
+            return None
+        return int(result.get('total_votes')['harmless'])
 
     def process(self, channel=None, method=None, properties=None, msg: dict = {}):
         print("yeahhhhhhhhhhhhhhhhh")
