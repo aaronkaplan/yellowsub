@@ -7,4 +7,4 @@ module: "processors.enrichers.virustotal.hash"
 run_mode: continuous
 
 parameters:
-  tbd: "tbd"
+  apikey: "XXXX insert your API Key XXXXXXX"
