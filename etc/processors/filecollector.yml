@@ -9,5 +9,5 @@ run_mode: continuous   # ignored for now. "continuous is the default"
 
 # Needed specific parameters for this processor: API keys, etc...
 parameters:
-  path: "/tmp/"
+  path: "tmp/input-files/"
   delete_files: False

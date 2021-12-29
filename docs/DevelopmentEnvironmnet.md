@@ -40,6 +40,13 @@ source .env
 pip install -e .
 ```
 
+### Create Temporary Directories for Testing
+
+```
+mkdir -p tmp/{input-files,output-files}
+curl https://oasis-open.github.io/cti-documentation/examples/example_json/apt1.json -o tmp/input-files/apt1.stix.json
+```
+
 ### Run processor
 
 ```
