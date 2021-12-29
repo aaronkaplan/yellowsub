@@ -15,7 +15,7 @@ class VirusTotalHash(Enricher):
         except Exception as ex:
             sys.exit('Could not initialize VT API client. Did you specify an API key in the config?')
 
-    def _is_harmless_by_hash(hash: str) -> Union[None, int]:
+    def _is_harmless_by_hash(self, hash: str) -> Union[None, int]:
         """classify according to VT based on it's malware hash."""
         result: vt.Object
         try:
