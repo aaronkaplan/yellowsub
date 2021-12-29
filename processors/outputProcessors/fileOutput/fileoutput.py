@@ -18,9 +18,9 @@ class FileOutput(OutputProcessor):
         # Retrieving configuration
         config = self.config
         try:
-            self.path = config["processors"][self.__class__.__name__]["path"]
+            self.path = config["parameters"]["path"]
         except KeyError as e:
-            raise RuntimeError("could not load config for FileCollector Reason: {}".format(str(e)))
+            raise RuntimeError("could not load config for FileOutput Reason: {}".format(str(e)))
         # If path does not exist
         if not path.exists(self.path):
             # Try to create it
@@ -50,9 +50,10 @@ class FileOutput(OutputProcessor):
             self.logger.error("could not open file {} in write mode. Exiting.".format(filepath))
             return
         # Writing content to file
-        self.logger.info()
+        self.logger.info(f"Sending data to file {filepath}")
         json.dump(payload, fd)
         fd.close()
+        self.consumer.ack(method)
 
 
 PROCESSOR=FileOutput
