@@ -129,7 +129,7 @@ class FileCollector(Collector):
                     # Add content of file to payload of msg
                     msg["payload"] = {"raw": base64_data}
 
-                    print(f"msg = {msg}")
+                    # print(f"msg = {msg}")
                     # If option to delete file is set to true then delete the file
                     if self.delete_files:
                         remove(filepath + self.PROCESSING_EXT)
@@ -138,7 +138,9 @@ class FileCollector(Collector):
                                 self.path + "/" + self.PROCESSED_FOLDER + "/" + f)
 
                     # Send message
+                    print("Message is being sent to message queue ...")
                     self.producer.produce(msg=msg, routing_key="")
+                    print("Message has been sent to message queue.")
 
                     # We have processed a file so let's exit the for loop an update directory listing
                     break
