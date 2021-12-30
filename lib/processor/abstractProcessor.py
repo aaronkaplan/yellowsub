@@ -2,7 +2,6 @@
 
 import sys
 from pathlib import Path
-from typing import List
 import logging
 import argparse
 
@@ -10,11 +9,8 @@ import yaml
 import json
 from pydantic.utils import deep_update
 
-from importlib import import_module
-
 from lib.config import Config, GLOBAL_CONFIG_PATH, PROCESSOR_CONFIG_DIR, GLOBAL_WORKFLOW_PATH
 from lib.mq import Consumer, Producer
-from lib.utils.yellowsublogger import YellowsubLogger
 
 
 class AbstractProcessor:
@@ -49,7 +45,6 @@ class AbstractProcessor:
     config = dict()     # the merged configuration for the processor.
     logger = None
 
-    
     def __init__(self, processor_name: str, n: int = 1):
         """
         :param processor_name: the ID of the processor. Used to set the queue names
@@ -171,7 +166,6 @@ class AbstractProcessor:
         """
         raise RuntimeError("not implemented in the abstract base class. This should have not been called.")
 
-
     def _convert_to_internal_df(self, msg: bytes) -> dict:
         try:
             data = json.loads(msg)
@@ -179,10 +173,6 @@ class AbstractProcessor:
             self.logger.error("Could not convert msg (bytes) to msg (JSON) internal format. Reason: %s" % str(ex))
             return None
         return data
-
-    def validate(self, msg: dict) -> bool:
-        # TODO: implement me
-        return super().validate(msg)
 
     def mq_msg_callback(self, channel=None, method=None, properties=None, msg: bytes = None):
         """Callback function which will be registered with the MQ's callback system.
@@ -198,11 +188,6 @@ class AbstractProcessor:
             self.validate(msg)
         self.process(channel, method, properties, msg)
         # here we submit to the other exchanges
-
-    def process(self, channel=None, method=None, properties=None, msg: dict = {}):
-        # TODO: do we need channel, method, properties here?
-        raise RuntimeError("not implemented in the abstract base class. This should not have been called.")
-
 
     def start(self, from_q: str, to_ex: str, to_q: str):
         """
@@ -270,7 +255,7 @@ class AbstractProcessor:
 
                 if 'processor' not in flow:
                     continue
-                
+
                 if flow['processor'] not in processor_name:
                     continue
 
@@ -301,10 +286,9 @@ class AbstractProcessor:
             sys.exit('No processor name given.')
         processor_name = parsed_args.processor_name
 
-
         # next read the workflow.yml config -> we need to get the input queue and output exchange.
         workflows = cls.load_workflows(processor_name)      # generator
-        
+
         # # get the module name:
         # modulename="processors.collectors.filecollector"
         # try:
@@ -317,9 +301,8 @@ class AbstractProcessor:
         # if not clsname:
         #     print(f"Could not find the class name in module {modulename}. Exiting.")
         #     sys.exit(251)
- 
+
         # instance = cls(processor_name)
-        
 
         # IDEA taken from intelmq:
         # 1. read the python module (importlib or similar)
@@ -386,4 +369,4 @@ class AbstractProcessor:
 
 if __name__ == "__main__":
     x = AbstractProcessor("filecollector")
-    [ y for y in x.load_workflows("filecollector") ]
+    [y for y in x.load_workflows("filecollector")]

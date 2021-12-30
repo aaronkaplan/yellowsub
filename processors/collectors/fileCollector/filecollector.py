@@ -147,4 +147,3 @@ class FileCollector(Collector):
 
 
 PROCESSOR=FileCollector
-
