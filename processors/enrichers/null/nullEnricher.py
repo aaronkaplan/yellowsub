@@ -13,4 +13,3 @@ class nullEnricher(Enricher):
 
 
 PROCESSOR=nullEnricher
-
