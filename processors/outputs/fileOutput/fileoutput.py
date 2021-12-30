@@ -1,8 +1,5 @@
 """
-
 File output processor
-
-
 """
 from lib.processor.output import OutputProcessor
 from os import path, makedirs
