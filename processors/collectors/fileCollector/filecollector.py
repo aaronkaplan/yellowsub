@@ -110,9 +110,6 @@ class FileCollector(Collector):
                         self.logger.info("could not rename file {}. Race condition?".format(filepath))
                         break
 
-                    # Try to open the file
-                    fd = open(filepath + self.PROCESSING_EXT, 'rb')
-
                     # Start building a new message
                     msg = {
                         "format": "raw",
@@ -123,13 +120,13 @@ class FileCollector(Collector):
                         }
                     }
 
+                    # Try to open the file
                     # Read content of file and convert it as base64
-                    base64_data = str(base64.encodebytes(fd.read()))
-                    fd.close()
-                    # Add content of file to payload of msg
-                    msg["payload"] = {"raw": base64_data}
+                    with open(filepath + self.PROCESSING_EXT) as fp:
+                        data = fp.read()
+                        base64_data = base64.b64encode(data.encode())
+                        msg["payload"] = {"raw": base64_data.decode()}
 
-                    # print(f"msg = {msg}")
                     # If option to delete file is set to true then delete the file
                     if self.delete_files:
                         remove(filepath + self.PROCESSING_EXT)
