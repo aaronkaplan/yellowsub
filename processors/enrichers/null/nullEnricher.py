@@ -8,7 +8,8 @@ class nullEnricher(Enricher):
         super().__init__(processor_name, n)
 
     def process(self, channel=None, method=None, properties=None, msg: dict = {}):
-        print(f"got msg {msg}")
+        self.logger.debug(f"got msg {msg}")
+        self.logger.info(f"got msg")
         self.producer.produce(msg, routing_key = "")
         print(f"passed on msg to {self.producer.queue_name}")
         self.consumer.ack(method)
