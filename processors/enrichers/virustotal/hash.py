@@ -45,6 +45,7 @@ class VirusTotalHash(Enricher):
 
     def process(self, channel=None, method=None, properties=None, msg: dict = {}):
 
+        """
         #########################################################
         ################# FIX ME ################################
         ### The code should be replaced by the following line ###
@@ -52,6 +53,7 @@ class VirusTotalHash(Enricher):
         ###    bundle = msg["payload"]                        ###
         ###                                                   ###
         #########################################################
+        """
 
         from stix2 import parse
         import base64
@@ -61,7 +63,6 @@ class VirusTotalHash(Enricher):
         bundle = parse(json.loads(bundle))
 
         #######################################################
-
 
         new_objects = list()
 
@@ -81,9 +82,9 @@ class VirusTotalHash(Enricher):
                 continue
 
             malware_name = result.get("popular_threat_classification")["suggested_threat_label"]
-            malware_types = [ item["value"] for item in result.get("popular_threat_classification")["popular_threat_category"] ]
-            harmless_votes = int(result.get('total_votes')['harmless'])
-            malicious_votes = int(result.get('total_votes')['malicious'])
+            malware_types = [item["value"] for item in result.get("popular_threat_classification")["popular_threat_category"]]
+            # harmless_votes = int(result.get('total_votes')['harmless'])
+            # malicious_votes = int(result.get('total_votes')['malicious'])
 
             malware = Malware(
                 name=malware_name,
@@ -102,7 +103,7 @@ class VirusTotalHash(Enricher):
 
         bundle = Bundle(bundle.objects, new_objects)
 
-
+        """
         #########################################################
         ################# FIX ME ################################
         ### The code should be replaced by the following line ###
@@ -110,13 +111,13 @@ class VirusTotalHash(Enricher):
         ###    msg.payload = bundle                           ###
         ###                                                   ###
         #########################################################
+        """
 
         data = bundle.serialize()
         base64_data = base64.b64encode(data.encode())
         msg["payload"] = {"raw": base64_data.decode()}
 
         #######################################################
-
 
         self.producer.produce(msg, routing_key = "")
         self.consumer.ack(method)
