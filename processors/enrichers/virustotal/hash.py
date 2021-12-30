@@ -16,7 +16,8 @@ class VirusTotalHash(Enricher):
             sys.exit('Could not initialize VT API client. Did you specify an API key in the config?')
 
     def _is_harmless_by_hash(self, hash: str) -> Union[None, int]:
-        """classify according to VT based on it's malware hash."""
+        """classify according to VT based on it's malware hash. 
+        See https://developers.virustotal.com/reference/files """
         result: vt.Object
         try:
             result = self.client.get_object(f"/files/{hash}")
