@@ -9,9 +9,9 @@ class nullEnricher(Enricher):
 
     def process(self, channel=None, method=None, properties=None, msg: dict = {}):
         self.logger.debug(f"got msg {msg}")
-        self.logger.info(f"got msg")
+        self.logger.info("got msg")
         self.producer.produce(msg, routing_key = "")
-        print(f"passed on msg to {self.producer.queue_name}")
+        self.logger.info(f"passed on msg to {self.producer.queue_name}")
         self.consumer.ack(method)
 
 
