@@ -13,16 +13,17 @@ class VirusTotalHash(Enricher):
         try:
             self.client = vt.Client(self.config['parameters']['apikey'])
         except Exception as ex:
-            sys.exit('Could not initialize VT API client. Did you specify an API key in the config?')
+            sys.exit(f'Could not initialize VT API client. Did you specify an API key in the config? Reason: {str(ex)}')
 
     def _is_harmless_by_hash(self, hash: str) -> Union[None, int]:
-        """classify according to VT based on it's malware hash. 
+        """classify according to VT based on it's malware hash.
         See https://developers.virustotal.com/reference/files """
         result: vt.Object
         try:
             result = self.client.get_object(f"/files/{hash}")
         except vt.error.APIError as ex:
-            self.logger.error("No results for hash {hash} in VT. Ignoring.")
+            self.logger.error(f"No results for hash {hash} in VT. Ignoring.")
+            self.logger.debug(f"No results for hash {hash} in VT. VT's response: {str(ex)}")
             return None
         return int(result.get('total_votes')['harmless'])
 

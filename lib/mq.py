@@ -1,6 +1,11 @@
 #!/usr/bin/env python
+"""
+Small wrapper around a MQ system.
 
-"""Small wrapper around a MQ system"""
+The current implementation only supports rabbitMQ. However, the interface
+should remain the same for most other MQ systems.
+
+"""
 import argparse
 import json
 import logging
@@ -11,7 +16,7 @@ from pathlib import Path
 import pika
 import pika.exceptions
 
-from lib.config import Config, GLOBAL_CONFIG_PATH
+from lib.config import GLOBAL_CONFIG_PATH, Config
 from lib.utils import sanitize_password_str
 from lib.utils.yellowsublogger import YellowsubLogger
 
@@ -28,6 +33,14 @@ class MQ:
     logger: logging.Logger = None  # the logger to be used
 
     def __init__(self, processor_name: str, logger=None):
+        """
+        Constructor for the MQ class.
+
+        Loads the global config from etc/config.yml
+
+        @param  processor_name: unique ID/name of the processor using the MQ
+        @param  logger: a reference to the logger, the MQ class should use
+        """
         self.processor_name = processor_name
         if not logger:
             self.logger = YellowsubLogger.get_logger()
@@ -48,16 +61,16 @@ class MQ:
 
     def _setup_channel(self):
         """
-        Do the RabbitMQ channel setup. No creation of queues, exchanges etc. yet.
+        Do the RabbitMQ channel setup. No creation of queues, exchanges yet.
         Internal method, called by connect2mq().
         """
         try:
             self.logger.info("Setting up the channels...")
             self.channel = self.connection.channel()
-            self.channel.confirm_delivery()  # required to be informed if a basic_publish() fails!
-            self.logger.debug("channel = %r" % self.channel)
+            self.channel.confirm_delivery()     # inform me if delivery fails.
+            self.logger.debug(f"channel = {self.channel}")
         except Exception as ex:
-            self.logger.error("can't set up channel. Reason: %s. Bailing out." % (str(ex)))
+            self.logger.error(f"can't set up channel. Reason: {str(ex)}. Quitting")
             sys.exit(-2)
         self.logger.info("Done")
 
@@ -85,6 +98,7 @@ class MQ:
     def create_exchange(self, exchange: str = ""):
         """
         Create an exchange. This operation is idempotent. Pre-condition: channel and connection was set up.
+
         @param exchange: the name of the exchange
         """
         self.exchange = exchange
@@ -96,6 +110,12 @@ class MQ:
             raise ex
 
     def _publish(self, msg: dict, routing_key=""):
+        """
+        Sends a message (a dict) and converts it to the MQ system. Used by a producer.
+
+        @param msg:          a dict conforming to the internal data format. See [Datamodel](docs/Datamodel.md).
+        @param routing_key:  a (rabbitmq) routing key for topic exhanges.
+        """
         data = bytes(json.dumps(msg), 'utf-8')  # JSON is always utf-8
         try:
             self.channel.basic_publish(exchange=self.exchange, routing_key=routing_key, body=data,
@@ -107,6 +127,14 @@ class MQ:
             self.logger.error("Could not publish message. Reason: {}".format(str(ex)))
 
     def _consume(self, queue: str, callback=None, auto_ack=False):
+        """
+        Start consuming messages from <queue>, triggering a callback function.
+        Internal method used by the consumer.
+
+        @param queue:       the queue to read from
+        @param callback:    the callback function to invoke once a message arrived
+        @param auto_ack:    automatically ACK a consumed message. Should be False.
+        """
         self.channel.basic_consume(queue=queue, on_message_callback=callback, auto_ack=auto_ack)
 
     def create_queue(self, queue_name: str = ''):
@@ -136,19 +164,19 @@ class MQ:
 
 
 class Producer(MQ):
-    """A producer, based on the base functionality of MQ."""
+    """A producer, based on the base functionality of MQ base class."""
 
     def __init__(self, processor_name: str, logger, to_ex: str, to_q: str):
         if not processor_name:
-            self.logger.error("processor_name is not defined in producer. Cant continue...")
+            self.logger.error("processor_name is not defined in producer. Can't continue...")
             sys.exit(1)
 
         if not to_ex:
-            self.logger.error("to_ex is not defined in producer. Cant continue...")
+            self.logger.error("to_ex is not defined in producer. Can't continue...")
             sys.exit(1)
 
         if not to_q:
-            self.logger.error("to_q is not defined in producer. Cant continue...")
+            self.logger.error("to_q is not defined in producer. Can't continue...")
             sys.exit(1)
 
         super().__init__(processor_name, logger)
@@ -159,12 +187,18 @@ class Producer(MQ):
         self.bind_queue()
 
     def produce(self, msg: dict, routing_key: str = ""):
-        """Send a msg to the exchange with the given routing_key."""
+        """Send a msg to the exchange with the given routing_key.
+        Internally calls the MQ._publish() method.
+
+        @param msg:         a dict conforming to the [Datamodel](docs/Datamodel.md)
+        @param routing_key:  a (rabbitmq) routing key for topic exhanges.
+
+        """
+
         if msg:
             super()._publish(msg=msg, routing_key=routing_key)
-            self.logger.info("[x] Sent %r" % msg)
-            print(f"Message sent.")
-            # print(f"Message: {msg}")
+            self.logger.info("[x] Sent msg!")
+            self.logger.debug("  --> Details: %r" % msg)
 
 
 class Consumer(MQ):
@@ -187,16 +221,20 @@ class Consumer(MQ):
         print(f"Queue name before: {from_q}")
         self.queue_name = from_q if from_q else "q.%s.%s" % (self.exchange, self.processor_name)
         print(f"Queue name after normalization: {self.queue_name}")
-        self.process= callback
+        self.process = callback
 
     def consume(self):
         """Register the callback function for consuming from the exchange / queue given the routing_key."""
 
         self.logger.info("[*] Waiting for logs on queue {}.".format(self.queue_name))
-        self.channel.basic_consume(queue=self.queue_name, on_message_callback=self.mq_msg_callback, auto_ack=False)
+        self.channel.basic_consume(queue=self.queue_name,
+                                   on_message_callback=self.mq_msg_callback,
+                                   auto_ack=False)
         self.channel.start_consuming()
 
     def _convert_to_internal_df(self, msg: bytes) -> dict:
+        """Convert / map a bytes message from rabbitMQ to a dict."""
+
         try:
             data = json.loads(msg)
         except Exception as ex:
@@ -211,15 +249,17 @@ class Consumer(MQ):
     def mq_msg_callback(self, channel=None, method=None, properties=None, msg: bytes = None):
         """Callback function which will be registered with the MQ's callback system.
         Initially converts the (bytes) msg to an internal data format.
-        Then calls the self.process() function."""
+        Then calls the self.process() function.
 
-        print("1111")
+        @param channel: the rabbitMQ channel
+        @param method:  the rabbitMQ method. Needed for ACKing
+        @param properties: the rabbitMQ msg properties
+        @param msg: bytes object, needs to be converted to dict. The actual received message.
+        """
+
         if not msg:
-            print("2222")
             return
-        print(f"1Message: {msg}")
         msg = self._convert_to_internal_df(msg)
-        print(f"2Message: {msg}")
 
         # if self.processor_name in self.config['parameters'] and 'validate_msg' in self.config['parameters'][
         #     self.processor_name] and \
@@ -227,13 +267,11 @@ class Consumer(MQ):
         #     self._validate(msg)
         self.process(channel, method, properties, msg)
         # here we submit to the other exchanges
-        
-        # FIXME: this MUST be called by the process method in processor, not here! 
-        # self.ack(method)
 
     def ack(self, method):
         """
         Acknowledge a message to RabbitMQ.
+
         @param method: the method parameter from process()
         """
         self.channel.basic_ack(delivery_tag=method.delivery_tag)
@@ -242,6 +280,7 @@ class Consumer(MQ):
 def my_test_process(channel=None, method=None, properties=None, msg: bytes = None):
     print(msg)
     print("hello world")
+
 
 if __name__ == "__main__":
 
