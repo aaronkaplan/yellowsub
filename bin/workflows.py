@@ -1,16 +1,22 @@
 """Workflows orchestrator"""
 
 import sys
+import os
+from pathlib import Path
+import subprocess
 
 import click
+from config import ROOT_DIR, Config
+import lib.workflow as workflow
 
 
 @click.group()
-@click.option('--config', default = 'etc/config.yml', type = click.Path(exists = True), help = 'The main config file.')
+@click.option('--config', default = 'etc/config.yml', type = click.Path(exists = True), help = 'The global config file.')
+@click.option('--workflow-config', default = 'etc/workflow.yml', type = click.Path(exists = True), help = 'The workflows config file.')
 @click.option('--rootdir', default = '.', type = click.Path(exists = True), help = 'The root directory')
 @click.option('--verbose', is_flag = True)
 @click.pass_context
-def cli(ctx, config, rootdir, verbose):
+def cli(ctx, config, workflow_config, rootdir, verbose):
     ctx.ensure_object(dict)
 
     if verbose:
@@ -19,15 +25,17 @@ def cli(ctx, config, rootdir, verbose):
     if config:
         click.echo('using config file {}'.format(config))
         ctx.obj['config'] = config
+    if workflow_config:
+        click.echo('using workflow_config file {}'.format(workflow_config))
+        ctx.obj['workflow_config'] = workflow_config
     if rootdir:
         click.echo('using rootdir {}'.format(rootdir))
         ctx.obj['rootdir'] = rootdir
-
     pass
 
 
 @cli.command(short_help = 'Start workflows')
-@click.option('--workflow-id', type = str, help = 'Start a specific workflow ID. Default: *', default = '*',
+@click.option('--workflow_id', type = str, help = 'Start a specific workflow ID. Default: *', default = '*',
               required = False)
 @click.pass_context
 def start(ctx, workflow_id):
@@ -35,8 +43,33 @@ def start(ctx, workflow_id):
     Start all (default) or a specific workflow by ID.
     """
 
+    wf_config_file = ctx.obj['workflow_config']
+    wfs = workflow.load_workflows(wf_config_file)
+    wf_names = [f['workflow_name'] for f in wfs]
     if id != '*':
-        click.echo("Starting workflows ID {} using {}".format(workflow_id, ctx.obj['config']))
+        click.echo(f"Attempting to starting workflows ID {workflow_id} using {wf_config_file}")
+        if workflow_id not in wf_names:
+            click.echo("Could not find workflow. Not starting anything.")
+        else:
+            # for every line in the wf, start the processor
+            for flow in wfs:
+                if workflow_id not in flow['workflow_name']:
+                    continue
+                processor_name = flow.get('processor')
+                from_q = flow.get('from_q', None)
+                to_ex = flow.get('to_ex', None)
+                to_q = flow.get('to_q', None)
+                parallelism = flow.get('parallelism', 1)
+                # find the module name based on the processor_name
+                # check if the specific config file exists:
+                specific_config = Path(ROOT_DIR / 'etc' / 'processors' / f"{processor_name}.yml")
+                if not os.path.exists(specific_config):
+                    click.echo(f"Could not find specific config file for {processor_name}")
+                    continue
+                _c = Config()
+                c = _c.load(specific_config)
+                module_name = c['module']
+                subprocess.Popen([module_name, processor_name])
     else:
         click.echo("Starting all workflows in {}".format(ctx.obj['config']))
 
@@ -60,14 +93,18 @@ def stop(ctx, workflow_id):
 @click.pass_context
 def list(ctx):
     """
-    List all (default) workflows.
+    List all workflows.
     """
 
-    click.echo("Listing all workflows in {}".format(ctx.obj['config']))
+    wf_config_file = ctx.obj['workflow_config']
+    click.echo("Listing all workflows in {}".format(wf_config_file))
+    for wf in workflow.load_workflows(wf_config_file):
+        click.echo(wf)
 
 
 # ###############################
 # Sample workflow. Take this as a basis on how to create workflows via reading workflow.yml
+# XXX FIXME!!
 @cli.command(short_help = 'Start DEMO workflows')
 @click.pass_context
 def start_demo(ctx):
@@ -78,7 +115,7 @@ def start_demo(ctx):
     click.echo("Starting DEMO workflows")
     try:
         from processors.collectors.fileCollector.filecollector import FileCollector
-        from processors.parsers.flatlisttostixbundleparser import HashListToStixBundleParser
+        from processors.parsers.listOfHashesParser.parser import HashListToStixBundleParser
         from processors.enrichers.null.nullEnricher import nullEnricher
         from processors.outputs.fileOutput.fileoutput import FileOutput
     except Exception as ex:
