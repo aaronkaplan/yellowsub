@@ -56,10 +56,10 @@ def start(ctx, workflow_id):
                 if workflow_id not in flow['workflow_name']:
                     continue
                 processor_name = flow.get('processor')
-                from_q = flow.get('from_q', None)
-                to_ex = flow.get('to_ex', None)
-                to_q = flow.get('to_q', None)
-                parallelism = flow.get('parallelism', 1)
+                # from_q = flow.get('from_q', None)
+                # to_ex = flow.get('to_ex', None)
+                # to_q = flow.get('to_q', None)
+                # parallelism = flow.get('parallelism', 1)
                 # find the module name based on the processor_name
                 # check if the specific config file exists:
                 specific_config = Path(ROOT_DIR / 'etc' / 'processors' / f"{processor_name}.yml")
