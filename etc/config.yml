@@ -9,7 +9,7 @@ rabbitmq:
 
 redis:
   cache_ttl: 86400              # 1 day
-  host: cache
+  host: 127.0.0.1
   port: 6379
   db: 2
 
