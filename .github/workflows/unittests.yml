@@ -26,6 +26,7 @@ jobs:
         pip install flake8 pytest nose pytest-cov
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         sudo apt install redis
+        sudo service redis-server start
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
