@@ -32,7 +32,6 @@ The following commands assume that you are in `/development/yellowsub/`.
 cp .env.dist .env
 set -a
 source .env
-export YELLOWSUB_ROOT_DIR=$(pwd)
 ```
 
 ### Install cli commands
