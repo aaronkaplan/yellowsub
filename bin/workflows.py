@@ -64,6 +64,7 @@ def start(ctx, workflow_id):
 
     for flow in workflows:
         processor = flow.get('processor')
+        click.echo(f"Starting {processor} ...")
 
         # find the module name based on the processor
         # check if the specific config file exists:
@@ -131,36 +132,6 @@ def list(ctx):
     click.echo("Listing all workflows in {}".format(wf_config_file))
     for wf in workflow.load_workflows(wf_config_file):
         click.echo(wf)
-
-
-# ###############################
-# Sample workflow. Take this as a basis on how to create workflows via reading workflow.yml
-# XXX FIXME!!
-@cli.command(short_help = 'Start DEMO workflows')
-@click.pass_context
-def start_demo(ctx):
-    """
-    Start a very simple DEMO workflow: filecollector -> parser -> enricher -> fileOutput
-                                                   ex1       ex2         ex3
-    """
-    click.echo("Starting DEMO workflows")
-    try:
-        from processors.collectors.fileCollector.filecollector import FileCollector
-        from processors.parsers.listOfHashesParser.parser import HashListToStixBundleParser
-        from processors.enrichers.null.nullEnricher import nullEnricher
-        from processors.outputs.fileOutput.fileoutput import FileOutput
-    except Exception as ex:
-        click.echo("Could not find processors. Reason: {}".format(str(ex)))
-        sys.exit(255)
-    fcollector = FileCollector(processor_name = "MyFileCollector")
-    parser = HashListToStixBundleParser(processor_name = "MyParser")
-    enricher = nullEnricher(processor_name = "MyEnricher")
-    output = FileOutput(processor_name="MyOutput")
-
-    output.start(from_ex = "ex3", to_ex = None)  # missing popen here!
-    enricher.start(from_ex = "ex2", to_ex = "ex3")
-    parser.start(from_ex = "ex1", to_ex = "ex2")
-    fcollector.start(to_ex = "ex1")
 
 
 if __name__ == '__main__':
