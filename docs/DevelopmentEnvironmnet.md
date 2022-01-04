@@ -44,7 +44,8 @@ pip install -e .
 
 ```
 mkdir -p tmp/{input-files,output-files}
-curl https://oasis-open.github.io/cti-documentation/examples/example_json/apt1.json -o tmp/input-files/apt1.stix.json
+cp tests/data/file_hashes.txt tmp/input-files/
+# curl https://oasis-open.github.io/cti-documentation/examples/example_json/apt1.json -o tmp/input-files/apt1.stix.json
 ```
 
 ### Run processor
@@ -56,5 +57,5 @@ processors.collectors.fileCollector.filecollector filecollector
 ### Run workflow
 
 ```
-python -m bin.workflows start --workflow-id myworkflow
+python -m bin.workflows start --workflow-id demo
 ```
