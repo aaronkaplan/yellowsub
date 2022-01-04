@@ -34,4 +34,5 @@ jobs:
         flake8 . --ignore=E251,E225,E126,E741,E501,W605,W391 --exclude=.git,venv,contrib,lib/python3.8 --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
+        sudo service redis-server start
         export PYTHONPATH=lib ; export YELLOWSUB_ROOT_DIR=$(pwd); pytest --cov=./ tests
