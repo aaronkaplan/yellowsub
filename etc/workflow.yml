@@ -1,18 +1,18 @@
-workflow_input:
-  description: "my workflow with a single filecollector. Just sends to a queue and does nothing else."
-  author: "kaplale"
+demo:
+  description: "A workflow for demonstration."
+  author: "NoOne"
   flow:
     - { processor: "filecollector", to_ex: "ex1", to_q: "q1" }
-    - { processor: "virustotalhash", from_q: "q1", to_ex: "ex3", to_q: "q3" }
+    - { processor: "flatlisttostixbundleparser", from_q: "q1", to_ex: "ex2", to_q: "q2" }
+    - { processor: "virustotalhash", from_q: "q2", to_ex: "ex3", to_q: "q3" }
     - { processor: "fileoutput", from_q: "q3"}
-
 
 workflow_output:
   description: "my workflow with a single fileoutput processor. Send to a dir."
   author: "kaplale"
   flow:
     - { processor: "fileoutput", from_q: "q1" }
-  
+
 workflow1:
   description: "my workflow"
   author: "kaplale"
