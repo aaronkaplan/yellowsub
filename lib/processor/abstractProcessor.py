@@ -60,14 +60,14 @@ class AbstractProcessor:
         self.instances = n
 
         # initial logger, this is going to be overwritten
-        self.logger = logging.getLogger("yellowsub-pre-config-loading")
+        self.logger = logging.getLogger()#"yellowsub-pre-config-loading")
 
         # make sure the config is loaded
         self.config = self.load_config(processor_name)
 
         # After we loaded the config, we can finally create our real logger.
-        YellowsubLogger.setup_loggers(self.config)
-        self.logger = YellowsubLogger.get_logger()
+        # YellowsubLogger.setup_loggers(self.config)
+        # self.logger = YellowsubLogger.get_logger()
 
         # setup logger using the global config the processor class name and the processor_name of the processor
         # TODO: DG_Comment :this can and should be moved to a higher level (orchestrator) as it does not pertain
