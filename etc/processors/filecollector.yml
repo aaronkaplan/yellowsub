@@ -4,7 +4,7 @@ description: "The filecollector takes a file reads the lines and pushes the line
 enabled: true         # enable it or not
 group: collector       # ignored for now
 groupname: collector   # this field is ignored for now
-module: "processors.collectors.filecollector"    # where the python module resides
+module: "processors.collectors.fileCollector.filecollector"    # where the python module resides
 run_mode: continuous   # ignored for now. "continuous is the default"
 
 # Needed specific parameters for this processor: API keys, etc...
