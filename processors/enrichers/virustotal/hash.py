@@ -59,8 +59,8 @@ class VirusTotalHash(Enricher):
         import base64
         import json
 
-        bundle = base64.b64decode(msg["payload"]["raw"].encode())
-        bundle = parse(json.loads(bundle))
+        bundle_text =msg["payload"]
+        bundle = parse(bundle_text)
 
         #######################################################
 
