@@ -59,7 +59,7 @@ class VirusTotalHash(Enricher):
         import base64
         import json
 
-        bundle_text =msg["payload"]
+        bundle_text = msg["payload"]
         bundle = parse(bundle_text)
 
         #######################################################
@@ -77,7 +77,9 @@ class VirusTotalHash(Enricher):
                 continue
 
             #TODO: DG_Comment: check for all hash types not just for the first one
-            malware_hash_type, malware_hash = obj.hashes.items[0]
+
+            for value in obj.hashes.values():
+                malware_hash = value
 
             result = self.__collect_data(malware_hash)
 
@@ -85,10 +87,17 @@ class VirusTotalHash(Enricher):
                 self.logger.debug("The hash for the associated file object could not be found in VT: {}".format(obj))
                 continue
 
-            malware_name = result.get("popular_threat_classification")["suggested_threat_label"]
-            malware_types = [item["value"] for item in result.get("popular_threat_classification")["popular_threat_category"]]
-            # harmless_votes = int(result.get('total_votes')['harmless'])
-            # malicious_votes = int(result.get('total_votes')['malicious'])
+            classfication = result.get("popular_threat_classification")
+
+            if not classfication:
+                continue
+
+            malware_name = classfication.get("suggested_threat_label", None)
+            malware_types = classfication.get("popular_threat_category", None)
+            malware_types = malware_types[0]["value"]
+
+            if not malware_name or not malware_types:
+                continue
 
             malware = Malware(
                 name=malware_name,
@@ -118,7 +127,7 @@ class VirusTotalHash(Enricher):
         """
 
         data = bundle.serialize()
-        msg["payload"] = data
+        msg["payload"] = json.loads(data)
 
         #######################################################
 
