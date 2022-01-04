@@ -68,17 +68,21 @@ class VirusTotalHash(Enricher):
 
         for obj in bundle.objects:
 
-            if obj.type != "indicator":
+            if obj.type != "file":
+                self.logger.debug("The object type is not a file object: {}".format(obj))
                 continue
 
-            malware_hash = get_file_hash_from_indicador_pattern(obj)
-
-            if not malware_hash:
+            if not obj.hashes:
+                self.logger.debug("The supplied file object does not have any hashes: {}".format(obj))
                 continue
+
+            #TODO: DG_Comment: check for all hash types not just for the first one
+            malware_hash_type, malware_hash = obj.hashes.items[0]
 
             result = self.__collect_data(malware_hash)
 
             if not result:
+                self.logger.debug("The hash for the associated file object could not be found in VT: {}".format(obj))
                 continue
 
             malware_name = result.get("popular_threat_classification")["suggested_threat_label"]
@@ -114,8 +118,7 @@ class VirusTotalHash(Enricher):
         """
 
         data = bundle.serialize()
-        base64_data = base64.b64encode(data.encode())
-        msg["payload"] = {"raw": base64_data.decode()}
+        msg["payload"] = data
 
         #######################################################
 
