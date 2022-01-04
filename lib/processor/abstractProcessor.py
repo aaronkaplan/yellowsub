@@ -84,7 +84,7 @@ class AbstractProcessor:
         """
         Load the global config file (usually etc/config.yml) and also check if a specific config file
         for this processor exists in etc.d/<processor_name>.yml. If such a specific config file exist, merge it into the
-        self.config dict
+        config dict
 
         :param processor_name: The processor's ID string
         """
@@ -98,7 +98,7 @@ class AbstractProcessor:
         try:
             config = _c.load(Path(GLOBAL_CONFIG_PATH))
         except Exception as ex:
-            print("Error while loading processor {}'s global config. Reason: {}".format(self.processor_name, str(ex)))
+            print("Error while loading processor {}'s global config. Reason: {}".format(processor_name, str(ex)))
             sys.exit(255)
 
         # merge in the specific config
@@ -106,12 +106,11 @@ class AbstractProcessor:
             specific_config = _c.load(Path(PROCESSOR_CONFIG_DIR) / "{}.yml".format(processor_name))
             logger.debug("Specific config found: {}".format(specific_config))
             # if not cls.validate_specific_config(specific_config):
-            #     logger.error("Specific config for processor ID {} is invalid. Can't start it.".format(self.processor_name))
+            #     logger.error("Specific config for processor ID {} is invalid. Can't start it.".format(processor_name))
             #     sys.exit(254)
             config = deep_update(config, specific_config)  # FIXME, might need to re-initialize the logger here
         except Exception as ex:
-            logger.error("Error while loading processor {}'s specific config. Reason: {}".format(self.processor_name,
-                                                                                                 str(ex)))
+            logger.error("Error while loading processor {}'s specific config. Reason: {}".format(processor_name, str(ex)))
             sys.exit(255)
 
         return config
