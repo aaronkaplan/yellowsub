@@ -13,6 +13,7 @@ from lib.config import Config, GLOBAL_CONFIG_PATH, PROCESSOR_CONFIG_DIR, GLOBAL_
 from lib.mq import Consumer, Producer
 from lib.utils.yellowsublogger import YellowsubLogger
 
+
 class AbstractProcessor:
     """The Abstract Processor class. Here the model is that there is _ONE_ incoming consumer source
     _instance_ number of instances of the processor, each taking a message in a round robin fashion from the input queue
@@ -88,7 +89,7 @@ class AbstractProcessor:
         :param processor_name: The processor's ID string
         """
 
-        # Before we have the config and the logger set up, we can not log to the yellowsub logger -> 
+        # Before we have the config and the logger set up, we can not log to the yellowsub logger ->
         # use the python root logger instead until then.
         logger = logging.getLogger()
 
@@ -110,7 +111,7 @@ class AbstractProcessor:
             config = deep_update(config, specific_config)  # FIXME, might need to re-initialize the logger here
         except Exception as ex:
             logger.error("Error while loading processor {}'s specific config. Reason: {}".format(self.processor_name,
-                                                                                            str(ex)))
+                                                                                                 str(ex)))
             sys.exit(255)
 
         return config
