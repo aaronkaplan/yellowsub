@@ -11,7 +11,7 @@ from pydantic.utils import deep_update
 
 from lib.config import Config, GLOBAL_CONFIG_PATH, PROCESSOR_CONFIG_DIR, GLOBAL_WORKFLOW_PATH
 from lib.mq import Consumer, Producer
-
+from lib.utils.yellowsublogger import YellowsubLogger
 
 class AbstractProcessor:
     """The Abstract Processor class. Here the model is that there is _ONE_ incoming consumer source
@@ -62,7 +62,11 @@ class AbstractProcessor:
         self.logger = logging.getLogger("yellowsub-pre-config-loading")
 
         # make sure the config is loaded
-        self.load_config(processor_name)
+        self.config = self.load_config(processor_name)
+
+        # After we loaded the config, we can finally create our real logger.
+        YellowsubLogger.setup_loggers(self.config)
+        self.logger = YellowsubLogger.get_logger()
 
         # setup logger using the global config the processor class name and the processor_name of the processor
         # TODO: DG_Comment :this can and should be moved to a higher level (orchestrator) as it does not pertain
@@ -74,7 +78,8 @@ class AbstractProcessor:
         # Do other startup stuff like connecting to an enrichment DB such as maxmind or so.
         # Load the input queue and output exchanges, this processor will have to connect to
 
-    def load_config(self, processor_name: str):
+    @classmethod
+    def load_config(cls, processor_name: str):
         """
         Load the global config file (usually etc/config.yml) and also check if a specific config file
         for this processor exists in etc.d/<processor_name>.yml. If such a specific config file exist, merge it into the
@@ -82,10 +87,15 @@ class AbstractProcessor:
 
         :param processor_name: The processor's ID string
         """
+
+        # Before we have the config and the logger set up, we can not log to the yellowsub logger -> 
+        # use the python root logger instead until then.
+        logger = logging.getLogger()
+
         # load the global config
         _c = Config()
         try:
-            self.config = _c.load(Path(GLOBAL_CONFIG_PATH))
+            config = _c.load(Path(GLOBAL_CONFIG_PATH))
         except Exception as ex:
             print("Error while loading processor {}'s global config. Reason: {}".format(self.processor_name, str(ex)))
             sys.exit(255)
@@ -93,22 +103,17 @@ class AbstractProcessor:
         # merge in the specific config
         try:
             specific_config = _c.load(Path(PROCESSOR_CONFIG_DIR) / "{}.yml".format(processor_name))
-            self.logger.debug("Specific config found: {}".format(specific_config))
-            if not self.validate_specific_config(specific_config):
-                self.logger.error(
-                        "Specific config for processor ID {} is invalid. Can't start it.".format(self.processor_name))
-                sys.exit(254)
-            self.config = deep_update(self.config,
-                                      specific_config)  # FIXME, might need to re-initialize the logger here
+            logger.debug("Specific config found: {}".format(specific_config))
+            # if not cls.validate_specific_config(specific_config):
+            #     logger.error("Specific config for processor ID {} is invalid. Can't start it.".format(self.processor_name))
+            #     sys.exit(254)
+            config = deep_update(config, specific_config)  # FIXME, might need to re-initialize the logger here
         except Exception as ex:
-            self.logger.error(
-                    "Error while loading processor {}'s specific config. Reason: {}".format(self.processor_name,
+            logger.error("Error while loading processor {}'s specific config. Reason: {}".format(self.processor_name,
                                                                                             str(ex)))
             sys.exit(255)
 
-        # After we loaded the config, we can finally create our real logger.
-        # YellowsubLogger.setup_loggers(self.config)
-        # self.logger = YellowsubLogger.get_logger()
+        return config
 
     def validate(self, msg: bytes) -> bool:
         """
