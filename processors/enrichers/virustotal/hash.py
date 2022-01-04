@@ -60,6 +60,10 @@ class VirusTotalHash(Enricher):
         import json
 
         bundle_text = msg["payload"]
+        if "objects" not in bundle_text:
+            self.consumer.ack(method)
+            return
+
         bundle = parse(bundle_text)
 
         #######################################################
