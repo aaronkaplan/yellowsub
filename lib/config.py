@@ -14,14 +14,14 @@ import logging
 import yaml
 from pathlib import Path
 
-__all__ = ["ROOT_DIR", "CONFIG_DIR", "GLOBAL_CONFIG_PATH", "PROCESSOR_CONFIG_DIR", "GLOBAL_WORKFLOW_PATH", "Config"]
+__all__ = ["ROOT_DIR", "CONFIG_DIR", "GLOBAL_CONFIG_PATH", "PROCESSOR_CONFIG_DIR", "GLOBAL_WORKFLOW_PATH", "PID_FILES_DIR", "Config"]
 
 ROOT_DIR: Path = Path(os.getenv('YELLOWSUB_ROOT_DIR', '~/yellowsub'))  # if not specified, assume $HOME/yellowsub
 CONFIG_DIR = Path(os.getenv('YELLOWSUB_CONFIG_DIR', ROOT_DIR / 'etc'))  # ROOT_DIR/etc
 GLOBAL_CONFIG_PATH = Path(CONFIG_DIR / 'config.yml')  # ROOT_DIR/etc/config.yml
 GLOBAL_WORKFLOW_PATH = Path(CONFIG_DIR / 'workflow.yml')  # ROOT_DIR/etc/workflow.yml
 PROCESSOR_CONFIG_DIR = Path(CONFIG_DIR / 'processors')
-
+PID_FILES_DIR: Path = Path(os.getenv('YELLOWSUB_PID_FILES_DIR', '/tmp/'))
 
 class Config:
     """The Configuration file class."""

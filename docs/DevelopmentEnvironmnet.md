@@ -53,3 +53,9 @@ curl https://oasis-open.github.io/cti-documentation/examples/example_json/apt1.j
 ```
 processors.collectors.fileCollector.filecollector filecollector
 ```
+
+### Run workflow
+
+```
+python -m bin.workflows start --workflow-id myworkflow
+```

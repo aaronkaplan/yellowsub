@@ -1,13 +1,18 @@
 """Workflows orchestrator"""
 
+import copy
 import sys
 import os
 from pathlib import Path
 import subprocess
+import signal
 
 import click
-from config import ROOT_DIR, Config
+from lib.config import ROOT_DIR, PID_FILES_DIR, Config
 import lib.workflow as workflow
+
+def pid_filename(workflow, processor, pid):
+    return f"{workflow}.{processor}.{pid}.pid"
 
 
 @click.group()
@@ -34,59 +39,85 @@ def cli(ctx, config, workflow_config, rootdir, verbose):
     pass
 
 
-@cli.command(short_help = 'Start workflows')
-@click.option('--workflow_id', type = str, help = 'Start a specific workflow ID. Default: *', default = '*',
-              required = False)
+@cli.command(short_help='Start workflows')
+@click.option('--workflow-id', type=str, help='Start a specific workflow ID. Default: *', default=None, required=False)
 @click.pass_context
 def start(ctx, workflow_id):
     """
     Start all (default) or a specific workflow by ID.
     """
 
-    wf_config_file = ctx.obj['workflow_config']
-    wfs = workflow.load_workflows(wf_config_file)
-    wf_names = [f['workflow_name'] for f in wfs]
-    if id != '*':
-        click.echo(f"Attempting to starting workflows ID {workflow_id} using {wf_config_file}")
-        if workflow_id not in wf_names:
-            click.echo("Could not find workflow. Not starting anything.")
-        else:
-            # for every line in the wf, start the processor
-            for flow in wfs:
-                if workflow_id not in flow['workflow_name']:
-                    continue
-                processor_name = flow.get('processor')
-                # from_q = flow.get('from_q', None)
-                # to_ex = flow.get('to_ex', None)
-                # to_q = flow.get('to_q', None)
-                # parallelism = flow.get('parallelism', 1)
-                # find the module name based on the processor_name
-                # check if the specific config file exists:
-                specific_config = Path(ROOT_DIR / 'etc' / 'processors' / f"{processor_name}.yml")
-                if not os.path.exists(specific_config):
-                    click.echo(f"Could not find specific config file for {processor_name}")
-                    continue
-                _c = Config()
-                c = _c.load(specific_config)
-                module_name = c['module']
-                subprocess.Popen([module_name, processor_name])
+    if workflow_id:
+        click.echo(f"Attempting to starting workflow ID {workflow_id} using {ctx.obj['config']}")
     else:
         click.echo("Starting all workflows in {}".format(ctx.obj['config']))
 
+    workflows = []
+    for flow in workflow.load_workflows(ctx.obj['workflow_config']):
+        if workflow_id and workflow_id != flow['workflow_name']:
+            continue
+        workflows.append(copy.deepcopy(flow))
 
-@cli.command(short_help = 'Stop workflows')
-@click.option('--workflow-id', type = str, help = 'Stop a specific workflow ID. Default: *', default = '*',
-              required = False)
+    if len(workflows) == 0:
+        click.echo("No workflow have been loaded from workflows config file.")
+        sys.exit(254)
+
+    for flow in workflows:
+        processor = flow.get('processor')
+
+        # find the module name based on the processor
+        # check if the specific config file exists:
+        config_file = Path(ROOT_DIR, f"etc/processors/{processor}.yml")
+        if not os.path.exists(config_file):
+            click.echo(f"Could not find specific config file for {processor}")
+            continue
+
+        config = Config().load(config_file)
+        module = config['module']
+        proc = subprocess.Popen([module, processor])
+        Path(PID_FILES_DIR, pid_filename(flow['workflow_name'], processor, proc.pid)).touch()
+
+
+
+@cli.command(short_help='Stop workflows')
+@click.option('--workflow-id', type=str, help='Stop a specific workflow ID. Default: *', default=None, required=False)
 @click.pass_context
 def stop(ctx, workflow_id):
     """
     Stop all (default) or a specific workflow by ID.
     """
 
-    if id != '*':
-        click.echo("Stopping workflows ID {} using {}".format(workflow_id, ctx.obj['config']))
+    if workflow_id:
+        click.echo(f"Attempting to stop workflow ID {workflow_id} using {ctx.obj['config']}")
     else:
         click.echo("Stopping all workflows in {}".format(ctx.obj['config']))
+
+    workflows = []
+    for flow in workflow.load_workflows(ctx.obj['workflow_config']):
+        if workflow_id and workflow_id != flow['workflow_name']:
+            continue
+        workflows.append(copy.deepcopy(flow))
+
+    if len(workflows) == 0:
+        click.echo("No workflow have been loaded from workflows config file.")
+        sys.exit(254)
+
+    directory = Path(PID_FILES_DIR)
+
+    for flow in workflows:
+        for item in directory.iterdir():
+
+            if not item.is_file():
+                continue
+
+            workflow_name = item.name.split('.')[0]
+
+            if workflow_name == flow["workflow_name"]:
+                pid = int(item.name.split('.')[-2])
+                os.kill(pid, signal.SIGKILL)
+                item.unlink()
+
+    click.echo("All processors stopped.")
 
 
 @cli.command(short_help = 'List workflows')
