@@ -6,7 +6,7 @@ It tries to answer the question "what shall yellowsub be capable of doing?"
 
 yellowsub is a *meta-SOAR* framework:
 
-* it shall _easily_ allow to integrate with SOAR systems
+* it shall _easily_ allow integrating with SOAR systems
 * it shall talk with multiple automation frameworks (TheHive/Cortex, intelmq, AIL, OpenCTI)
 * it shall support multiple datamodels (STIX 2.1, intelMQ DHO, AIL exchange format)
 * it was originally developed for threat hunting automation needs and has a strong focus on CTI
