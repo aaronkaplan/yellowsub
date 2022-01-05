@@ -55,4 +55,5 @@ class HashListToStixBundleParser(Parser):
         self.producer.produce(msg=msg, routing_key="")
         self.consumer.ack(method)
 
+
 PROCESSOR = HashListToStixBundleParser
