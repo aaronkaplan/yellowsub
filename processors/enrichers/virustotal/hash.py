@@ -56,7 +56,6 @@ class VirusTotalHash(Enricher):
         """
 
         from stix2 import parse
-        import base64
         import json
 
         bundle_text = msg["payload"]
@@ -80,7 +79,7 @@ class VirusTotalHash(Enricher):
                 self.logger.debug("The supplied file object does not have any hashes: {}".format(obj))
                 continue
 
-            #TODO: DG_Comment: check for all hash types not just for the first one
+            # TODO: DG_Comment: check for all hash types not just for the first one
 
             for value in obj.hashes.values():
                 malware_hash = value

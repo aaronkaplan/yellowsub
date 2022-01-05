@@ -11,7 +11,7 @@ from pydantic.utils import deep_update
 
 from lib.config import Config, GLOBAL_CONFIG_PATH, PROCESSOR_CONFIG_DIR, GLOBAL_WORKFLOW_PATH
 from lib.mq import Consumer, Producer
-from lib.utils.yellowsublogger import YellowsubLogger
+# from lib.utils.yellowsublogger import YellowsubLogger
 
 
 class AbstractProcessor:
@@ -60,7 +60,7 @@ class AbstractProcessor:
         self.instances = n
 
         # initial logger, this is going to be overwritten
-        self.logger = logging.getLogger()#"yellowsub-pre-config-loading")
+        self.logger = logging.getLogger()  # "yellowsub-pre-config-loading")
 
         # make sure the config is loaded
         self.config = self.load_config(processor_name)

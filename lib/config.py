@@ -23,6 +23,7 @@ GLOBAL_WORKFLOW_PATH = Path(CONFIG_DIR / 'workflow.yml')  # ROOT_DIR/etc/workflo
 PROCESSOR_CONFIG_DIR = Path(CONFIG_DIR / 'processors')
 PID_FILES_DIR: Path = Path(os.getenv('YELLOWSUB_PID_FILES_DIR', '/var/run/'))
 
+
 class Config:
     """The Configuration file class."""
     params = dict()
