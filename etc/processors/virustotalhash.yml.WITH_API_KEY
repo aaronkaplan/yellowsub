@@ -1,0 +1,10 @@
+name: virustotalhash
+description: "TBD"
+enabled: true
+group: enrichers
+groupname: enricher
+module: "processors.enrichers.virustotal.hash"
+run_mode: continuous
+
+parameters:
+  apikey: "7ebc72af2ff46399adfe0e79e1b974e8860cc7456bca5f1aecaca794c77dab6e"
