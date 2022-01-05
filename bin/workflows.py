@@ -11,6 +11,7 @@ import click
 from lib.config import ROOT_DIR, PID_FILES_DIR, Config
 import lib.workflow as workflow
 
+
 def pid_filename(workflow, processor, pid):
     return f"{workflow}.{processor}.{pid}.pid"
 
@@ -77,7 +78,6 @@ def start(ctx, workflow_id):
         module = config['module']
         proc = subprocess.Popen([module, processor])
         Path(PID_FILES_DIR, pid_filename(flow['workflow_name'], processor, proc.pid)).touch()
-
 
 
 @cli.command(short_help='Stop workflows')
