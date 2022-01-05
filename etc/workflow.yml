@@ -1,24 +1,95 @@
-Nodes:
-  - collectors:
-    - stdin_collector:
-        id: "url_collector"
-        # config: "etc/url_collector.yml"
-  - enrichers:
-    - enricher_is_on_safebrowsing:
-        id: "is_url_on_safebrowsing"
-        # config: "etc/safebrowsing.yml"
-  - output:
-    - stdout_output:
-        id: "url_writer"
-        config: "etc/url_writer.yml"
-Edges:
-  - { src: "url_collector", dst: "is_url_on_safebrowsing" }
-  - { src: "is_url_on_safebrowsing", dst: "url_writer" }
+demo:
+  description: "A workflow for demonstration."
+  author: "NoOne"
+  flow:
+    - { processor: "filecollector", to_ex: "ex1", to_q: "q1" }
+    - { processor: "flatlisttostixbundleparser", from_q: "q1", to_ex: "ex2", to_q: "q2" }
+    - { processor: "virustotalhash", from_q: "q2", to_ex: "ex3", to_q: "q3" }
+    - { processor: "fileoutput", from_q: "q3"}
 
-Workflow:
-  # simple linear example
-  - { processor_id: "url_collector", type: "stdin_collector", dst_exchg: ["ex1", "ex2"] }
-  # here in this example, we parallelize:
-  - { processor_id: "is_url_on_safebrowsing", type: "enricher_is_on_safebrowsing" , src_queue: "ex1.q1.sb", dst_exchg: ["ex15"]}
-  - { processor_id: "is_url_on_safebrowsing2", type: "enricher_is_on_safebrowsing" , src_queue: "ex1.q1.sb", dst_exchg: ["ex15"]}
-  -
+workflow_output:
+  description: "my workflow with a single fileoutput processor. Send to a dir."
+  author: "kaplale"
+  flow:
+    - { processor: "fileoutput", from_q: "q1" }
+
+workflow1:
+  description: "my workflow"
+  author: "kaplale"
+  flow:
+    # simple linear example: get urls from somewhere (configured in the url_collector.yml) and do parallel lookups in safebrowsing, finally write the enriched results to a file.
+    - { processor: "url_collector", to: "ex1" }
+    - { processor: "is_url_on_safebrowsing", from: "ex1", to: "ex15", paralellism: 3 }
+    - { processor: "output_file_writer", from: "ex15" }
+
+workflow2:
+  description: "my workflow 2"
+  author: "kaplale"
+  flow:
+    # simple linear example: get urls from somewhere (configured in the url_collector.yml) and do parallel lookups in safebrowsing, finally write the enriched results to a file.
+    - { processor: "url_collector", to: "ex100" }
+    - { processor: "is_url_on_safebrowsing", from: "ex100", to: "ex150", paralellism: 3 }
+    - { processor: "output_file_writer", from: "ex150" }
+
+# workflow3:
+#   description: "1. Read file hashes from a file (one per line)
+#                 2. Transform them to STIX bundles
+#                 3. Enrich the bundles using VT
+#                 4. Write the resulting bundles to a file"
+#   author: "rousben,giogada"
+#   flow:
+#     - { processor: "filecollector", to_ex: "ex300", to_q: "ex300.q"}
+#     - { processor: "flatlisttostixbundleparser", from_q: "ex300.q", to_ex: "ex310" }
+#     - { processor: "vthashenricher", from_q: "ex320", to_ex: "ex320", paralellism: 3}
+#     - { processor: "fileoutput", from_q: "ex320" }
+
+# Notes:
+# 1. exchange name is dynamically defined and created
+# 
+#     - { processor: "filecollector", _exchange: "filecollector", to: "shared-queue-1"}
+#     - { processor: "filecollector", _exchange: "filecollector", to: "shared-queue-2", paralellism: 3}
+# 
+#     - { processor: "filecollector", to_exchange: "filecollector", to_q: "shared-queue-1"}
+#     - { processor: "filecollector", to_exchange: "filecollector", to_q: "shared-queue-2", paralellism: 3}
+#     - { processor: "fileparser", from_q: "shared-queue-1", to_exchange: "fileparser", fanout: true, to_q: "crazy-queue-1" }
+#     - { processor: "fileparser", from_q: "shared-queue-1", to_exchange: "fileparser", fanout: true, to_q: "crazy-queue-2"}
+# 
+#     - { processor: "fileparser", _exchange: "fileparser", from: "shared-queue-1", to: "crazy-queue-1"}
+#     - { processor: "fileparser", _exchange: "fileparser", from: "shared-queue-2", to: "crazy-queue-2", fanout: true}
+# 
+# 
+# 
+# exchanges:
+#   ex1:
+#     type: fanout
+#     ... < other params>
+# 
+#   ex2: 
+#     type: direct
+#     ... < other params>
+# 
+# queues:
+#   shared-queue-1:
+#     bind_to: ex1
+#     routing_key: "*orange"
+#   shared-queue-2:
+#     bind_to: ex2:
+#     routing_key: "*.*.rabbit"
+# 
+# processors:
+#   filecollector:
+#     from_q: shared-queue-1
+#     to_ex: ex2
+# 
+# 
+# 
+# 
+# processor X
+#             (direct exchange)
+#             -> queue1
+#             -> queue2
+# 
+#             (fanout exchange)
+#             -> queue1x
+#             -> queue2x
+#             -> 

@@ -110,12 +110,12 @@ ENV/
 env.bak/
 venv.bak/
 lib/python3.8/
-bin/
 pyvenv.cfg
 lib64
 
 #pycharm extras
 .idea/
+.idea.bak/
 
 
 # Spyder project settings
@@ -141,3 +141,12 @@ dmypy.json
 
 #Unit Testing
 /man
+
+# temp stuff
+tmp/
+
+# VIM swap files
+*.swp
+
+
+/.vscode/

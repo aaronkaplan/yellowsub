@@ -1,0 +1,10 @@
+name: virustotalhash
+description: "TBD"
+enabled: true
+group: enrichers
+groupname: enricher
+module: "processors.enrichers.virustotal.hash"
+run_mode: continuous
+
+parameters:
+  apikey: "XXXXX replace me XXXX"

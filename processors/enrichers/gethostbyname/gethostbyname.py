@@ -43,12 +43,14 @@ class GetHostByName(Enricher):
         return msg
 
 
+PROCESSOR=GetHostByName
+
 if __name__ == "__main__":
     ips = get_ips_by_dns_lookup(fqdn = 'example.com')
     print(ips)
     assert '93.184.216.34' in ips
 
-    e = GetHostByName(id = "sample-gethostbyname")
+    e = GetHostByName(processor_name = "sample-gethostbyname")
     newmsg = e.process("ch1", msg = {"fqdn": "example.com"})
     print(newmsg)
     assert 'ips' in newmsg.keys() and '93.184.216.34' in newmsg['ips']

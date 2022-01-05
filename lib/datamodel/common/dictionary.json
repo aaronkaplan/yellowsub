@@ -6,29 +6,29 @@
   "type": "object",
   "minProperties": 1,
   "patternProperties": {
-      "^[a-zA-Z0-9_-]{0,250}$": {
-        "anyOf": [
-          {
-            "type": "array",
-            "minItems": 1
-          },
-          {
-            "type": "string"
-          },
-          {
-            "type": "integer"
-          },
-          {
-            "type": "boolean"
-          },
-          {
-            "type": "number"
-          },
-          {
-            "type": "object"
-          }
-        ]
-      }
-    },
-    "additionalProperties": false
+    "^[a-zA-Z0-9_-]{0,250}$": {
+      "anyOf": [
+        {
+          "type": "array",
+          "minItems": 1
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false
 }

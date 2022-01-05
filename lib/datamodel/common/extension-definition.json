@@ -70,7 +70,9 @@
       },
       "then": {
         "not": {
-          "required": ["extension_properties"]
+          "required": [
+            "extension_properties"
+          ]
         }
       }
     }

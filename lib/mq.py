@@ -1,19 +1,24 @@
 #!/usr/bin/env python
+"""
+Small wrapper around a MQ system.
 
-"""Small wrapper around a MQ system"""
+The current implementation only supports rabbitMQ. However, the interface
+should remain the same for most other MQ systems.
+
+"""
 import argparse
 import json
 import logging
 import sys
 import time
-import uuid
-
-import pika
-
 from pathlib import Path
 
-from lib.config import Config, CONFIG_FILE_PATH_STR
+import pika
+import pika.exceptions
+
+from lib.config import GLOBAL_CONFIG_PATH, Config
 from lib.utils import sanitize_password_str
+from lib.utils.yellowsublogger import YellowsubLogger
 
 
 class MQ:
@@ -23,152 +28,288 @@ class MQ:
     queue = None
     queue_name = ""
     exchange = None
-    id: str = ""
+    processor_name: str = ""
 
-    def __init__(self, id: str = str(uuid.uuid4())):
+    logger: logging.Logger = None  # the logger to be used
+
+    def __init__(self, processor_name: str, logger=None):
+        """
+        Constructor for the MQ class.
+
+        Loads the global config from etc/config.yml
+
+        @param  processor_name: unique ID/name of the processor using the MQ
+        @param  logger: a reference to the logger, the MQ class should use
+        """
+        self.processor_name = processor_name
+        if not logger:
+            self.logger = YellowsubLogger.get_logger()
+        else:
+            self.logger = logger
         _c = Config()
-        self.config = _c.load(Path(CONFIG_FILE_PATH_STR))
-        self.id = id
+        self.config = _c.load(Path(GLOBAL_CONFIG_PATH))
+        self.logger.info("Loaded global config")
 
-    def connect(self, exchange: str = ""):
-        """Connect to the MQ system."""
+    def close(self):
+        """
+        Tear down the RabbitMQ connection and channel.
+        """
+        self.logger.info("Disconnecting from MQ")
+        self.unbind_queue()
+        self.channel.close()
+        self.connection.close()
+
+    def _setup_channel(self):
+        """
+        Do the RabbitMQ channel setup. No creation of queues, exchanges yet.
+        Internal method, called by connect2mq().
+        """
+        try:
+            self.logger.info("Setting up the channels...")
+            self.channel = self.connection.channel()
+            self.channel.confirm_delivery()     # inform me if delivery fails.
+            self.logger.debug(f"channel = {self.channel}")
+        except Exception as ex:
+            self.logger.error(f"can't set up channel. Reason: {str(ex)}. Quitting")
+            sys.exit(-2)
+        self.logger.info("Done")
+
+    def connect2mq(self):
+        """Connect to the MQ system. Calls _setup_channel()"""
 
         try:
-            logging.info("connecting to RabbitMQ...")
+            self.logger.info("Connecting to RabbitMQ...")
             host = self.config['rabbitmq']['host']
             port = int(self.config['rabbitmq'].get('port', 5672))
             # user and password config
             user = self.config['rabbitmq'].get('user', "guest")
             password = self.config['rabbitmq'].get('password', "guest")
             credentials = pika.PlainCredentials(user, password)
-            logging.info("Attempting to connect with (%s:%d as %s/%s)" % (host, port, user,
-                                                                          sanitize_password_str(password)))
-            self.connection = pika.BlockingConnection(pika.ConnectionParameters(host = host, port = port,
-                                                                                credentials = credentials))
+            self.logger.info("Attempting to connect2mq with (%s:%d as %s/%s)" % (host, port, user,
+                                                                                 sanitize_password_str(password)))
+            self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=host, port=port,
+                                                                                credentials=credentials))
         except Exception as ex:
-            logging.error("can't connect to the MQ system. Bailing out. Reason: %s" % (str(ex)))
+            self.logger.error("can't connect2mq to the MQ system. Bailing out. Reason: %s" % (str(ex)))
             sys.exit(-1)
-        logging.info("connected!")
+        self.logger.info("Done. Connected!")
+        self._setup_channel()
 
-        try:
-            # set up the channel
-            logging.info("Setting up the exchange and channels...")
-            self.channel = self.connection.channel()
-            logging.info("channel = %r" % self.channel)
-            self._create_exchange(exchange)
-            logging.info("exchange = %r" % self.exchange)
-        except Exception as ex:
-            logging.error("can't set up channel and exchange. Reason: %s. Bailing out." % (str(ex)))
-            sys.exit(-2)
-        logging.info("Done")
-        return True
+    def create_exchange(self, exchange: str = ""):
+        """
+        Create an exchange. This operation is idempotent. Pre-condition: channel and connection was set up.
 
-    def _create_exchange(self, exchange: str = ""):
+        @param exchange: the name of the exchange
+        """
         self.exchange = exchange
-        if exchange:
-            logging.info("Creating exchange %s" % exchange)
-            try:
-                self.channel.exchange_declare(exchange = self.exchange, exchange_type = 'fanout')
-            except Exception as ex:
-                logging.error("can't Create exchange '%s'. Reason: %s" % (exchange, str(ex)))
-                raise ex
-        else:
-            logging.info("not creating exchange, using the default '' exchange.")
+        self.logger.info("Creating exchange %s" % exchange)
+        try:
+            self.channel.exchange_declare(exchange=self.exchange, exchange_type='fanout', durable=True)
+        except Exception as ex:
+            self.logger.error("can't Create exchange '%s'. Reason: %s" % (exchange, str(ex)))
+            raise ex
 
-    def _publish(self, message: dict, routing_key=""):
-        data = bytes(json.dumps(message), 'utf-8')  # JSON is always utf-8
-        self.channel.basic_publish(exchange = self.exchange, routing_key = routing_key, body = data,
-                                   properties = pika.BasicProperties(delivery_mode = 2, )  # make the message persistent
-                                   )
+    def _publish(self, msg: dict, routing_key=""):
+        """
+        Sends a message (a dict) and converts it to the MQ system. Used by a producer.
+
+        @param msg:          a dict conforming to the internal data format. See [Datamodel](docs/Datamodel.md).
+        @param routing_key:  a (rabbitmq) routing key for topic exhanges.
+        """
+        data = bytes(json.dumps(msg), 'utf-8')  # JSON is always utf-8
+        try:
+            self.channel.basic_publish(exchange=self.exchange, routing_key=routing_key, body=data,
+                                       properties=pika.BasicProperties(delivery_mode=2, ),
+                                       # make the message persistent
+                                       mandatory=True
+                                       )
+        except pika.exceptions.UnroutableError as ex:
+            self.logger.error("Could not publish message. Reason: {}".format(str(ex)))
 
     def _consume(self, queue: str, callback=None, auto_ack=False):
-        self.channel.basic_consume(queue = queue, on_message_callback = callback, auto_ack = auto_ack)
+        """
+        Start consuming messages from <queue>, triggering a callback function.
+        Internal method used by the consumer.
 
-    def _connect_queue(self, queue_name: str = ''):
-        self.queue = self.channel.queue_declare(queue = queue_name, durable = True, exclusive = False)
-        self.channel.basic_qos(prefetch_count = 1)
+        @param queue:       the queue to read from
+        @param callback:    the callback function to invoke once a message arrived
+        @param auto_ack:    automatically ACK a consumed message. Should be False.
+        """
+        self.channel.basic_consume(queue=queue, on_message_callback=callback, auto_ack=auto_ack)
+
+    def create_queue(self, queue_name: str = ''):
+        """
+        Create a queue in RabbitMQ. Do not connect it yet to an exchange.
+        @param queue_name: the name of the queue
+        """
+        self.queue = self.channel.queue_declare(queue=queue_name, durable=True, exclusive=False,
+                                                auto_delete=False)
+        self.logger.debug("create_queue(): queue = %r" % self.queue)
+        self.channel.basic_qos(prefetch_count=1)
         self.queue_name = self.queue.method.queue
+        self.logger.debug("queue_name = %r" % self.queue_name)
 
-    def _bind_queue(self):
-        self.channel.queue_bind(exchange = self.exchange, queue = self.queue_name)
+    def bind_queue(self):
+        """
+        Bind the queue to the (already created) exchange.
+        """
+        retv = self.channel.queue_bind(exchange=self.exchange, queue=self.queue_name)
+        self.logger.debug("bind_queue(): answer = %r" % retv)
 
-    def close(self):
-        """Close the connection to rabbitmq."""
-        if self.connection:
-            self.connection.close()
-            logging.info("Closed connection")
+    def unbind_queue(self):
+        """
+        Disconnect the queue from any exchanges.
+        """
+        self.channel.queue_unbind(queue=self.queue_name, exchange=self.exchange)
 
 
 class Producer(MQ):
-    """A producer, based on the base functionality of MQ."""
+    """A producer, based on the base functionality of MQ base class."""
 
-    def __init__(self, id: str, exchange: str):
-        super().__init__(id)
-        self.connect(exchange)
+    def __init__(self, processor_name: str, logger, to_ex: str, to_q: str):
+        if not processor_name:
+            self.logger.error("processor_name is not defined in producer. Can't continue...")
+            sys.exit(1)
 
-    def connect(self, exchange: str = ""):
-        """Connect to an exchange."""
-        logging.info("Connecting to exchange %s" % (exchange,))
-        super().connect(exchange)
-        # super()._connect_queue()       # producers don't need to connect to queues, they send to the exchange.
+        if not to_ex:
+            self.logger.error("to_ex is not defined in producer. Can't continue...")
+            sys.exit(1)
+
+        if not to_q:
+            self.logger.error("to_q is not defined in producer. Can't continue...")
+            sys.exit(1)
+
+        super().__init__(processor_name, logger)
+        super().connect2mq()
+
+        self.create_queue(to_q)
+        self.create_exchange(to_ex)
+        self.bind_queue()
 
     def produce(self, msg: dict, routing_key: str = ""):
-        """Send a msg to the exchange with the given routing_key."""
+        """Send a msg to the exchange with the given routing_key.
+        Internally calls the MQ._publish() method.
+
+        @param msg:         a dict conforming to the [Datamodel](docs/Datamodel.md)
+        @param routing_key:  a (rabbitmq) routing key for topic exhanges.
+
+        """
+
         if msg:
-            super()._publish(message = msg, routing_key = routing_key)
-            logging.info("[x] Sent %r" % msg)
+            super()._publish(msg=msg, routing_key=routing_key)
+            self.logger.info("[x] Sent msg!")
+            self.logger.debug("  --> Details: %r" % msg)
 
 
 class Consumer(MQ):
     """A consumer, based on the base functionality of MQ."""
 
-    cb_function = None
+    def __init__(self, processor_name: str, logger, from_q: str, callback=None):
 
-    def __init__(self, id: str, exchange: str, callback=None):
-        super().__init__(id)
-        super().connect(exchange)
-        queue_name = "q.%s.%s" % (self.exchange, self.id)
-        if callback:
-            self.cb_function = callback
-        else:
-            self.cb_function = self.process
+        if not processor_name:
+            self.logger.error("processor_name is not defined in producer. Cant continue...")
+            sys.exit(1)
 
-        super()._connect_queue(queue_name)
-        super()._bind_queue()
+        if not from_q:
+            self.logger.error("from_q is not defined in producer. Cant continue...")
+            sys.exit(1)
 
-    def consume(self) -> None:
+        super().__init__(processor_name, logger)
+        super().connect2mq()
+        self.create_queue(from_q)
+
+        self.queue_name = from_q if from_q else "q.%s.%s" % (self.exchange, self.processor_name)
+        self.process = callback
+
+    def consume(self):
         """Register the callback function for consuming from the exchange / queue given the routing_key."""
-        logging.info("[*] Waiting for logs.")
-        self.channel.basic_consume(queue = self.queue_name, on_message_callback = self.cb_function, auto_ack = True)
+
+        self.logger.info("[*] Waiting for logs on queue {}.".format(self.queue_name))
+        self.channel.basic_consume(queue=self.queue_name,
+                                   on_message_callback=self.mq_msg_callback,
+                                   auto_ack=False)
         self.channel.start_consuming()
 
-    def process(self, ch, method, properties, msg):
-        """Handle the arriving message."""
-        logging.info("received '%r'" % msg)
-        print("[*] received '%r'" % msg)
+    def _convert_to_internal_df(self, msg: bytes) -> dict:
+        """Convert / map a bytes message from rabbitMQ to a dict."""
+
+        try:
+            data = json.loads(msg)
+        except Exception as ex:
+            self.logger.error("Could not convert msg (bytes) to msg (JSON) internal format. Reason: %s" % str(ex))
+            return None
+        return data
+
+    def _validate(self, msg: dict) -> bool:
+        # TODO: implement me
+        return super().validate(msg)
+
+    def mq_msg_callback(self, channel=None, method=None, properties=None, msg: bytes = None):
+        """Callback function which will be registered with the MQ's callback system.
+        Initially converts the (bytes) msg to an internal data format.
+        Then calls the self.process() function.
+
+        @param channel: the rabbitMQ channel
+        @param method:  the rabbitMQ method. Needed for ACKing
+        @param properties: the rabbitMQ msg properties
+        @param msg: bytes object, needs to be converted to dict. The actual received message.
+        """
+
+        if not msg:
+            return
+        msg = self._convert_to_internal_df(msg)
+
+        # if self.processor_name in self.config['parameters'] and 'validate_msg' in self.config['parameters'][
+        #     self.processor_name] and \
+        #         self.config['parameters'][self.processor_name]['validate_msg']:
+        #     self._validate(msg)
+        self.process(channel, method, properties, msg)
+        # here we submit to the other exchanges
+
+    def ack(self, method):
+        """
+        Acknowledge a message to RabbitMQ.
+
+        @param method: the method parameter from process()
+        """
+        self.channel.basic_ack(delivery_tag=method.delivery_tag)
+
+
+def my_test_process(channel=None, method=None, properties=None, msg: bytes = None):
+    print(msg)
+    print("hello world")
 
 
 if __name__ == "__main__":
 
-    logging.basicConfig()
-    logging.getLogger().setLevel(logging.INFO)
+    logger = logging.getLogger()
 
-    parser = argparse.ArgumentParser(description = 'testing the mq module')
-    parser.add_argument('-p', '--producer', action = 'store_true', help = "run as a producer")
-    parser.add_argument('-c', '--consumer', action = 'store_true', help = "run as a consumer")
-    parser.add_argument('-e', '--exchange', help = "Exchange to connect to.", required = True)
-    parser.add_argument('-i', '--id', help = "Unique ID of the producer or consumer (used to set the queue name!)",
-                        required = True)
+    _c = Config()
+    config = _c.load()
+    print("Loaded config: %r" % config)
+    parser = argparse.ArgumentParser(description='testing the mq module')
+    parser.add_argument('-p', '--producer', action='store_true', help="run as a producer")
+    parser.add_argument('-c', '--consumer', action='store_true', help="run as a consumer")
+    parser.add_argument('-e', '--exchange', help="Exchange to connect2mq to.", required=False)
+    parser.add_argument('-q', '--queue_name', help="Queue name to read from.", required=True)
+    parser.add_argument('-i', '--processor_name',
+                        help="Unique ID of the producer or consumer (used to set the queue name!)",
+                        required=True)
     args = parser.parse_args()
 
     if args.producer:
-        p = Producer(args.id, args.exchange)
+        p = Producer(args.processor_name, logger=logger, to_ex=args.exchange, to_q=args.queue_name)
         for i in range(10):
             p.produce({"msg": i})
             time.sleep(3)
     elif args.consumer:
-        c = Consumer(args.id, args.exchange)
+        if args.queue_name:
+            qn = args.queue_name
+        else:
+            qn = ""  # auto-decide
+
+        c = Consumer(args.processor_name, logger=logger, from_q=qn, callback=my_test_process)
         c.consume()
     else:
-        print("Need to specify one of -c or -p. See --help.", file = sys.stderr)
+        print("Need to specify one of -c or -p. See --help.", file=sys.stderr)
         sys.exit(1)

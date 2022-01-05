@@ -8,8 +8,8 @@ class MispAttributeSearcher(Enricher):
     # How will this object be called from the other code?
 
     # TODO:  implement logging globally
-    def __init__(self, id: str, n: int = 1):
-        super().__init__(id, n)
+    def __init__(self, processor_name: str, n: int = 1):
+        super().__init__(processor_name, n)
         c=self.config
         try:
             self.misp_url = c["processors"][self.__class__.__name__]["misp_uri"]
@@ -45,11 +45,13 @@ class MispAttributeSearcher(Enricher):
             return (True, msg)
 
 
+PROCESSOR=MispAttributeSearcher
+
 if __name__ == "__main__":
     '''debugging'''
     msg={}
     msg["search_value"] = "88.132.150.82"
-    ms = MispAttributeSearcher("313")
+    ms = MispAttributeSearcher("mispattributesearcher")
     c = ms.config
     print(c)
     found, message = ms.process(channel=None, method=None, properties=None, msg=msg)

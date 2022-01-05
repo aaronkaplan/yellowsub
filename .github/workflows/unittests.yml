@@ -30,9 +30,10 @@ jobs:
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
-        flake8 . --ignore=E251,E225,E741,E501,W605,W391 --exclude=.git,venv,contrib,lib/python3.8 --count --show-source --statistics
+        flake8 . --ignore=E251,E225,E126,E741,E501,W605,W391 --exclude=.git,venv,contrib,lib/python3.8 --count --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --ignore=E251,E225,E741,E501,W605,W391 --exclude=.git,venv,contrib,lib/python3.8 --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        flake8 . --ignore=E251,E225,E126,E741,E501,W605,W391 --exclude=.git,venv,contrib,lib/python3.8 --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        export PYTHONPATH=lib ; export ROOTDIR=$(pwd); pytest --cov=./ tests
+        sudo service redis-server start
+        export PYTHONPATH=lib ; export YELLOWSUB_ROOT_DIR=$(pwd); pytest --cov=./ tests

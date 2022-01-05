@@ -1,8 +1,8 @@
 """Filter abstract class. Inherts from Processor."""
 
-from lib.processor.processor import Processor
+from lib.processor.abstractProcessor import AbstractProcessor
 
 
-class Filter(Processor):
-    def __init__(self, id: str, n: int = 1):
-        super().__init__(id, n)
+class Filter(AbstractProcessor):
+    def __init__(self, processor_name: str, n: int = 1):
+        super().__init__(processor_name, n)

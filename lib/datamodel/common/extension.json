@@ -9,7 +9,11 @@
       "$ref": "#/definitions/extension-type-enum"
     }
   },
-  "allOf": [{ "$ref": "../common/properties.json" }],
+  "allOf": [
+    {
+      "$ref": "../common/properties.json"
+    }
+  ],
   "required": [
     "extension_type"
   ],

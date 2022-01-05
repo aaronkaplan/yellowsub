@@ -23,7 +23,9 @@
         },
         "key": {
           "type": "string",
-          "not": {"pattern": "^HKLM|HKCC|HKCR|HKCU|HKU|hklm|hkcc|hkcr|hkcu|hku"},
+          "not": {
+            "pattern": "^HKLM|HKCC|HKCR|HKCU|HKU|hklm|hkcc|hkcr|hkcu|hku"
+          },
           "description": "Specifies the full registry key including the hive."
         },
         "values": {
@@ -49,11 +51,31 @@
     }
   ],
   "anyOf": [
-    { "required": ["key"] },
-    { "required": ["values"] },
-    { "required": ["modified"] },
-    { "required": ["creator_user_ref"] },
-    { "required": ["number_of_subkeys"] }
+    {
+      "required": [
+        "key"
+      ]
+    },
+    {
+      "required": [
+        "values"
+      ]
+    },
+    {
+      "required": [
+        "modified"
+      ]
+    },
+    {
+      "required": [
+        "creator_user_ref"
+      ]
+    },
+    {
+      "required": [
+        "number_of_subkeys"
+      ]
+    }
   ],
   "definitions": {
     "windows-registry-value-type": {
@@ -89,9 +111,21 @@
         }
       },
       "anyOf": [
-        { "required": ["name"] },
-        { "required": ["data"] },
-        { "required": ["data_type"] }
+        {
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "required": [
+            "data"
+          ]
+        },
+        {
+          "required": [
+            "data_type"
+          ]
+        }
       ]
     }
   }

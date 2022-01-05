@@ -1,0 +1,4 @@
+[flake8]
+ignore=E251,E225,E126,E741,E501,W605,W391 
+exclude=.git,venv,contrib,lib/python3.8
+max-line-length=127

@@ -1,0 +1,10 @@
+name: nullEnricher
+description: "Do nothing, just pass it through"
+enabled: true
+group: enrichers
+groupname: enricher
+module: "processors.enrichers.null.nullEnricher"
+run_mode: continuous
+
+parameters:
+  nop: "do nothing"

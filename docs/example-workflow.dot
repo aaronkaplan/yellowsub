@@ -1,0 +1,15 @@
+digraph Jira_flow {
+		bgcolor=transparent;
+		truecolor=true;
+		rankdir=LR;
+		node [style="filled"];
+		//
+		JiraCollector [color = cyan];
+		JiraParser [color=cyan];
+		//
+		JiraCollector -> JiraParser;
+		JiraParser -> AlreadyProcessedFilter;
+		AlreadyProcessedFilter -> CredentialLeakEnricher;
+		CredentialLeakEnricher -> JiraUpdater [id="jira_ticket_id"]; 
+		CredentialLeakEnricher -> CredentialLeakDBOutput;
+}

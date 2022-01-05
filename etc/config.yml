@@ -2,14 +2,14 @@ general:
   mq: rabbitmq
 
 rabbitmq:
-  host: localhost
+  host: queue
   port: 5672
   #user: guest
   #password: guest
 
 redis:
   cache_ttl: 86400              # 1 day
-  host: localhost
+  host: 127.0.0.1
   port: 6379
   db: 2
 
@@ -20,44 +20,18 @@ logging:
   handlers:
     - handler:
         type: 'TimedRotatingFileHandler'
-        output: 'var/log/yellowsub.INFO.log'
+        output: '/var/log/yellowsub.DEBUG.log'
+        loglevel: 'DEBUG'           # optional
+    - handler:
+        type: 'TimedRotatingFileHandler'
+        output: '/var/log/yellowsub.INFO.log'
         loglevel: 'INFO'
     - handler:
         type: 'TimedRotatingFileHandler'
-        output: 'var/log/yellowsub.WARN.log'
+        output: '/var/log/yellowsub.WARN.log'
         loglevel: 'WARN'           # optional
 
-processors:
-  # list of settings for each individual processor instance
-  gethostbyname:
-    dns_recursor: "8.8.8.8"
-    validate_msg: True
-    logging: # override any of the settings of the global logger here if needed
-      loglevel: 'DEBUG'
-      handlers:
-        - handler:
-            type: 'TimedRotatingFileHandler'
-            output: 'var/log/yellowsub.gethostbyname.INFO.log'
-            loglevel: 'INFO'
-        - handler:
-            type: 'TimedRotatingFileHandler'
-            output: 'var/log/yellowsub.gethostbyname.WARN.log'
-            loglevel: 'WARN'
-  mispattributesearcher:
-    misp_uri: "https://192.168.5.108/"
-    misp_api_key: ""
-    logging: # override any of the settings of the global logger here if needed
-      loglevel: 'DEBUG'
-      handlers:
-        - handler:
-            type: 'TimedRotatingFileHandler'
-            output: 'var/log/yellowsub.mispattributesearcher.INFO.log'
-            loglevel: 'INFO'
-        - handler:
-            type: 'TimedRotatingFileHandler'
-            output: 'var/log/yellowsub.mispattributesearcher.WARN.log'
-            loglevel: 'WARN'
-
-
-workflows:
-  - { input_queue: <name of queue> , processor: <id of processor> , output_exchange: <id of output exchange> }
+http:
+  http_proxy: "http://my.example.com:8080/"
+  https_proxy: "https://my.example.com:8080/"
+  verify_ssl: False

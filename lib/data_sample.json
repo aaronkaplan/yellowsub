@@ -12,8 +12,12 @@
     ]
   },
   "payload": {
+    "raw": ",.... base 64 stuff...",
     "source.ip": "127.0.0.1",
     "source.fqdn": "example.com",
-    "riskiq.domains": [ "a.b.com", "c.d.com" ]
+    "riskiq.domains": [
+      "a.b.com",
+      "c.d.com"
+    ]
   }
 }

@@ -1,4 +1,4 @@
-from lib.config import Config, ROOTDIR
+from lib.config import Config, ROOT_DIR
 from pathlib import Path
 from unittest import TestCase
 
@@ -7,7 +7,7 @@ class TestConfig(TestCase):
 
     def load_testcases_config(self):
         _c = Config()
-        return _c.load(Path(ROOTDIR) / 'tests/data/etc' / "config.yml")
+        return _c.load(Path(ROOT_DIR) / 'tests/data/etc' / "config.yml")
 
     def test_load(self):
         config = self.load_testcases_config()
@@ -28,4 +28,11 @@ class TestConfig(TestCase):
 
     def test___len__(self):
         config = self.load_testcases_config()
-        assert len(config) == 4
+        assert len(config) == 6
+
+    def test_get_processors(self):
+        # config = self.load_testcases_config()
+        _c = Config()
+        _c.load(Path(ROOT_DIR) / 'tests' / 'data' / 'etc' / 'config.yml')
+        print(_c.get_processors())
+        assert 'gethostbyname' in _c.get_processors()

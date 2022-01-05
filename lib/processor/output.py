@@ -1,8 +1,8 @@
 """OutputProcessor abstract class. Inherts from Processor."""
 
-from lib.processor.processor import Processor
+from lib.processor.abstractProcessor import AbstractProcessor
 
 
-class OutputProcessor(Processor):
-    def __init__(self):
-        super().__init__()
+class OutputProcessor(AbstractProcessor):
+    def __init__(self, processor_name: str, n: int = 1):
+        super().__init__(processor_name, n)

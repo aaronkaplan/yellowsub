@@ -1,0 +1,10 @@
+name: flatlisttostixbundleparser   # the ID
+description: "TBD"
+enabled: true         # enable it or not
+group: parser       # ignored for now
+groupname: parser   # this field is ignored for now
+module: "processors.parsers.listOfHashesParser.parser"    # where the python module resides
+run_mode: continuous   # ignored for now. "continuous is the default"
+
+# Needed specific parameters for this processor: API keys, etc...
+parameters:

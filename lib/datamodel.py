@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""DataFormat definitions and classes."""
+"""DataModel definitions and classes."""
 
 import json
 import logging
@@ -11,8 +11,8 @@ import jsonschema
 from lib.utils.cache import cache
 
 
-class DataFormat:
-    """The main DataFormat utility class."""
+class DataModel:
+    """The main DataModel utility class."""
     schema = None
 
     def __init__(self):
@@ -31,7 +31,7 @@ class DataFormat:
         """Validate a message (JSON) against the schema. Returns True/False if it validates"""
         try:
             msg = json.loads(emessage)
-            jsonschema.validate(instance = msg, schema = self.schema)
+            jsonschema.validate(instance=msg, schema=self.schema)
         except Exception as ex:
             logging.warning('Could not validate message against schema. Reason: %s' % (str(ex)))
             return False
@@ -65,7 +65,7 @@ class DataFormat:
             return imessage
 
 
-""" Data format example: """
+""" Data model example: """
 
 data_invalid = """{
     "format": "s2-common-data-format",
@@ -87,11 +87,11 @@ data_invalid = """{
 }"""
 
 if __name__ == "__main__":
-    d = DataFormat()
+    d = DataModel()
     print(80 * "=")
     print("Testing loading the schema")
     print(80 * "=")
-    d.load_schema(Path("dataformat_schema.json"))
+    d.load_schema(Path("datamodel/yellowsub_schema.json"))
     print("OK")
     print()
 
